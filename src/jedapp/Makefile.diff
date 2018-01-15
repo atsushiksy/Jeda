@@ -1,0 +1,54 @@
+444c444
+< GCC_PASSES=xgcc$(exeext) cc1$(exeext) cpp$(exeext) $(EXTRA_PASSES)
+---
+> GCC_PASSES=xgcc$(exeext) cc1$(exeext) cpp$(exeext) jedapp$(exeext) $(EXTRA_PASSES)
+707c707
+<  xgcc$(exeext) xcpp$(exeext) cc1$(exeext) cpp$(exeext) $(EXTRA_PASSES) \
+---
+>  xgcc$(exeext) xcpp$(exeext) cc1$(exeext) cpp$(exeext) jedapp$(exeext) $(EXTRA_PASSES) \
+709c709
+<  $(CCCP)$(exeext) cc1obj$(exeext) enquire$(exeext) \
+---
+>  $(CCCP)$(exeext) jedacp$(exeext) cc1obj$(exeext) enquire$(exeext) \
+851c851
+< native: config.status auto-host.h cpp$(exeext) intl.all $(LANGUAGES) \
+---
+> native: config.status auto-host.h cpp$(exeext) jedapp$(exeext) intl.all $(LANGUAGES) \
+1954a1955,1978
+> # Making the jeda preprocessor
+> jedapp$(exeext): jedacp$(exeext)
+> 	-rm -f jedapp$(exeext)
+> 	$(LN) jedacp$(exeext) jedapp$(exeext)
+> VZCP_OBJS = jedacp.o jedaexp.o intl.o prefix.o version.o @extra_cpp_objs@ mbchar.o 
+> jedacp$(exeext): $(VZCP_OBJS) $(LIBDEPS)
+> 	$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o $@ $(VZCP_OBJS) $(LIBS)
+> jedaexp.o: $(srcdir)/jedaexp.c $(CONFIG_H) system.h
+> 	$(CC) $(ALL_CFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) -c $(srcdir)/jedaexp.c
+> $(srcdir)/jedaexp.c: $(srcdir)/jedaexp.y
+> 	cd $(srcdir); $(BISON) -o jedaexp.c jedaexp.y
+> 
+> # We use $(libsubdir)/$(unlibsubdir) to match the
+> # -iprefix argument which gcc will pass if GCC_EXEC_PREFIX is used.
+> jedacp.o: jedacp.c $(CONFIG_H) intl.h pcp.h version.c config.status system.h \
+>            mbchar.h prefix.h Makefile.in
+> 	$(CC) $(ALL_CFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) \
+> 	  -DGCC_INCLUDE_DIR=\"$(libsubdir)/include\" \
+> 	  -DGPLUSPLUS_INCLUDE_DIR=\"$(gcc_gxx_include_dir)\" \
+> 	  -DLOCAL_INCLUDE_DIR=\"$(includedir)\" \
+> 	  -DCROSS_INCLUDE_DIR=\"$(gcc_tooldir)/sys-include\" \
+> 	  -DTOOL_INCLUDE_DIR=\"$(gcc_tooldir)/include\" \
+> 	  -c `echo $(srcdir)/jedacp.c | sed 's,^\./,,'`
+> 
+2436c2460
+<     $(INSTALL_CPP) install-man install-info intl.install lang.install-normal \
+---
+>     $(INSTALL_CPP) install_jedapp install-man install-info intl.install lang.install-normal \
+2448a2473,2480
+> 
+> # Handle jedapp installation.
+> install_jedapp: jedapp$(exeext)
+> 	-rm -f $(bindir)/jedapp$(exeext)
+> 	$(INSTALL_PROGRAM) -m 755 jedapp$(exeext) $(bindir)/jedapp$(exeext)
+> 
+> uninstall_jedapp:
+> 	-rm -f $(bindir)/jedapp

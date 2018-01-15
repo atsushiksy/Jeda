@@ -1,0 +1,70 @@
+MK = @NAME_OF_MAKE@
+
+MACHINE = @base_machine@
+
+ifeq ($(MACHINE),sparc)
+  FLEXLMD = ../flexlm/v8.4/sun4_u5
+else
+  FLEXLMD = ../flexlm/v8.4/i86_r6
+endif
+
+VENDER = jeda
+
+all: 
+	${RM} -r -f release
+	mkdir release
+	mkdir release/license
+	mkdir release/license/bin
+	mkdir release/license/doc
+	cp configuser release/configure
+	chmod +x release/configure
+	cp ${FLEXLMD}/eval.lic release/license/
+	cp ${FLEXLMD}/lmgrd release/license/bin
+	cp ${FLEXLMD}/lmutil release/license/bin
+	cd release/license/bin ; ln lmutil lmhostid ; ln lmutil lmver ; \
+            ln lmutil lmdown ; ln lmutil lmremove ; ln lmutil lmreread ; \
+            ln lmutil lmswitchr ; ln lmutil lmstat ; ln lmutil lmdiag ; \
+            ln lmutil lminstall ; ln lmutil lmpath ; ln lmutil lmborrow ; \
+            ln lmutil lmswitch
+	cp ${FLEXLMD}/${VENDER} release/license/bin
+	cp ${FLEXLMD}/lmutil release/license/bin
+	cp -r ${FLEXLMD}/../htmlman/flexuser release/license/doc
+	cd release ; mkdir bin ; mkdir lib ; mkdir include
+	cd release/lib ; mkdir run_obj ; mkdir dbg_obj ; mkdir rl_obj
+	cd release/lib ; mkdir vpi_obj ; mkdir vpidbg_obj
+	cd release/lib ; mkdir oprun_obj 
+	cd release/include ; mkdir readline
+	${RM} -f runtime/.release
+	cd readline ; ${MK}
+	cd compiler ; ${MK} -f Makefile_product
+	cd runtime ; ${MK} -f Makefile_product
+	cd linker ; ${MK} -f Makefile_product
+	cd jedapp ; ${MK}
+	cd jedatemp ; ${MK}
+	cd vpp ; ${MK}
+	cp compiler/jedacmp release/bin
+	cp linker/jedalnk release/bin
+	cp jedapp/build_gcc/gcc/jedapp release/bin
+	cp jedatemp/jedatemp release/bin
+	cp vpp/vpp/src/vpp release/bin
+	cp linker/jedax.in release/bin/jedax.in
+	cp linker/jedax release/bin/jedax
+	cp runtime/debug_window.tcl release/bin
+	cd include ; ../compiler/jedacmp -X jeda_utils.jh
+	cp include/jeda_utils.jo release/include
+	cp include/jeda_utils.jh release/include
+	cp include/jeda_pli_func_def.h release/include
+	cp include/jeda_pli_func_ext.h release/include
+	cp include/jeda_vpi_func_def.h release/include
+	cp include/jeda_vpi_func_ext.h release/include
+	cp include/pli.tab release/include	
+	cp vinclude/acc_user.h release/include	
+	cp vinclude/veriuser.h release/include	
+	cp -r JEDA_HOME/* release
+	rm release/license/eval.lic
+
+
+clean:
+	cd compiler ; ${MK} -f Makefile_product clean
+	cd runtime ; ${MK}  -f Makefile_product clean
+	cd linker ; ${MK} -f Makefile_product clean

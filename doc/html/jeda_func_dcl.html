@@ -1,0 +1,209 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_data_dcl.html">Prev</a>
+| <a href="jeda_expression.html">Next</a>
+<h1>
+6. Function Declaration</h1>
+
+<h2>
+<a NAME="6.1 Function Declaration"></a>6.1 Function Declaration</h2>
+
+<blockquote>Function (and member function/methods in class) is the body
+of execution in the Jeda program. All the Jeda function have a type, and
+returns the a value for the given type unless declared as <i>void</i>.
+<p>Any Jeda program&nbsp; starts from the function main().&nbsp; This function
+should be of type void, and should not accept any values for arguments.
+<blockquote><font face="Courier New,Courier">void main() {</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+All other functions besides main() can have any type, and can take fixed
+number of arguments. When function type is omitted Jeda makes the return
+type <i>void</i>. Also note that the list of arguments to a function should
+also hold the argument types for each entry.
+<blockquote><font face="Courier New,Courier">int foo( int x ) {</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+</blockquote>
+
+<blockquote>
+<blockquote>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="6.2 Function Attribute"></a>6.2 Function Attribute</h2>
+
+<blockquote>A function can be declared with attributes. The followings
+can be used for function attribute.
+<ul>
+<li>
+local&nbsp;&nbsp; -- The function name is local in the given file and&nbsp;
+cannot not be shared with other source file.</li>
+
+<li>
+extern -- The function body is declared in a different file. This attribute
+is used to declare a function without body.</li>
+
+<ul>&nbsp;
+<br><font face="Courier New,Courier">extern int foo( int x ) ;&nbsp; //
+no body</font></ul>
+
+<li>
+export -- The function is exported to be called from Verilog. The function
+type must be void, and all the argument (if any) must be bit type. The
+verilog task with the same name will be declared in the jeda_module. (See
+6.6 below for more information)</li>
+</ul>
+</blockquote>
+
+<h2>
+<a NAME="Function Argument"></a>6.3 Function Argument</h2>
+
+<blockquote>Argument can be a single value, or array. When the array is
+passed as the argument, the data type and array type must be exactly the
+same as the definition.
+<br>&nbsp;
+<blockquote>// function with array arguments
+<br>int foo( int x, int y[10], int z[] ) {
+<br>&nbsp; ..
+<br>}
+<br>&nbsp;
+<p>// calling foo
+<br>{
+<br>&nbsp; int xx ;
+<br>&nbsp; int yy[10] ;
+<br>&nbsp; int zz[] ;
+<br>&nbsp; int t ;
+<br>&nbsp; ..
+<br>&nbsp; t = foo( xx, yy, zz ) ;
+<br>&nbsp; ..
+<br>}</blockquote>
+Argument value is usually copied to the local space and passed to the function.
+This is true even the array argument to avoid the possible side effect.
+When 'var' attribute is used on argument declaration, the argument will
+be passed as pointer, and the space of the variable is shared with caller.
+The 'var' argument must have the exact data type when calling. For performance
+reason, it is&nbsp; not a bad idea to use 'var' attribute for large array
+data.
+<blockquote><font face="Courier New,Courier">// function with var argument</font>
+<br><font face="Courier New,Courier">int foo( var bit [5:0] x, var bit
+[7:0] y[10], var int z[] ) {</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">}</font>
+<p>// calling foo
+<br>{
+<br>&nbsp; bit [5:0] xx ;
+<br>&nbsp; bit [7:0] yy[10] ;
+<br>&nbsp; int zz[] ;
+<br>&nbsp; int t ;
+<br>&nbsp; ..
+<br>&nbsp; t = foo( xx, yy, zz ) ;&nbsp; // arguments must be exact the
+same
+<br>&nbsp; ..
+<br>}</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="6.3 Default Argument"></a>6.4 Default Argument</h2>
+
+<blockquote>Functions can define the default values to their argument using&nbsp;
+assignments as shown in the example 6.4a. Jeda&nbsp; provides a short-hand
+notation for the function caller to specify using the default values using
+'*' in place of of the argument as shown in example 6.4b.&nbsp; If a function
+defines default arguments, then&nbsp; default values will be used if the
+caller does not specify any arguments during the function call.&nbsp; Calling
+arguments are applied from the top, and when all the calling arguments
+are applied, the default argument is used to the remained arguments.
+<blockquote><font face="Courier New,Courier">example 6.4a</font>
+<br><font face="Courier New,Courier">int bar( int x = 0, int y = 0, int
+z = 0 ) {</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">}</font>
+<p><font face="Courier New,Courier">example 6.4b</font>
+<br><font face="Courier New,Courier">void main() {</font>
+<br><font face="Courier New,Courier">&nbsp; bar();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// same as bar( 0, 0, 0 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; bar(*,*,5); // same as bar(
+0, 0, 5 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; bar(1);&nbsp;&nbsp;&nbsp;&nbsp;
+// same as bar( 1, 0, 0 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; bar(1,2);&nbsp;&nbsp;&nbsp;
+// same as bar( 1, 2, 0 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; bar(1, 2, 3) ;</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+Hint: This mechanism is handy when a function is need to be extended with
+additional arguments inside a class and when its too painful to modify
+the function since its called in many instance. If the extension is done
+such that the default value provide the original functionality, the code
+already written will work as before.</blockquote>
+
+<h2>
+<a NAME="6.4 Returning a value from a function"></a>6.5 Returning a value
+from a function</h2>
+
+<blockquote><i>Return</i> statement with a value returns the value to caller.
+The compiler checks the data type of the return value at compile time.
+<br>Suppose a <i>return</i> is not used anywhere in a function then the
+function shall return an 'Unknown value' when it ends.&nbsp; Unless the
+function type is void,&nbsp; Jeda detects this at run time and reports
+an execution error. (Unless it's optimized to omit the check)
+<blockquote><font face="Courier New,Courier">int bar( int x ) {</font>
+<br><font face="Courier New,Courier">&nbsp; return x ;</font>
+<br><font face="Courier New,Courier">}</font>
+<br><font face="Courier New,Courier"></font>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+6.6 Exported Function</h2>
+
+<blockquote>The void function with 'export' attribute can be called as
+a task from Verilog side.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">export void export_func( var
+bit [31:0] x, bit [127:0] y ) {</font>
+<br><font face="Courier New,Courier">&nbsp; printf( "expport_func( %h,
+%h&nbsp;) is called\n", x, y ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; x = y + 5 ;</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+The argument type for export function must be bit type. When 'var' attribute
+is used, it will be declared as 'inout' on the corresponding task in jeda_module.
+<p>The corresponding task with the function name will be declared within
+the jeda_module. The following shows the corresponding task for the above
+function as the result of jeda compile/link.
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; task export_func
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; inout
+[31:0] arg_x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; input
+[127:0] arg_y ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; reg
+export_func_done ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; begin</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+export_func_done = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// $display( "&nbsp; Verilog is calling jeda function export_func" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+$JEDA_task( 7, "export_func", 0, export_func_done, 2, arg_x, arg_y ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@(export_func_done) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// $display( "&nbsp; Verilog calling jeda function export_func completed"
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; end</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; endtask</font></font>
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

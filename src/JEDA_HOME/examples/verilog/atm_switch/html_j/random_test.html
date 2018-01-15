@@ -1,0 +1,68 @@
+<html>
+<head>
+</head>
+<body>
+<a href="random_distribution.html">prev </a>: <a href="index.html">index</a>
+:
+<a href="run_simulation.html">next</a>
+<h1>
+<font size=+1>13. ランダム テスト
+</font></h1>
+
+<ul>
+シンプルなランダムテストが<a href="../tests/random_test.j">random_test.j</a>
+に記述されています。
+<br>
+このテストは、単にテスタークラスのコンフィギュレーション関数を
+呼び出しています。
+これにより、ユーザーの設定したプラス引数によって色々な乱数分布タイプを
+使用できます。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>void squat_test() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "Enter
+squat_test!\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; tester.set_config_reg()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; tester.set_rand_config()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; tester.start_receiver_checker_rnd()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; rand_test1()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "squat_test
+done!\n" ) ;</font></font><font face="Courier New,Courier"><font size=-1></font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font></ul>
+
+<p><br>
+実際のテストは、全てのポートから同時に１００個のセルを送信します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>void rand_test1() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i, j ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; tester.send_rnd_cells(
+0, 100 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; tester.send_rnd_cells(
+1, 100 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; tester.send_rnd_cells(
+2, 100 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; tester.send_rnd_cells(
+3, 100 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; tester.wait_done()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+</ul>
+<a href="random_distribution.html">prev </a>: <a href="index.html">index</a>
+:
+<a href="run_simulation.html">next</a>
+</body>
+</html>

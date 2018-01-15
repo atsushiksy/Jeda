@@ -1,0 +1,6 @@
+make
+rm -f -r work
+vlib work
+#vlog -f vfiles ../tests/random_test.jeda.v 
+vlog -f vfiles ../tests/error_cell.jeda.v 
+

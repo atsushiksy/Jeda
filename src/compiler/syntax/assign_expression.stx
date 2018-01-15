@@ -1,0 +1,53 @@
+
+assign_expression:
+  left_expression assign_opr expression  
+  |
+  left_expression '=' new_expression
+  |
+  list_expression '=' expression
+  ;
+  
+left_expression:
+  varport_expression 
+  ;
+  
+assign_opr:
+  '=' 
+  |
+  '<=' 
+  |
+  '+=' 
+  |
+  '-=' 
+  |
+  '*=' 
+  |
+  '/=' 
+  |
+  '%='  
+  |
+  '>>=' 
+  |
+  '>>>=' 
+  |
+  '<<=' 
+  |
+  '&=' 
+  |
+  '|=' 
+  |
+  '^=' 
+  |
+  '~&=' 
+  |
+  '&~=' 
+  |
+  '~|=' 
+  |
+  '|~='
+  |
+  '~^=' 
+  |
+  '^~=' 
+  ;
+

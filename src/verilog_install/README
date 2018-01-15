@@ -1,0 +1,109 @@
+
+Copyright (C) 2003 Jeda Technologies, Inc
+
+    Installing Jeda PLI to Verilog Simulators
+    -----------------------------------------
+
+      Jeda used one PLI task "$JEDA_task" in Jeda_module to setup the
+      link between jeda code and Verilog environment. To acomplish this,
+      Jeda PLI object must be linked with Verilog code. There are
+      different Verilog simulators available from different venders.
+      With any simulator, what we need is to add PLI table for
+      $JEDA_task, and link verilog with $JEDA_HOME/lib/jeda_pli.o.
+
+    * Installing to Verilog-XL
+    --------------------------
+
+      When you run 'vconfig' to create 'cr_vlog' script, you need to
+      specify:
+         1. Proper 'veriuser.c' that includes jeda_pli_func_ext.h and
+            jeda_pli_func_def.h.
+         2. Add $JEDA_HOME/lib/jeda_pli.o to be the file to be linked
+      After 'cr_vlog' script is created, add the following line within
+      the compile veriuser.c command line  to notify the location of the
+      included files:
+          -I$JEDA_HOME/include
+      Also add '-lpthread' to the link command line.
+
+      If you are using GNU version of 'ld' (loader, mostly true on Linux
+      system), you need to add -export-dynamic option to the link
+      command line.
+
+      Then run ./cr_vlog to create the Verilog simulator.
+       
+
+    * Installing to Verilog-NC
+    --------------------------
+
+      NC comes with the makefile 'Makefile.nc' (usually under
+      <install_dir>/tools/inca/files/). Create a copy of the Makefile,
+      and modify:
+         1. Change veriuser.c to the proper one that includes Jeda PLI
+            files.
+         2. Add '-I$JEDA_HOME/include' to the compile line.
+         3. Link ncsim and ncelab with $JEDA_HOME/lib/jeda_pli.o
+         4. Add '-lpthread' to the link command line of $(NCELAB) and
+            $(NCSIM)
+
+
+      If you are using GNU version of 'ld' (loader, mostly true on Linux
+      system), you need to add -export-dynamic option to the link
+      command line.
+
+      Then, run 'make' to create 'ncelab' and 'ncsim' with Jeda PLI.
+
+      See XL and NC sub directories for examples.
+
+    * Installing to VCS
+    -------------------
+      When run VCS to create 'simv' (the compiled simulation image), you
+      need to specify:
+         1. The Jeda PLI table with '-P $JEDA_HOME/include/pli.tab'
+         2. Link with Jeda PLI object '$JEDA_HOME/lib/jeda_pli.o'
+         3. Add ' -Xstrict=0x01 -syslib "-lpthread" ' to link pthread lib.
+      Example:
+          vcs  -f vfiles \
+                -P $JEDA_HOME/include/pli.tab \
+                 $JEDA_HOME/lib/jeda_pli.o \
+                -Xstrict=0x01 -syslib "-lpthread"
+
+      Note for GNU loader:
+        If you are using GNU version of 'ld' (loader, mostly true on
+      Linux system), you need to specify
+           -LDFLAGS "-export-dynamic"
+        option to add -export-dynamic option to the loader. Without this
+      flag, dynamic loading will cause the link error.
+
+      Example:
+          vcs  -f vfiles \
+                -P $JEDA_HOME/include/pli.tab \
+                 $JEDA_HOME/lib/jeda_pli.o \
+                -Xstrict=0x01 -syslib "-lpthread" \
+                -LDFLAGS "-export-dynamic"
+
+      See VCS sub directory 
+
+
+
+     * Installing to ModelSim
+    --------------------------
+      When you run 'jedax' to compile and link Jeda code, use -mso option to
+      create dynamic pli library (.so) file.
+      For example:
+      
+        jedax -mso user_code.j
+        
+      This will produce a dynamic library user_code.so.
+      
+      Here, we assume that you've ran vlib and vlog command to compile the
+      necessary Verilog files.
+      
+      When running ModelSim simulator with vsim command, use -pli option to 
+      specifiy the dynamic library. 
+      For example, if the top module is 'top', run simulation with:
+      
+        vsim -c -do vsim.do top -pli user_code.so 
+        
+
+
+

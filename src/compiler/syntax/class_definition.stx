@@ -1,0 +1,73 @@
+
+class_definition:
+  opt_var_func_attrib 'class' class_name 
+  opt_extention
+  '{'
+    opt_class_items
+  '}' 
+  ;
+
+opt_extention:
+  /* empty */
+  |
+  'extends' class_name_ref
+  ;
+  
+opt_class_items:
+  /* empty */
+  |
+  class_items
+  ;
+  
+class_items:
+  class_item
+  |
+  class_items class_item
+  ;
+
+class_item:
+  var_definition
+  |
+  enum_type_definition 
+  |
+  initial_statement
+  |
+  function_definition
+  |
+  new_function_definition
+  ;
+  
+new_function_definition:
+  opt_void 'new'
+  '(' 
+    opt_formal_args 
+  ')' 
+  opt_new_outer_block
+  ;
+
+opt_new_outer_block:
+  semicolon
+  |
+  new_block
+  ;
+
+new_block:
+  '{'
+    opt_var_enum_definitions
+    opt_super_new_call
+    opt_statements
+  '}'
+  ;
+
+opt_super_new_call:
+  /* empty */
+  |
+  'super' '.' 'new' opt_new_args semicolon
+  ;
+
+opt_void:
+  /* empty */
+  |
+  'void'
+  ;
+  

@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+ 
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=windows-1252">
+  <title></title>
+</head>
+<body>
+<pre>  Copyright (C) 2003 Jeda Technologies, Inc<br><br>  $JEDA_HOME/bin/jeda is a perl script with the following options:<br><br></pre>
+ 
+<pre>  options</pre>
+ 
+<pre>    -out &lt;name&gt;    define output name, actual output file will have proper </pre>
+ 
+<pre>                     sufix. (default: prefix of the first file name)</pre>
+ 
+<pre>    -jc            jeda compile only to create jeda object file</pre>
+ 
+<pre>    -dl            create dynamic library file (.dl)</pre>
+ 
+<pre>    -exe           create standalone executable</pre>
+ 
+<pre>    -cc &lt;cc-path&gt;  specify cc command path (default 'gcc')</pre>
+ 
+<pre>    -vpi           compile/link as VPI mode</pre>
+ 
+<pre>    -ivl           compile/link as Icarus Verilog VPI mode</pre>
+ 
+<pre>    -debug         just printout system command sequence</pre>
+ 
+<pre>  </pre>
+ 
+<pre>    -D&lt;defines&gt;    defines macro for jeda compile and c compile</pre>
+ 
+<pre>    -I&lt;path&gt;       defines include file search path for jeda &amp; c compile</pre>
+ 
+<pre>    -g             debug mode compile for jeda &amp; c</pre>
+ 
+<pre>    -h             auto-header generation on jeda compiler</pre>
+ 
+<pre>    -U &lt;util&gt;     specify the user util file name (&lt;util&gt;.j, &lt;util&gt;.jo)</pre>
+ 
+<pre>    -JL_&lt;flag&gt;     option for jeda linker</pre>
+ 
+<pre>    </pre>
+ 
+<pre>  filename:</pre>
+ 
+<pre>   Suffixes of source file names are used to determine which kind of </pre>
+ 
+<pre>   process to be done.</pre>
+ 
+<pre>     .j    Jeda source; j-compile, j-link, c-compile, c-link</pre>
+ 
+<pre>     .jo   Jeda object; j-link, c-compile, c-link</pre>
+ 
+<pre>     .c     C source; c-compile, c-link</pre>
+ 
+<pre>     .o     Object file; c-link</pre>
+ 
+<pre>     .a     Archive file; c-link</pre>
+ 
+<pre>     .so    Shared obj file; c-link</pre>
+ 
+<pre>     .dl    dynamic lib file; c-link</pre>
+ 
+<pre>     </pre>
+ 
+<pre>  example:</pre>
+ 
+<pre>    1) compile jeda source (foo.j) and generate jeda object(foo.jo) </pre>
+ 
+<pre>    </pre>
+ 
+<pre>       jeda -jc foo.j   <br><br></pre>
+ 
+<pre>    2) compile foo.j and link with bar.jo to create C source foo.jeda.c<br><br></pre>
+ 
+<pre>      jeda foo.j bar.jo</pre>
+ 
+<pre>      </pre>
+ 
+<pre>    3) compile foo.j and link with bar.jo to foo.jeda.c, compile bee.c,</pre>
+ 
+<pre>       then link all with zoolib.a to create zumoo.so</pre>
+ 
+<pre>       </pre>
+ 
+<pre>       jeda -out zumoo -so foo.j bar.jo bee.c zoolib.a</pre>
+ 
+<pre>    </pre>
+ 
+<pre>    4) link foo.jo, bar.jo to zomoo.jeda.c, then create zumoo.jeda.o obj</pre>
+ 
+<pre>      </pre>
+ 
+<pre>       jeda -out zumoo -o foo.jo bar.jo</pre>
+ 
+<pre>       </pre>
+ 
+<pre>  processes:</pre>
+ 
+<pre>    'jeda' command invokes various sub-command (process) over files to </pre>
+ 
+<pre>    complete the Jeda compile/link process.</pre>
+ 
+<pre>      j-compile   Run jeda compiler (.jd) to generate Jeda obj (.jo)</pre>
+ 
+<pre>      j-link      Run jeda linker over Jeda obj file(s) to generate C code</pre>
+ 
+<pre>      c-compile   Run C compiler to generate object file.</pre>
+ 
+<pre>      c-link      Run C linker to generate executable or library file.</pre>
+ 
+<pre>  </pre>
+ 
+<pre>    </pre>
+<br>
+</body>
+</html>

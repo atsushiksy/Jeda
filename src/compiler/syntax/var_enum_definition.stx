@@ -1,0 +1,19 @@
+
+opt_var_enum_definitions:
+  /* empty */
+  |
+  var_enum_definitions
+  ;
+
+var_enum_definitions:
+  var_enum_definition
+  |
+  var_enum_definitions var_enum_definition
+  ;
+  
+var_enum_definition:
+  var_definition
+  |
+  enum_type_definition 
+  ;
+

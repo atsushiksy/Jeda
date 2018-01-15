@@ -1,0 +1,6 @@
+ We today run jeda on solaris 8,but encountered the same error (Segmentation Fault) as report in linux 7.0.The version of Gcc on solaris is gcc-2.95.It is ok to compile the code,but failed in implementation the file(jvc_mpeg2_env).
+ 
+when the lines from 881 to 929 (in jvc_mpeg2_h.j) are added the error reports,when they are comment and no error reports.for more information see the error.log.
+We have attached all files necessary to repro the case.
+This puzzles me for several days and please let us know a fix and cause at your convenience.
+

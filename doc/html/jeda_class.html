@@ -1,0 +1,330 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_statement.html">Prev</a>
+| <a href="jeda_port.html">Next</a>
+<h1>
+9. Class</h1>
+
+<blockquote>Class is a correction of member data and member functions that
+defines the behavior of the class object.</blockquote>
+
+<h2>
+<a NAME="9.1 Class Declaration"></a>9.1 Class Declaration</h2>
+
+<blockquote>Class declaration has the following basic structure:
+<blockquote><font face="Courier New,Courier"><font size=-1>class &lt;class_name>
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; &lt;member variables></font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; &lt;member functions></font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+Here's a simple class declaration example:
+<blockquote><font face="Courier New,Courier"><font size=-1>class my_class
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int bar ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; int read_bar()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; return
+bar ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+Reference to the external class can be declared with extern attribute.
+In such declaration, the body of the member function should not be declared.
+Such a header file can be automatically generated with -h option at the
+compilation time.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>extern class
+my_class {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int bar ;</font></font><font face="Courier New,Courier"><font size=-1></font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; int read_bar()
+; // no body</font></font><font face="Courier New,Courier"><font size=-1></font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br><font face="Courier New,Courier"><font size=-1></font></font>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="9.2 Class Variable Declaration and Construction"></a>9.2 Class
+Variable Declaration and Construction</h2>
+
+<blockquote>When a class is defined, the class name becomes the user data
+type, and its instance is declared as the variable with its type.
+<blockquote><font face="Courier New,Courier"><font size=-1>my_class foo
+;</font></font></blockquote>
+When a class instance is declared, its content is empty, and must be allocated
+by calling 'new' function.
+<blockquote><font face="Courier New,Courier"><font size=-1>foo = new ;</font></font></blockquote>
+When the new function is not defined in the class declaration, calling
+new just allocate the defined data.
+<br>When new function can be defined in the class declaration, calling
+new allocate the class member data, and then call the new function to initialize
+it.
+<br>New function must be defined as 'void' type. it can take argument.
+<blockquote><font face="Courier New,Courier"><font size=-1>class my_class
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int bar ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; void new( int
+x ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bar
+= x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; int read_bar()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; return
+bar ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void main() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int b ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; my_class foo
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; foo = new( 56
+) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; b = foo.read_bar()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+As the example above, the access to a member of instance is done by '.'
+(dot) operator.
+<br>Class instance is handled as a pointer throuout the Jeda language.
+When a instance (which allocated the data with new) is stored to another
+variable, two location shares the same data structure.
+<blockquote><font face="Courier New,Courier"><font size=-1>my_class foo,
+bar ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>foo = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>bar = foo ;&nbsp; //
+sharing the same data structure</font></font>
+<br>&nbsp;</blockquote>
+When real copy (instead of sharing the same structure) is needed, new with
+variable
+<br>will create the copy of the instance that contains the same data values.
+<blockquote><font face="Courier New,Courier"><font size=-1>bar = new foo
+; // create the copy of foo, not share</font></font></blockquote>
+Note that this copy is done only one level. It creates a new data structure
+and copy the contents, but if the member variable is a class type, the
+member will have the the pointer value, and sharing the same data structure
+at the level.</blockquote>
+
+<h2>
+<a NAME="9.3 Class Extention"></a>9.3 Class Extension</h2>
+
+<blockquote>A class can be extended with keyword 'extends'. The new class
+inherits all the members (except 'local' members) from its parent. Any
+members can be redefined in the child class unless it's declared 'final'
+in the parent.
+<blockquote><font face="Courier New,Courier"><font size=-1>mymy_class extends
+my_class {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int boo ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int bee ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int sum() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; return
+boo + bee ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>The extended class instance and its parent class instance can
+be assigned in either direction (up-cast and down-cast). For down-cast,
+the class type correctness is checked at runtime as it is not clear if
+the parent instance is holding the extended class instance of the destination
+at the compilation time.
+<blockquote><font face="Courier New,Courier"><font size=-1>class foo_class
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>class bar_class extends
+foo_class {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void yoo() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; foo_class foo
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar_class bar
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar_class boo
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; bar = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; foo = bar ; //
+up-cast</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; boo = foo ; //
+down-cast</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>When the new function is called, all the new functions of the
+super classes are called at that time. Even the new function is ommitted
+in the class, it's default new function (just allocate variables) is called.
+If the new function of the super class does not take any arguments (or
+default value is set to all the arguments), then calling super.new() is
+done implicitly (unless it is called explicitly in the child new() function).
+<p>When the new function in the super class has arguments, the implicit
+super.new() call will not&nbsp; be done and the child class has to call
+it explicitly with proper arguments. In this case, the new function for
+the child class can not be omitted. The child new function must call the
+super class's new function at the very first statement in its new function.
+<blockquote><font face="Courier New,Courier"><font size=-1>class foo_class
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void new( int
+x ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>class bar_class extends
+foo_class {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void new() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; super.new(0)
+;&nbsp; // must call as the first statement of new()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+Except the new function, the reference to the class member is done in its
+class scope order. A name is searched within the class, and if not found,
+then searched in its super class.&nbsp; Redefining a variable or a function
+in the child class will replace the name reference to the member within
+the child instance. Note that this simple redefinition will not replace
+the functions referenced within the super class itself. See <a href="#9.5 Overwrite Function">9.5
+Overwrite Function</a> for the mechanism to replace the superclass function
+references.</blockquote>
+
+<h2>
+&nbsp;<a NAME="9.4 Abstruct Class"></a>9.4 Abstract Class</h2>
+
+<blockquote>Abstract class is a class declared with 'abstract' attribute,
+and it is allowed to contains abstract function(s) which is also declared
+with 'abstract' attribute. Such a function must be declared without the
+actual function body and the actual body must be declared in its child
+class.
+<br>The abstract class that contains abstract function (without body) can
+be used to specify a template of the class. The actual function body that
+corresponds to the abstract function must be defined in its child class.
+Instance of such abstract class can be declared, but calling new() directory
+to allocate the instance is not allowed. The allocation to such abstract
+class instance should only be done by assigning its child instance to it
+(up cast).
+<blockquote><font face="Courier New,Courier"><font size=-1>abstract class
+animal {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; abstract void
+bark() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; abstract void
+food() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>class dog extends animal
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void bark() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"Bow wow\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void food() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"Eats dog food\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+&nbsp;<a NAME="9.5 Overwrite Function"></a>9.5 Overwrite Function</h2>
+
+<blockquote>The abstract mechanism explained above is useful when the parent
+is written such that it represents an abstract view of a set of objects.
+Sometime, a class is already written without such an abstraction in mind,
+and we may want to extend it with just rewriting one function. Just redefining
+a new function in the extended class can handle the external call to the
+function. But if the parent class is calling the function, parent's code
+is still calling the original function in it's member.
+<p>For example:
+<blockquote>&nbsp;
+<br><font face="Courier New,Courier"><font size=-1>class parent {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;void foo() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp; printf(
+"parent foo called\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;void bar() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp; foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>} // end of class parent</font></font>
+<p><font face="Courier New,Courier"><font size=-1>class child extends parent
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void foo() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"child foo called\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+When a child instance called the function bar, the parent class's foo()
+is called from the bar() function even child has foo() function redeclared.
+<br>When a function is redeclared with 'overwrite' attribute, the child's
+function is referenced from it's parent as well.
+<blockquote><font face="Courier New,Courier"><font size=-1>class child_a
+extends parent {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; overwrite void
+foo() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; print(
+"child foo called\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>In this case, when parent's bar() function is called from child_a's
+instance, redeclared foo() is called from bar() function. Such an overwrite
+function must have the same arguments as the overwriting function in the
+parent.</blockquote>
+
+<h2>
+<a NAME="9.6 Various Attributes for Class Declaration"></a>9.6 Various
+Attributes for Class Declaration</h2>
+
+<blockquote>A class can be declared with the following attributes:
+<ul>
+<li>
+extern&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- the actual definition of member
+function is defined in another file</li>
+
+<li>
+local&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- this class is
+not shared with other source files</li>
+
+<li>
+abstract&nbsp;&nbsp; -- this class is abstract class and may contains abstract
+function</li>
+</ul>
+A class member variables can be declared with the following attributes
+<ul>
+<li>
+local&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- this variable
+is only used within this class</li>
+
+<li>
+protected&nbsp; -- this variable is protected, and only referenced in this
+class or extended class</li>
+
+<li>
+final&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- this variable
+is final and extending class can not overwrite it</li>
+</ul>
+A class member function can be declared with the following attributes
+<blockquote>
+<li>
+local&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- this function
+is only used within this class</li>
+
+<li>
+protected&nbsp; -- this function is protected, and only referenced in this
+class or extended class</li>
+
+<li>
+final&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- this function
+is final and extending class can not overwrite it</li>
+
+<li>
+overwrite -- this function overwrite the parent's corresponding function</li>
+</blockquote>
+</blockquote>
+
+</body>
+</html>

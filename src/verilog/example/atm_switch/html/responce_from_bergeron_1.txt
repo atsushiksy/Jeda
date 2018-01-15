@@ -1,0 +1,56 @@
+From janick@qualis.com Fri Mar  1 20:31 PST 2002
+X-JNPR-Received-From: outside
+From: Janick Bergeron <janick@bergeron.com>
+To: atsushi@juniper.net
+Subject: Verif Guild - Vol 3, no 04
+Date: Fri,  1 Mar 2002 19:18:59 -0800 (PST)
+X-OriginalArrivalTime: 02 Mar 2002 04:20:29.0484 (UTC) FILETIME=[96137EC0:01C1C1A1]
+
+
+(c) Copyright 2002, Janick Bergeron.
+    All Rights Reserved
+
+    Any opinion, typo, inflammatory comment or lame excuse belongs to the
+    respective author. All trademarks and servicemarks are the property
+    of their respective owners.
+
+    Please forward to anyone who could be interested in its content.
+
+                          IMPORTANT NOTICE
+
+    Do not use the names and addresses in this newsletter for
+    sollicitation purposes. If you are a recruiter, only contact
+    individuals who have stated their availability in the Networking
+    section. If you have a position to fill, please review the page:
+    http://janick.bergeron.com/guild/recruit.html. If you spam
+    contributors, you'll only piss'm off and they won't contribute
+    anymore.
+
+An HTML version of this newsletter can be found at:
+
+              http://janick.bergeron.com/guild/3-04.html
+
+
+( VG 3.04, Item  7, re: VG 2.07, Item 11 ) ---------------------- [02/03/01]
+
+Subject: The Verification Guild Project
+
+From: Atsushi Kasuya [atsushi@juniper.net]
+
+I did some work on your Verification Guild Project (ATM switch
+verification) with Jeda.
+
+The report can be found in my Jeda web suite:
+http://www.jeda.org/atm_switch/html/index.html
+
+         ----    ----    ----    ----    ----    ----   ----
+
+From: Janick Bergeron [janick@bergeron.com]
+
+> This Jeda testbench detected a bug in the utopia1_atm_rx.v
+> at the first transfer test. (The bug was reported to Janick 
+> Bergeron but I haven't got no response yet. I guess his project
+> is not quite active.) 
+
+Unfortunately, I have not had the time to verify the claim, but it
+definitely feels like a valid one...

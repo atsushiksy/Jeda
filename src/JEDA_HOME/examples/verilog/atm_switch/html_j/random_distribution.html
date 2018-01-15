@@ -1,0 +1,194 @@
+<html>
+<head>
+</head>
+<body>
+<a href="direct_tests.html">prev </a>: <a href="index.html">index</a> :
+<a href="random_test.html">next</a>
+<h1>
+<font size=+1>12. 乱数分布クラス
+</font></h1>
+
+<ul>
+乱数分布を生成する包括的なメカニズムが、ファイル
+<a href="../utils/rand_classes_0.j">rand_classes_0.j</a>で提供されます。
+<br>
+アブストラクト クラス random_distribution が乱数値にアクセスするための
+共通の関数を提供します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>abstract class random_distribution
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; abstract int
+gen_random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; abstract void
+get_mean(var int mean_num_result,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;
+var int mean_denom_result);</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+実際の各種乱数分布クラスは、このクラスの子クラスとして定義されます。
+以下の子クラスがrand_classes_0.jで定義されています。
+<br>&nbsp;
+<ul>
+<li>
+uniform_distribution class</li>
+
+<br>
+コンストラクタ関数 new()は、二つの引数 min_valueとmax_value、およびオプション
+で multiplierを受け取ります。このクラスは、min と max 間の均一分布乱数を
+発生します。オプション引数multiplierは(デフォルト値 １)、この結果にかけられ
+ます。
+
+<li>
+constant_distribution class</li>
+
+<br>
+コンストラクタ関数 new() は、引数 valueを取ります。このクラスは、
+特定の定数をつねに出力します。
+<li>
+constant_loop_distribution class</li>
+
+<br>
+コンストラクタ関数 new() は、三つの引数をとります。整数のアソシエイティブ
+配列 a_loop_nump[]は、各定数が何回づつ続けて生成されるかを示します。
+つぎのアソシエイティブ配列 a_value[]は、各定数値を指定します。
+最期の整数 a_num_valueは、配列内にいくつの要素が設定されているかを
+示します。このクラスは、配列で指定された定数のループを発生します。
+<li>
+geometric_distribution class</li>
+
+<br>
+コンストラクタ関数 new() は、２つの引数 p_numerator and p_denominator を
+とります。このクラスは、確立 P = p_numerator/p_denomonator のジオメトリック
+分布の乱数を発生します。
+<li>
+expornential_distribution class</li>
+
+<br>
+コンストラクタ関数 new() は、引数 meanを取ります。このクラスは、平均値
+meanのエクスポーネンシャル分布の乱数を発生します。
+
+<li>
+pdf_distribution class</li>
+
+<br>
+コンストラクタ関数 new() は引数を取りません。
+インスタンスの生成後、別の関数 set(int weight, int value)が必要な回数
+呼ばれる必要があります。
+関数set()は、確立分布関数の重みと値を設定します。各値の発生確立は
+ 重み / 重みのトータル となります。
+</ul>
+
+<p><br>
+すべての乱数分布クラスのインスタンスは、random_distributionクラスの
+インスタンスとして取り扱うことができます。このインスタンスは、実際には
+アブストラクトクラスのポリモーフィックインスタンスとなります。
+たとえば、以下のコードは、セルレシーバーのreceive_enable_loop_rnd()関数です。
+<br>&nbsp;
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; // control the
+speed of the receive side one by one with random distribution</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void receive_enable_loop_rnd(
+random_distribution rnd ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+dly ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; receive_count++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+while( receive_count || receive_num == 0 ) @(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dly = rnd.gen_random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if(dly) @dly(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_count++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_num-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;</ul>
+引数rndが各セル間の受信遅延を生成するための乱数として使用されます。したがって、
+この関数は、アブストラクト関数の子クラス全てを引数として取ることが出来ます。
+<p>
+この関数の呼び出し側は、単に引数としてポリモーフィック インスタンス(子クラスの
+インスタンス)を与えれば良いのです。ポリモーフィックのキャスト代入が子クラス
+から親クラスのへの代入を処理します。switch_tester_2.jで定義されている
+set_rand_config()関数が、ユーザーのプラス引数に従い、適切な乱数発生クラスを
+生成します。
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; void set_rand_config()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i, p, q, r, s ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; uniform_distribution
+ur ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; constant_distribution
+cr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; constant_loop_distribution
+clr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; geometric_distribution
+gr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; expornential_distribution
+er ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; pdf_distribution
+pr[4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; string
+conf ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; regexp
+reg ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; reg
+= new ; // regular expression engine</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+read plus argment and define the random distribution for drive/receive</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+drive random config</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; conf
+= get_plusarg( "drive_uniform=" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+conf != null ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+reg.match( conf, "\d+,\d+" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+p = atoi( reg.backref(0) ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+q = atoi( reg.backref(1) ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "drive random distribusion = uniform (min:%d, max:%d)\n", p, q
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for( i = 0 ; i &lt; 4 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ur = new( p, q ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+drv_rand[i] = ur ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; conf
+= get_plusarg( "drive_const=" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+conf != null ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+p = atoi(conf) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font><font face="Courier New,Courier"><font size=-1></font></font>
+<p>
+上記で、変数drv_rand[]はrandom_distributionクラスで、ユーザーが設定した
+ポリモーフィックな子クラスのインスタンスを保持します。
+<p>
+このようなコーディングスタイルによって、色々な乱数分布がドライバーで
+使用可能となります。
+<ul>&nbsp;</ul>
+
+<br>&nbsp;
+<ul>&nbsp;</ul>
+</ul>
+<a href="direct_tests.html">prev</a> : <a href="index.html">index</a> :
+<a href="random_test.html">next</a>
+</body>
+</html>

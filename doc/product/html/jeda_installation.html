@@ -1,0 +1,273 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+
+<h1>
+Appendix B. Installation</h1>
+
+<h2>
+B.0 Required Tools and The Roots of Other Sources</h2>
+
+<blockquote>In order to run Jeda-X Verification System, following tools
+are required on your system:
+<ul>
+<li>
+gcc</li>
+
+<li>
+perl5</li>
+
+<li>
+tcl/tk, wish (needed to run debug window)</li>
+</ul>
+If your system does not have the tools above, contact your system admin
+to get it somehow.</blockquote>
+
+<h2>
+B.1 Extracting Binary files</h2>
+
+<blockquote>You need to get the binary release file (contact Support@JedaTechnologies.com):
+<br>&nbsp;&nbsp;&nbsp; jeda-X.&lt;version_revision>.tar.gz
+<p>Expand the source at proper location:
+<br>&nbsp;<font face="Courier New,Courier">&nbsp;&nbsp; gzip -cd jeda-X.&lt;version_revision>.tar.gz
+| tar xvpf -</font>
+<br>&nbsp;
+<p>You'll get the install directory 'Jeda-X.&lt;version_revision>', and
+all the necessary files are expanded under the directory. We call this
+directory as &lt;install_dir> in this document.
+<p>Now, you need to run configure script to make some script to be fit
+to your environment. Cd to the &lt;install_dir>, then type:
+<blockquote>./configure
+<br>&nbsp;</blockquote>
+The installation of Jeda part is done. Now, you need to set the environment
+properly and construct PLI environment for your Verilog simulator.
+<br>&nbsp;</blockquote>
+
+<h2>
+B.2&nbsp; Starting Flexlm License Manager</h2>
+
+<blockquote>You must get the license file (most likely "jeda_x.lic") from
+Jeda Technologies, Inc. If not, please contact Support@JedaTechnologies.com.
+<p>You need to copy the file (jeda_x.lic) to &lt;install_dir>/license directory.
+<p>Now, you set the directory to LM_LICENSE_FILE envirinment variable.
+For the C shell:
+<blockquote>setenv LM_LICENCE_FILE $LMLICENSE_FILE:&lt;install_dir>/license/jeda_x.lic</blockquote>
+For the Korn and Bourne shells:
+<blockquote>&nbsp;
+<br>LM_LICENCE_FILE=$LMLICENSE_FILE:&lt;install_dir>/license/jeda_x.lic
+<br>export LM_LICENSE_FILE</blockquote>
+If you are already running the Flexlm license server, you need to run 'lmrelead'
+to update to the new license environment.
+<p>If you are not running the Flexlm license server, you need to run 'lmgrd'
+on your server machine. Normally, this is done at the machine boot time.
+For more detailed information about how to start the license server, refere
+to Flexlm end users manual.
+<br>&nbsp;</blockquote>
+
+<h2>
+B.3&nbsp; Setting User Environment</h2>
+
+<blockquote>You need to set $JEDA_HOME to &lt;install_dir> directory.
+<br>For the C shell environment, type:
+<blockquote>setenv JEDA_HOME &lt;install_dir></blockquote>
+For the Korn and Bourne shells:
+<blockquote>JEDA_HOME=&lt;install_dir>
+<br>export JEDA_HOME</blockquote>
+Also, you need to add &lt;install_dir>/bin to your command path:
+<blockquote>PATH=$PATH":&lt;install_dir>/bin"</blockquote>
+</blockquote>
+
+<h2>
+B.4 Installing Jeda PLI to Verilog Simulators</h2>
+
+<ul>Jeda used one PLI task "$JEDA_task" in Jeda_module to setup the link
+between jeda code and Verilog environment. To acomplish this, Jeda PLI
+object must be linked with Verilog code. There are different Verilog simulators
+available from different venders. With any simulator, what we need is to
+add PLI table for $JEDA_task, and link verilog with $JEDA_HOME/lib/jeda_pli.o.
+<p>Files for Verilog construction examples are provided unser &lt;install_dir>/APP/install_verilog
+as well.</ul>
+
+<h3>
+B.4.1 Installation for Verilog-XL and Verilog-NC</h3>
+
+<ul>For Verilog XL/NC, there's PLI definition files, jeda_pli_func_ext.h
+and jeda_pli_func_def.h.
+<br>The file jeda_pli_func_ext.h declares the necessary c functions as
+external function:
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">/***************************************************************</font>
+<br><font face="Courier New,Courier">&nbsp;* Jeda pli function definition</font>
+<br><font face="Courier New,Courier">&nbsp;***************************************************************/</font>
+<br><font face="Courier New,Courier">/*</font>
+<br><font face="Courier New,Courier">&nbsp; ** Copyright info, omitted</font>
+<br><font face="Courier New,Courier">*/</font>
+<p><font face="Courier New,Courier">extern int JEDA_task() ;</font>
+<br><font face="Courier New,Courier">extern int JEDA_task_misctf() ;</font>
+<br>&nbsp;</blockquote>
+
+<p><br>The file jeda_pli_func_def.h declares an entry for veriuserft[]
+table in the veriuser.c.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">/***************************************************************</font>
+<br><font face="Courier New,Courier">&nbsp;* Jeda pli function definition</font>
+<br><font face="Courier New,Courier">&nbsp;***************************************************************/</font>
+<br><font face="Courier New,Courier">/*</font>
+<br><font face="Courier New,Courier">&nbsp; ** Copyright info, omitted</font>
+<br><font face="Courier New,Courier">*/</font>
+<p><font face="Courier New,Courier">&nbsp;{usertask, 0, 0, 0, JEDA_task,
+JEDA_task_misctf, "$JEDA_task", 0},</font></blockquote>
+By including those files at proper location in veriuser.c, Verilog-XL/NC
+have the PLI task for Jeda. Here's an example veriuser.c just have Jeda
+PLI tasks:
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">#include "veriuser.h"</font>
+<br><font face="Courier New,Courier">#include "vxl_veriuser.h"</font>
+<p><font face="Courier New,Courier">#&nbsp; include "jeda_pli_func_ext.h"</font>
+<p><font face="Courier New,Courier">int (*endofcompile_routines[])() =</font>
+<br><font face="Courier New,Courier">{</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; /*** my_eoc_routine,
+***/</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; 0 /*** final entry
+must be 0 ***/</font>
+<br><font face="Courier New,Courier">};</font>
+<p><font face="Courier New,Courier">bool err_intercept(level,facility,code)</font>
+<br><font face="Courier New,Courier">int level; char *facility; char *code;</font>
+<br><font face="Courier New,Courier">{ return(true); }</font>
+<p><font face="Courier New,Courier">s_tfcell veriusertfs[] =</font>
+<br><font face="Courier New,Courier">{</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; /*** Template for
+an entry:</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; { usertask|userfunction,
+data,</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; checktf(),
+sizetf(), calltf(), misctf(),</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "$tfname",
+forwref?, Vtool?, ErrMsg? },</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; Example:</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; { usertask, 0,
+my_check, 0, my_func, my_misctf, "$my_task" },</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; ***/</font>
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; /*** add user entries
+here ***/</font>
+<p><font face="Courier New,Courier">#&nbsp; include "jeda_pli_func_def.h"</font>
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; {0} /*** final entry
+must be 0 ***/</font>
+<br><font face="Courier New,Courier">};</font>
+<br>&nbsp;</blockquote>
+
+<li>
+Installing to Verilog-XL</li>
+
+<br>When you run 'vconfig' to create 'cr_vlog' script, you need to specify:
+<ol>
+<li>
+Proper 'veriuser.c' that includes jeda_pli_func_ext.h and jeda_pli_func_def.h.</li>
+
+<li>
+Add $JEDA_HOME/lib/jeda_pli.o to be the file to be linked</li>
+</ol>
+After 'cr_vlog' script is created, add the following line within the compile
+veriuser.c command line&nbsp; to notify the location of the included files:
+<br>&nbsp;&nbsp;&nbsp; -I$JEDA_HOME/include
+<br>Also add '-lpthread' to the link command line.
+<p>If you are using GNU version of 'ld' (loader, mostly true on Linux system),
+you need to add -export-dynamic option to the link command line.
+<p>Then run ./cr_vlog to create the Verilog simulator.
+<br>&nbsp;
+<li>
+Installing to Verilog-NC</li>
+
+<br>NC comes with the makefile 'Makefile.nc' (usually under &lt;install_dir>/tools/inca/files/).
+Create a copy of the Makefile, and modify:
+<ol>
+<li>
+Change veriuser.c to the proper one that includes Jeda PLI files.</li>
+
+<li>
+Add '-I$JEDA_HOME/include' to the compile line.</li>
+
+<li>
+Link ncsim and ncelab with $JEDA_HOME/lib/jeda_pli.o</li>
+
+<li>
+Add '-lpthread' to the link command line of $(NCELAB) and $(NCSIM)</li>
+</ol>
+
+<p><br>If you are using GNU version of 'ld' (loader, mostly true on Linux
+system), you need to add -export-dynamic option to the link command line.
+<p>Then, run 'make' to create 'ncelab' and 'ncsim' with Jeda PLI.</ul>
+
+<h3>
+B.4.2 Installing to VCS</h3>
+
+<ul>When run VCS to create 'simv' (the compiled simulation image), you
+need to specify:
+<ol>
+<li>
+The Jeda PLI table with '-P $JEDA_HOME/include/pli.tab'</li>
+
+<li>
+Link with Jeda PLI object '$JEDA_HOME/lib/jeda_pli.o'</li>
+
+<li>
+Add ' -Xstrict=0x01 -syslib "-lpthread" ' to link pthread lib.</li>
+</ol>
+Example:
+<br>&nbsp;&nbsp;&nbsp; vcs&nbsp; -f vfiles \
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -P $JEDA_HOME/include/pli.tab
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $JEDA_HOME/lib/jeda_pli.o
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Xstrict=0x01
+-syslib "-lpthread"
+<p><b>Note for GNU loader:</b>
+<br>&nbsp; If you are using GNU version of 'ld' (loader, mostly true on
+Linux system), you need to specify
+<br>&nbsp;&nbsp;&nbsp;&nbsp; -LDFLAGS "-export-dynamic"
+<br>&nbsp; option to add -export-dynamic option to the loader. Without
+this flag, dynamic loading will cause the link error.
+<p>Example:
+<br>&nbsp;&nbsp;&nbsp; vcs&nbsp; -f vfiles \
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -P $JEDA_HOME/include/pli.tab
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $JEDA_HOME/lib/jeda_pli.o
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Xstrict=0x01
+-syslib "-lpthread" \
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -LDFLAGS "-export-dynamic"</ul>
+
+<h3>
+B.4.3 Linking with another Verilog Simulator</h3>
+
+<blockquote>Jeda uses the following PLI 1.0 functions. If a simulator supports
+the PLI functions listed bellow, it may run with Jeda. If you need to run
+it with VPI (PLI 2.0) interface, please contact support@JedaTechnologies.com.
+<blockquote><font face="Courier New,Courier">tf_dostop()</font>
+<br><font face="Courier New,Courier">tf_dofinish()</font>
+<br><font face="Courier New,Courier">tf_getcstringp()</font>
+<br><font face="Courier New,Courier">tf_getp()</font>
+<br><font face="Courier New,Courier">tf_exprinfo()</font>
+<br><font face="Courier New,Courier">tf_getinstance()</font>
+<br><font face="Courier New,Courier">tf_isynchronize()</font>
+<br><font face="Courier New,Courier">tf_isetdelay()</font>
+<br><font face="Courier New,Courier">tf_ievaluatep()</font>
+<br><font face="Courier New,Courier">tf_ipropagatep()</font>
+<br><font face="Courier New,Courier">tf_compare_long()</font>
+<br><font face="Courier New,Courier">tf_add_long()</font>
+<br><font face="Courier New,Courier">tf_getlongtime()</font>
+<br><font face="Courier New,Courier">acc_handle_tfarg()</font>
+<br><font face="Courier New,Courier">acc_vcl_add()</font>
+<br><font face="Courier New,Courier">acc_vcl_delete()</font>
+<br><font face="Courier New,Courier">mc_scan_plusargs()</font>
+<br><font face="Courier New,Courier">io_printf()</font></blockquote>
+</blockquote>
+
+<ul>&nbsp;</ul>
+
+</body>
+</html>

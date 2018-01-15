@@ -1,0 +1,61 @@
+library verilog;
+use verilog.vl_types.all;
+entity squat is
+    generic(
+        t4              : integer := 10;
+        t6              : integer := 15;
+        t7              : integer := 10;
+        t9              : integer := 15
+    );
+    port(
+        rx_clk_0        : out    vl_logic;
+        rx_clk_1        : out    vl_logic;
+        rx_clk_2        : out    vl_logic;
+        rx_clk_3        : out    vl_logic;
+        rx_data_0       : in     vl_logic_vector(7 downto 0);
+        rx_data_1       : in     vl_logic_vector(7 downto 0);
+        rx_data_2       : in     vl_logic_vector(7 downto 0);
+        rx_data_3       : in     vl_logic_vector(7 downto 0);
+        rx_soc_0        : in     vl_logic;
+        rx_soc_1        : in     vl_logic;
+        rx_soc_2        : in     vl_logic;
+        rx_soc_3        : in     vl_logic;
+        rx_en_0         : out    vl_logic;
+        rx_en_1         : out    vl_logic;
+        rx_en_2         : out    vl_logic;
+        rx_en_3         : out    vl_logic;
+        rx_clav_0       : in     vl_logic;
+        rx_clav_1       : in     vl_logic;
+        rx_clav_2       : in     vl_logic;
+        rx_clav_3       : in     vl_logic;
+        tx_clk_0        : out    vl_logic;
+        tx_clk_1        : out    vl_logic;
+        tx_clk_2        : out    vl_logic;
+        tx_clk_3        : out    vl_logic;
+        tx_data_0       : out    vl_logic_vector(7 downto 0);
+        tx_data_1       : out    vl_logic_vector(7 downto 0);
+        tx_data_2       : out    vl_logic_vector(7 downto 0);
+        tx_data_3       : out    vl_logic_vector(7 downto 0);
+        tx_soc_0        : out    vl_logic;
+        tx_soc_1        : out    vl_logic;
+        tx_soc_2        : out    vl_logic;
+        tx_soc_3        : out    vl_logic;
+        tx_en_0         : out    vl_logic;
+        tx_en_1         : out    vl_logic;
+        tx_en_2         : out    vl_logic;
+        tx_en_3         : out    vl_logic;
+        tx_clav_0       : in     vl_logic;
+        tx_clav_1       : in     vl_logic;
+        tx_clav_2       : in     vl_logic;
+        tx_clav_3       : in     vl_logic;
+        busmode         : in     vl_logic;
+        addr            : in     vl_logic_vector(11 downto 0);
+        sel             : in     vl_logic;
+        data            : inout  vl_logic_vector(7 downto 0);
+        rd_ds           : in     vl_logic;
+        wr_rw           : in     vl_logic;
+        rdy_dtack       : out    vl_logic;
+        rst             : in     vl_logic;
+        clk             : in     vl_logic
+    );
+end squat;

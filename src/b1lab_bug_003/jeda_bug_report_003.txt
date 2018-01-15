@@ -1,0 +1,201 @@
+Bug report 
+*********************************************
+Number   : 3 
+Severity : display empty
+Date     : 04/03/2003
+reported : Serlina Qin, Be One Lab Inc.
+*********************************************
+
+Bug description:
+
+[william@b1lab0 003 display ]$ jedax -exe jvc_mpeg2_env.j  
+file: jvc_mpeg2_env.j  
+OUT_FILE: jvc_mpeg2_env.jo  
+0 compile errors 
+OUT_C_FILE: jvc_mpeg2_env.jeda.c  
+OUT_VERILOG_FILE: jvc_mpeg2_env.jeda.v 
+Loading file "jvc_mpeg2_env.jo"
+0 link errors
+C compile: gcc -I/var/tools/jeda-x.i86_linux.3.1.p5/include -c -O2  -D_REENTRANT
+  -fPIC  jvc_mpeg2_env.jeda.c -o jvc_mpeg2_env.jeda.o
+Link command: gcc -D_REENTRANT -o jvc_mpeg2_env  jvc_mpeg2_env.jeda.o /var/tools
+/jeda-x.i86_linux.3.1.p5/lib/smain.o /var/tools/jeda-x.i86_linux.3.1.p5/lib/jeda
+exe.a -lpthread -lnsl -lm -ll -lc -ltermcap
+[william@b1lab0 003 display ]$ ./jvc_mpeg2_env
+l_time_code[0]=16
+l_time_code[0]=0000010
+l_time_code[0]=0000000000000000000010000
+main()start
+[0   ] jvc_cofigure>> jvc_B1LAB_DEBUG     >> start to configure tecase i=1
+
+[1   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> sequence header is finish
+
+l_time_code[0]=16
+l_time_code[0]=0000010
+l_time_code[0]=0000000000000000000010000
+l_time_code[1]=17
+l_time_code[1]=
+l_time_code[1]=
+l_time_code[2]=18
+l_time_code[2]=
+l_time_code[2]=
+
+[1   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[2   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> seqence extension is finish
+
+[2   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[3   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> user_data_0 is finish
+
+[3   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[4   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> group_start_code
+      =1b8
+
+[4   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> time_code
+      =10
+
+[4   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> closed_gop
+      =1
+
+[4   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> broken_link
+      =0
+
+[4   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> group of picture header is generati
+on
+[4   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[5   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> user_data_1 is generation
+
+[5   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[6   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> picture header is generation
+
+[6   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[7   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> picture header extension is generat
+ion
+[7   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[8   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> user_data_2 is generation
+
+[8   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[9   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> picture data extension is generatio
+n
+[9   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[10  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> user_data_0 is finish
+
+[10  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[11  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> group_start_code
+      =1b8
+
+[11  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> time_code
+      =11
+
+[11  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> closed_gop
+      =1
+
+[11  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> broken_link
+      =0
+
+[11  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> group of picture header is generati
+on
+[11  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[12  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> user_data_1 is generation
+
+[12  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[13  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> picture header is generation
+
+[13  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[14  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> picture header extension is generat
+ion
+[14  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[15  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> user_data_2 is generation
+
+[15  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[16  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> picture data extension is generatio
+n
+[16  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[17  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> user_data_0 is finish
+
+[17  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[18  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> group_start_code
+      =1b8
+
+[18  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> time_code
+      =12
+
+[18  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> closed_gop
+      =1
+
+[18  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> broken_link
+      =0
+
+[18  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> group of picture header is generati
+on
+[18  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[19  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> user_data_1 is generation
+
+[19  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+
+[20  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> picture header is generation
+
+[20  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+ 
+[21  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> picture header extension is generat
+ion
+[21  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+ 
+[22  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> user_data_2 is generation
+ 
+[22  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+ 
+[23  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> picture data extension is generatio
+n
+[23  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+ 
+[24  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> sequence end code  is generation
+ 
+stop is called  call_stop=1
+[24  ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+ 
+[24  ] jvc_monitor >> jvc_B1LAB_DEBUG     >> monitorcheck starts
+
+tf_dofinish() called. exitting..
+
+
+
+
+To repro:
+all the .j files have been included to repro this bug.
+
+
+The error is related to line 341-343 in file jvc_mpeg2_h.j.
+
+line 341 : printf("l_time_code[%d]=%d\n",i,l_time_code[i]);
+line 342 : printf("l_time_code[%d]=%h\n",i,l_time_code[i]);  //can't display
+line 343 : printf("l_time_code[%d]=%b\n",i,l_time_code[i]);  //can't display
+
+They print out the same item with different format,but only the line 341 is ok,
+the others display empty(see the error.log file line 23-31).
+line 23:l_time_code[0]=16
+line 24:l_time_code[0]=0000010
+line 25:l_time_code[0]=0000000000000000000010000
+line 26:l_time_code[1]=17
+line 27:l_time_code[1]=
+line 28:l_time_code[1]=
+line 29:l_time_code[2]=18
+line 30:l_time_code[2]=
+line 31:l_time_code[2]

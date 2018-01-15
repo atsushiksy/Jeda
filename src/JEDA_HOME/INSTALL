@@ -1,0 +1,147 @@
+
+#
+# Jeda-X installation Guide
+#
+# Copyright (C) 2003 Jeda Technologies, Inc.
+#
+
+
+1. Before you Start
+-------------------
+
+    In order to run Jeda-X Verification System, following tools are
+    required on your system:
+        * gcc
+        * perl5
+        * tcl/tk, wish (needed to run debug window)
+
+The section "Obtaining and installing packages" below gives
+instructions where to find the binaries.
+
+2. Extracting Binary files
+--------------------------
+Perform following steps:
+
+  1. Contact support@jedatechnologies.com for information and access to
+     to obtain the binary release file
+	  jeda-X.<version_revision>.tar.gz
+
+  2. Unpack the binary
+	  gzip -cd jeda-X.<version_revision>.tar.gz | tar xvpf -
+
+	  alternatively
+
+	  tar xvfz jeda-X.<version_revision>.tar.gz
+
+      You'll get the install directory 'Jeda-X.<version_revision>', and
+      all the necessary files are expanded under the directory. We call
+      this directory as <install_dir> in this document.
+
+  3. Installing the binary
+	  cd <install_dir>
+	  run "./configure"
+
+      The installation of Jeda part is done. Now, you need to set the
+      environment properly and construct PLI environment for your Verilog
+      simulator.
+
+  4.  Setting User Environment
+
+      You need to set $JEDA_HOME to <install_dir> directory.
+      For the C shell environment, type:
+	  setenv JEDA_HOME <install_dir>
+
+      For the Korn and Bourne shells:
+	  JEDA_HOME=<install_dir>
+	  export JEDA_HOME
+
+      Also, you need to add <install_dir>/bin to your command path and
+      paths to the license manager daemon:
+	  PATH=$PATH":<install_dir>/bin:<install_dir/license/bin"
+
+2.  Starting Flexlm License Manager
+----------------------------------------
+Perform the following steps:
+
+    1. Please contact Support@JedaTechnologies.com to Obtain the
+       license file (most likely "jeda_x.lic")
+
+    2. Copy <jeda_x.lic> to <install_dir>/license directory.
+
+    3. Set the directory to LM_LICENSE_FILE environment variable.
+       Cshell:
+        setenv LM_LICENCE_FILE <install_dir>/license/jeda_x.lic
+
+       Korn & Bourne shells:
+        LM_LICENCE_FILE=$LMLICENSE_FILE:<install_dir>/license/jeda_x.lic
+        export LM_LICENSE_FILE
+
+    4. If you are already running the Flexlm license server, you need to
+       run 'lmrelead' to update to the new license environment.
+
+       If you are not running the Flexlm license server, you need to run
+       'lmgrd' on your server machine. Normally, this is done at the
+       machine boot time. 
+	cd <install_dir/license
+	lmgrd -c jeda_x.lic
+
+       For more detailed information about how to start the license server 
+       please refer to Flexlm manual using your favorite browser:
+       The file is:
+       <install_dir>/license/doc/flexuser/chap6.htm 
+      
+
+
+3. testing your installation
+----------------------------
+This package provides a stand_alone Jeda test that you are advised to
+run to check if the Jeda-X installation is correct. To do so please
+perform the following:
+
+cd <install_dir>/examples/verilog/bus_snooper/standalone_run
+make
+./run multi_transaction_random
+
+
+----------------------------------------
+Obtaining and installing packages
+----------------------------------------
+
+The following source trees can be downloaded for free from the
+following locations. This is a 
+        * gcc
+        * perl5
+        * wish (tcl/tk)
+
+This section is "only" provides simple instructions to download and
+install the necessary tools to run the Jeda-X Verification system. YOU
+WILL HAVE TO CONSULT THE INSTALLATION GUIDES THAT ARE PROVIDED WITH
+THE TOOLS.
+
+Tcl/Tk
+Obtain the source from
+	http://www.tcl.tk/software/tcltk/8.4.html
+
+	Both packages have to be installed and tested separately
+
+Perl
+Both source and binary distributions for Perl are available at 
+	http://www.perl.com/
+
+gcc
+GCC is the GNU compiler collection. Sources can be found at
+	http://gcc.gnu.org
+
+
+----------------------------------------
+Trouble shooting
+----------------------------------------
+1. Installation "./configure" warnings for wish
+
+   Mostly this is due to the following
+   1. Not installing the "wish" binary. Please refer to the section
+      "Obtaining and installing packages"
+
+   2. The location of the "wish" executable has not been added to your
+      PATH
+----------------------------------------

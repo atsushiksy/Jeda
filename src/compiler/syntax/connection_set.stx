@@ -1,0 +1,24 @@
+
+connectionset_definition:
+  'connectionset' 
+  '{' 
+    port_connections
+  '}' 
+  ;
+  
+port_connections:
+  port_connection
+  |
+  port_connections port_connection
+  ;
+  
+port_connection:
+  portset_port  String_literal semicolon 
+  ;
+  
+portset_port:
+   Identifier '.' Identifier 
+   |
+   Identifier
+   ;
+

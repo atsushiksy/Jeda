@@ -1,0 +1,111 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+
+<h1>
+Appendix E. Jeda Standalone Simulation Engine</h1>
+
+<blockquote>Even Jeda is designed to run with Verilog as the user PLI code,
+it can run by itself as the standalone simulator. In the standalone mode,
+it simulates all the ports (and ports in portsets) as Verilog simulator
+does, without the actual Verilog models. This is useful when Jeda is used
+for the modeling purpose. The model is written in Jeda language, interfacing
+via the ports. The stimulus to the mode is also written in Jeda, and it
+can be used for the actual test code when the model is replaced by the
+Verilog model.
+<br>The standalone mode can generates the VCD (Value Change Dump) file
+with '-V &lt;dump_file>' option, which contains all the port signals and
+gloval/static variable values.
+<br>Advantages of running in the standalone mode are:
+<ol>
+<li>
+It does not consume Verilog license.</li>
+
+<li>
+It's faster than the execution with Verilog. (hopefully..)</li>
+
+<li>
+Its executable is smaller than that with Verilog (definitely!&nbsp;)</li>
+</ol>
+The actual example of running standalone simulation can be found in &lt;jeda_install>/src/verilog/example/bus_snooper/standalone_run
+directory. The directory contains Makefile to create standalone binary
+and 'run' script to run standalone simulation with VCD dump.
+<p>The rest of this chapter shows some tips to run the standalone simulation
+properly.</blockquote>
+
+<h2>
+E.1 CLOCK and other clock signals</h2>
+
+<blockquote>Jeda's internal cycle is based on CLOCK signal. This signal
+must be driven from Jeda code using drive_clock() member function in the
+standalone execution.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">CLOCK.drive_clock( 10, 10,
+0, 0 ) ; // period1, period2, initial_value, delay</font></blockquote>
+If any other clock signals are used as the reference clock, these must
+be driven in the same way with drive_clock() function.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">CPU_BUS.clk.drive_clock( 10,
+10, 0, 0 ) ; // period1, period2, initial_value, delay</font></blockquote>
+
+<p><br>Without driving clock, the simulation will immediately finish after
+all the codes in simulation time 0 are executed.
+<br>&nbsp;</blockquote>
+
+<h2>
+E.2&nbsp; Pull-up, Pull-down signals</h2>
+
+<blockquote>If you are using tri0 or tri1 wire in Verilog (or any other
+pull-up, pull-down structure) and the logic is relying on that, these must
+be driven with 'weak' drive in Jeda code in standalone simulation. The
+possible implementation of this is shown as the following. (Note that this
+will only work if your simulation is running on CLOCK.)
+<blockquote><font face="Courier New,Courier">fork</font>
+<br><font face="Courier New,Courier">forever {</font>
+<br><font face="Courier New,Courier">&nbsp; CPU_BUS.data.0 = 0 weak ; //
+pull-down</font>
+<br><font face="Courier New,Courier">&nbsp; CPU_BUS.ack_.0 = 1 weak ; //
+pull-up</font>
+<br><font face="Courier New,Courier">&nbsp; @(posedge CLOCK) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Do it again at next cycle</font>
+<br><font face="Courier New,Courier">}</font>
+<br><font face="Courier New,Courier">knife</font></blockquote>
+</blockquote>
+
+<h2>
+E.3&nbsp; Standalone Compile/Link</h2>
+
+<blockquote>The perl script 'jeda' with '-exe' option creates the standalone
+binary executable.
+<blockquote>jeda -exe foo.j bar.j</blockquote>
+The command above create a binary 'foo'.</blockquote>
+
+<h2>
+E.4 Run Standalone simulation</h2>
+
+<blockquote>To run the standalone simulation, simply execute the binary.
+In the case above, just type:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foo
+<p>will run the simulation. The -V option will create the VCD dump file:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foo -V foo.vcd
+<p>The plus argument can be passed to Jeda code as the regular argument,
+such as:
+<p>&nbsp;&nbsp;&nbsp;&nbsp; foo -V foo.vcd +check_this +check_that
+<br>&nbsp;</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+<br>&nbsp;
+<br>&nbsp;
+<blockquote>&nbsp;</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+<ul>&nbsp;</ul>
+
+</body>
+</html>

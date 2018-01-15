@@ -1,0 +1,117 @@
+Test debugger
+  In both side:
+    access to local variable
+    access to auto variable
+    access to global variable
+  
+  breakpoint access
+  
+  
+
+
+
+
+struct JD_module_table_s {
+  JD_debug_scope *g_scope ;
+  int *g_size ;
+  JD_debug_scope *l_scope ;
+  int *l_size ;
+  JD_debug_scope *scope ;
+  int *s_size ;
+  int *s_offset ;
+  JD_debug_file *dfile ;
+  int *dfile_size ;
+  int **break_table ;
+  char **name_table ;
+  int *name_offset ;
+} ;
+
+
+0. loading debug name table
+
+1. loading scope table
+
+2. loading file table
+
+3. loading breakable table
+
+
+
+static int build_scope_table( 
+  JD_dbg_name_node **scope, JD_debug_scope *table, 
+  JD_dbg_name_node_scope_type scope_type, int auto_flag, int max,
+  int offset, int name_offset
+)
+
+
+
+
+JD_debug_scope JD_global_scope[] = {
+  /* { type, index, name, dtype, ub, lb, level, parent } */
+
+}
+
+JD_global_scope_num
+JD_debug_scope JD_global_scope[]
+
+JD_<module>_global_scope[]
+JD_<module>_global_scope_num
+JD_<module>_global_scope_offset
+
+
+JD_debug_scope JD_<module>_local_scopes[]
+int JD_<module>_local_scope_num
+
+JD_debug_scope JD_local_scopes[] = {
+  /* { type, index, name, dtype, level, parent } */ 
+}
+int JD_local_scope_num
+
+
+JD_debug_scope JD_<module>_scope_table[] = {
+int JD_<module>_scope_table_num = %d ; /* number of top entries */\n", 
+int JD_<module>_scope_table_offset ; \n", 
+
+
+JD_debug_scope JD_scope_table[] = {
+  /* { type, index, name, dtype, level, parent } */
+}
+int JD_scope_table_num = %d ; /* number of top entries */\n", 
+
+
+
+int JD_<module>_file_table_size = %d ;
+int JD_<module>_file_table_offset  ;
+
+JD_debug_file *JD_file_table ;
+JD_debug_file JD__file_table[] 
+int JD_file_table_size = %d ;
+
+
+int JD_<module>_breakable_table[] = {
+int JD_breakable_table[] = {
+
+void JD_si_alloc_global( JD_toplevel *top ) {
+  top->global_data = GLOBAL_DATA = 
+    (JD_data **)calloc( global_var_count + 1, sizeof(JD_data *) ) ;\n",
+    
+  top->global_obj =  (int **)calloc( global_var_count + 1, sizeof(int *) ) ;
+    
+  top->num_global_data = 1 ;
+  
+}
+
+  JD_<module>_global_var_offset = top->num_global_data ;
+
+
+void JD_si_initialize() {
+
+}
+
+int JD_<module>_Debug_name_table_size ;
+int JD_<module>_Debug_name_table_offset ;
+JD_Debug_name_table[] ;
+  
+  
+  
+  

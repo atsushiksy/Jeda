@@ -1,0 +1,17 @@
+
+parallel_eval_expression:
+  parallel_primitive '(' timed_expression_list ')' 
+  ;
+  
+parallel_primitive:
+  'p_and' 
+  |
+  'p_or' 
+  ;
+
+timed_expression_list:
+  timed_expression
+  |
+  timed_expression_list ',' timed_expression
+  ;
+

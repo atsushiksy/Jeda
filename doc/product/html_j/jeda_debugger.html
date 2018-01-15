@@ -1,0 +1,322 @@
+<html>
+<head>
+</head>
+<body>
+
+<h1>
+Appendix C. Jeda デバッガー
+</h1>
+
+<blockquote>
+Jedaは、シンプルなデバッガーが付随しています。これによって、ユーザーは
+実行中に、Jedaのコードが何をしているのかを覗くことができます。
+</blockquote>
+
+<h2>
+C.1 デバッガーを使用可能にする
+</h2>
+
+<blockquote>
+デバッガーを使用可能にするためには、'jeda'スクリプトに -g オプションを
+使用します。
+<p>&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">jeda -g -dl simple.j</font>
+<p>この '-g' オプションによって、コンパイルされたユーザーコードは、
+デバッグのための追加情報が付加され、デバッガーを使用可能にした
+実行時ライブラリとリンクされます。(性能上の理由から、デバッガーを利用する
+ライブラリと、通常の実行用ライブラリの２種類が提供されています。)
+<br>&nbsp;</blockquote>
+
+<h2>
+C.2 デバッガーを起動する
+</h2>
+
+<blockquote>
+breakpointステートメントが実行されると、デバッガーが呼び出されます。
+<blockquote>breakpoint ;</blockquote>
+breakpointステートメントは、ファイル名の文字列を付加することが出来、
+そのファイルの内容は、デバッガーのコマンドとして、デバッガーセッション
+の初めに実行されます。
+以下のステートメントは、"command.jdb"ファイルに書かれたコマンドを実行します。
+<blockquote>breakpoint "commands.jdb" ;</blockquote>
+もし、ファイル内のコマンドが、'continue'コマンドを含んでいると、デバッガー
+の実行は終了し、実行が継続されます。同様に、'next'、'step'、'stepany'の
+コマンドは、コントロールを次の場所に移動します。(ファイル内のこうした
+コマンド以降の部分は、実行されないことに注意)
+<br>
+ファイル内の、# で始まる行は無視されます。
+<p>
+プラス引数 +jeda_debug_on_error が指定されていると、error()が呼ばれた時点、
+もしくは、その他の実行時エラーを検出した際に、デバッガーが起動されます。
+<p>
+Jedaデバッガーが起動されると、"jdb> "プロンプトを表示して、ユーザーの
+コマンド入力を待ちます。ユーザーインターフェースは、GNUreadlineライブラリ
+によって作られているので、Emacsのようなコマンドライン エディットが可能です。
+詳しくは、
+<a href="http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html">readline</a>
+のドキュメントを参照してください。
+</blockquote>
+
+<h2>
+C.3 デバッガー コマンド
+</h2>
+
+<ul>Jeda デバッガーでは、以下のコマンドが使用できます。
+</ul>
+
+<h3>
+C.3.1 &lt;return></h3>
+
+<ul>単に &lt;return> を入力すると、前回のコマンドを繰り返し実行します。
+</ul>
+
+<h3>
+C.3.2 help, ?</h3>
+
+<blockquote>
+helpコマンドは、使用できる全てのコマンドを表示します。
+'?'は、helpと同じです。
+</blockquote>
+
+<h3>
+C.3.3 print [/f] &lt;exp>,&nbsp; p [/f] &lt;exp></h3>
+
+<blockquote>
+printコマンドは、表現式の値を表示します。
+p は、printと同じです。
+<blockquote><font face="Courier New,Courier">jdb> print 3+2</font>
+<br><font face="Courier New,Courier">5</font>
+<br><font face="Courier New,Courier">jdb> print i</font>
+<br><font face="Courier New,Courier">0</font>
+<br><font face="Courier New,Courier">jdb> p num_thread</font>
+<br><font face="Courier New,Courier">4</font></blockquote>
+printコマンドは、int、bitタイプのデータ表示に、以下のフォーマット
+文字を指定することが出来ます。
+<blockquote>x&nbsp;&nbsp;&nbsp; hexadecimal
+<br>h&nbsp;&nbsp;&nbsp; hexadecimal
+<br>d&nbsp;&nbsp;&nbsp; decimal
+<br>o&nbsp;&nbsp;&nbsp; octal
+<br>b&nbsp;&nbsp;&nbsp; binary</blockquote>
+</blockquote>
+
+<h3>
+C.3.4 continue, c</h3>
+
+<blockquote>
+continueコマンドは、実行を継続します。
+c は continueと同じです。
+</blockquote>
+
+<h3>
+C.3.5 next, n</h3>
+
+<blockquote>
+nextコマンドは、次の行(関数呼び出しをふくむ)を実行します。
+n は、 nextと同じです。
+</blockquote>
+
+<h3>
+C.3.6 step, s</h3>
+
+<blockquote>
+stepコマンドは、次の行に移動します。このコマンドでは、同じスレッドの実行
+のみに、ブレークがかかります。
+s は、stepと同じです。
+</blockquote>
+
+<h3>
+C.3.7 stepany, sa</h3>
+
+<blockquote>
+stepanyコマンドは、つぎの行に移動します。このコマンドでは、どのスレッドの
+実行でも、ブレークがかかります。
+sa は、stepanyと同じです。
+</blockquote>
+
+<h3>
+C.3.8 break [&lt;file>:]&lt;line>, b [&lt;file>:]&lt;line></h3>
+
+<blockquote>
+breakコマンドは、ブレークポイントを &lt;line> の行 に設定します。
+ファイル&lt;file>の指定はオプションです。
+b は、breakと同じです。
+</blockquote>
+
+<h3>
+C.3.9 clear [&lt;file>:]&lt;line></h3>
+
+<blockquote>
+clearコマンドは、&lt;line> 行のぶれーくぽいんとを解除します。
+ファイル&lt;file>の指定はオプションです。
+</blockquote>
+
+<h3>
+C.3.10 tbreak [&lt;file>:]&lt;line>, tb [&lt;file>:]&lt;line></h3>
+
+<blockquote>
+tbreakコマンドは、一時的なブレークポイントを &lt;line> 行に設定します。
+ファイル&lt;file>の指定はオプションです。一時的なブレークポイントは、
+そこでブレークがかかると解除されます。
+tbは、tbreakと同じです。
+</blockquote>
+
+<h3>
+C.3.11 backtrace, bt, where</h3>
+
+<blockquote>
+backtraceコマンドは、現在の実行スタックを表示します。
+Backtrace command shows the current execution stack. 
+bt とwhere は backtraceと同じです。
+</blockquote>
+
+<h3>
+C.3.12 list, l</h3>
+
+<blockquote>
+listコマンドは、ソースコードを表示します。
+lは、listと同じです。
+以下の、引数を使用することが出来ます。
+<ul>
+<li>
+list</li>
+
+<br>次の１０行を表示します。
+<li>
+list [file:]&lt;startnum> [, &lt;endnum.]</li>
+
+<br>指定された行を表示します。
+<li>
+list [file:]&lt;funcnname></li>
+
+<br>関数の開始部を表示します。
+</ul>
+</blockquote>
+
+<h3>
+C.3.13 assign &lt;left> = &lt;exp></h3>
+
+<blockquote>
+assignコマンドは、 &lt;exp> 表現式を &lt;left>表現式に代入します。
+</blockquote>
+
+<h3>
+C.3.14 up [&lt;num>]</h3>
+
+<blockquote>
+upコマンドは、スコープを、[&lt;num>で与えられた分]上に移動します。
+</blockquote>
+
+<h3>
+C.3.15 down [&lt;num>]</h3>
+
+<blockquote>
+downコマンドは、スコープを、[&lt;num>で与えられた分]下に移動します。
+</blockquote>
+
+<h3>
+C.3.16 thread &lt;num></h3>
+
+<blockquote>
+threadコマンドは、スコープをあたえられたidをもつスレッドに移動します。
+</blockquote>
+
+<h3>
+C.3.17 show</h3>
+
+<blockquote>
+showコマンドは、様々な情報を表示します。以下の引数がサポートされています。
+<ul>
+<li>
+show vars</li>
+
+<br>現在のスコープでの全ての変数を表示します。
+<li>
+show lvars</li>
+
+<br>現在のスコープでの全ての一時変数を表示します。
+<li>
+show threads</li>
+
+<br>システム内のすべてのJedaスレッドを表示します。
+<li>
+show lthreads</li>
+
+<br>現在のスコープのスレッドおよび、その子孫スレッドを表示します。
+</ul>
+</blockquote>
+
+<h3>
+C.3.18 quit</h3>
+
+<blockquote>
+quitコマンドは、シミュレーションの実行を終了させます。($finishと同じ)
+</blockquote>
+
+<h3>
+C.3.19 window</h3>
+
+<blockquote>
+windowは、tcl/tkベースのユーザーインターフェースを起動します。現行のウインドウのイメージを下に示します。
+<br>ウインドウ上部は、デバッガにコマンドを送るために使用します。
+<ul>
+<li>
+'print &lt;expression>' ボタンは、選択されている表現式で print コマンドを実行します。
+</li>
+
+<li>
+Fmtは、printボタンのフォーマットを選択します。
+</li>
+
+<li>
+'show vars' 'show lvars' 'where' 'up' 'down' のボタンはそれぞれのコマンドを実行します。
+</li>
+
+<li>
+Commandエントリ部は、任意のコマンドを実行するのに利用します。
+</li>
+
+<li>
+'break &lt;sel>' 'tbreak &lt;sel>' ボタンは、選択されたソースラインに、break または tbreak を設定します。
+</li>
+
+<li>
+'Clear &lt;sel>' ボタンは、選択されたブレークポイントをクリアします。選択は、ブレークポイントリストかソースで行なうことが出来ます。
+</li>
+
+<li>
+'continue' 'step' 'step any' 'next' 'quit' ボタンは、それぞれのコマンドを実行します。
+</li>
+</ul>
+ブレークポイント フレームは、アクティブなブレークポイントを表示します。
+<br>
+スレッド フレームは、アクティブはスレードを表示します。スレッドをダブルクリックすると、ソース フレームに対応する実行ラインが表示されます。
+<br>ファイル エントリは、現在ソース フレームに表示されているファイル名を表示します。
+<br>
+ソース フレームは、ソースコードを表示します。現在の実行場所は、左部に > で示されます。ブレークポイントと一時ブレークポイントは、B と T にて示されます。
+<p><img SRC="../html/debug_window.gif" height=735 width=632></blockquote>
+
+
+<br>&nbsp;
+<br>&nbsp;
+<blockquote>&nbsp;</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+<ul>&nbsp;</ul>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

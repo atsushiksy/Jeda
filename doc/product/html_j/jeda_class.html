@@ -1,0 +1,385 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_statement.html">Prev</a>
+| <a href="jeda_port.html">Next</a>
+<h1>
+9. クラス
+</h1>
+
+<blockquote>
+クラスは、そのオブジェクトの振舞いを定義する、メンバーデータとメンバー関数
+の集まりです。
+</blockquote>
+
+<h2>
+<a NAME="9.1 Class Declaration"></a>
+9.1 クラス宣言
+</h2>
+
+<blockquote>
+クラス宣言は、以下の基本構造をもちます。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>class &lt;class_name>
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; &lt;member variables></font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; &lt;member functions></font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;
+</blockquote>
+ここに、簡単なクラス定義の例をしめします。
+<blockquote><font face="Courier New,Courier"><font size=-1>class my_class
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int bar ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; int read_bar()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; return
+bar ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;
+</blockquote>
+
+外部で宣言されているクラスへの参照は、extern属性をもつクラスを定義することで、行なうことができます。この場合、メンバー関数のボディは宣言できません。このような定義をもつヘッダーファイルは、-h オプションによって、コンパイル時に自動的に作成することが出来ます。
+
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>extern class
+my_class {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int bar ;</font></font><font face="Courier New,Courier"><font size=-1></font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; int read_bar()
+; // no body</font></font><font face="Courier New,Courier"><font size=-1></font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br><font face="Courier New,Courier"><font size=-1></font></font>&nbsp;</blockquote>
+</blockquote>
+
+</blockquote>
+
+<h2>
+<a NAME="9.2 Class Variable Declaration and Construction"></a>
+9.2 クラス変数の宣言とコンストラクション
+</h2>
+
+<blockquote>
+クラスが定義されると、そのクラス名はユーザ定義データタイプとなり、
+そのインスタンスは、そのタイプをもつ変数として宣言されます。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>my_class foo
+;</font></font></blockquote>
+クラスのインスタンスが宣言された時点で、その中身は空で、new 関数を呼ぶこと
+によって、アロケートされなければなりません。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>foo = new ;</font></font>
+</blockquote>
+関数new()がクラスの宣言内で定義されていない場合、newを呼ぶことで単に
+定義されているメンバーデータをアロケートします。
+<br>
+関数new()が定義されると、newを呼ぶことで、クラスのメンバーデータがアロケート
+され、初期化のために定義されているnew()関数が呼ばれます。
+<br>
+関数new()は、voidタイプとして宣言されなくてはなりません。new()は、引数を
+持つことが出来ます。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>class my_class
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int bar ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; void new( int
+x ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bar
+= x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; int read_bar()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; return
+bar ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void main() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int b ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; my_class foo
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; foo = new( 56
+) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; b = foo.read_bar()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;
+</blockquote>
+上記の例のように、インスタンスのメンバーにアクセスするには、'.'(ドット)
+オペレータによって行います。
+<br>
+Jeda言語ないで、クラスのインスタンスは、ポインタとして扱われます。
+あるインスタンス(すでにnew関数でデータがアロケートされているもの)を保持する
+変数が別の変数に代入された場合、二つの変数は同一のデータ構造を共有します。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>my_class foo,
+bar ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>foo = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>bar = foo ;&nbsp; //
+sharing the same data structure</font></font>
+<br>&nbsp;
+</blockquote>
+もし、(同じ構造体を共有するのでなく)本当のコピーが必要な場合、変数を伴う
+newの呼び出しによって、おなじデータ値を持つコピーされたインスタンスを
+生成することが出来ます。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>bar = new foo
+; // create the copy of foo, not share</font></font></blockquote>
+ここで、このコピーは１レベルのみしか行われないことに注意してください。
+newでの処理は、新しい構造体をアロケートし、その内容をコピーするだけなので、
+もし、メンバー変数がクラスタイプであると、そのメンバー変数はポインタ値で
+あるので、そのレベルで同一のデータ構造を共有することになります。
+</blockquote>
+
+<h2>
+<a NAME="9.3 Class Extention"></a>
+9.3 クラスの拡張
+</h2>
+
+<blockquote>
+クラスは、キーワード 'extends'を使って拡張することができます。生成された
+新しいクラスは、その親クラスから(ローカルなメンバーを除く)全てのメンバーを
+継承します。
+すべてのメンバーは、親クラスでfinal宣言されていなければ、子クラスで
+再定義することが出来ます。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>mymy_class extends
+my_class {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int boo ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int bee ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int sum() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; return
+boo + bee ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+</blockquote>
+拡張されたクラスのインスタンスとその親クラスのインスタンスは、両方向
+(アップキャストとダウンキャスト)に代入することが出来ます。
+ダウンキャストの際には、親クラスのインスタンスが代入される子クラスの
+インスタンスを保持しているかを実行時にチェックします。(コンパイル時の
+チェックは不可能なため。)
+
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>class foo_class
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>class bar_class extends
+foo_class {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void yoo() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; foo_class foo
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar_class bar
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar_class boo
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; bar = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; foo = bar ; //
+up-cast</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; boo = foo ; //
+down-cast</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+</blockquote>
+new()関数が呼び出された時、すべての親(super)クラスのnew()関数も同時に
+呼ばれます。もしnew関数が省略されていても、デフォルトのnew関数(データの
+アロケーションのみを行う)が呼び出されます。
+もし、親クラスのnew関数がなにも引数を取らない場合(もしくは、すべての引数
+にデフォルト値が設定されている場合)、親クラスのnew関数にたいする呼び出し
+は、暗黙的に行われます。
+親クラスのnew関数が引数を必要とする場合、子クラスのnew関数から、適切な引数を
+用いて、明示的に呼び出さなければなりません。この場合、子クラスのnew関数
+は省略できず、親クラスのnew関数への呼び出し( super.new() )は、そのnew関数の
+一番最初のステートメントとして行わなければなりません。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>class foo_class
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void new( int
+x ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>class bar_class extends
+foo_class {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void new() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; super.new(0)
+;&nbsp; // must call as the first statement of new()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+</blockquote>
+new関数を除いて、クラスのメンバーに対する参照は、クラスのスコープの順に
+行われます。ある名前がそのクラス内で検索され、見つからない場合、その
+親クラス内の検索が行われます。子クラス内で、メンバーを再定義した場合、
+その子クラス内で行われる参照が、再定義されたものに対応します。この
+再定義が、親クラス内で行われる、もとのメンバーに対する参照を書き換える
+わけではないことに、注意してください。親クラス内の関数参照を再定義した
+関数に書き換える方法については、<a href="#9.5 Overwrite Function">9.5
+オーバーライト関数</a>を参照してください。
+</blockquote>
+
+<h2>
+&nbsp;<a NAME="9.4 Abstruct Class"></a>
+9.4 アブストラクト クラス
+</h2>
+
+<blockquote>
+アブストラクト クラスは、'abstract'属性を用いて定義されたクラスで、
+このクラスには、同様に'abstract'属性を付加したアブストラクト関数を
+定義することが出来ます。
+このアブストラクトクラスは、関数の本体を持たずに定義され、実際の
+本体は、子クラスで定義されなくてはなりません。
+<br>
+このようなアブストラクト関数を持つアブストラクト クラスは、クラスの
+テンプレートとして使うことができます。
+このタイプのクラスのインスタンスは宣言することは出来ますが、new関数
+を直接呼んでデータをアロケートすることは出来ません。このようなインスタンス
+へのアロケーションは、その子クラスのインスタンスを代入(アップキャスト)
+することによってのみ行うことが出来ます。
+<blockquote><font face="Courier New,Courier"><font size=-1>abstract class
+animal {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; abstract void
+bark() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; abstract void
+food() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>class dog extends animal
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void bark() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"Bow wow\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void food() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"Eats dog food\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+&nbsp;<a NAME="9.5 Overwrite Function"></a>
+9.5 オーバーライト関数
+</h2>
+
+<blockquote>
+上記で説明されたアブストラクト機構は、親クラスが一連のクラスの集合を
+代表する概要的なものとして記述されている場合に有効です。
+しかし、クラスがすでにこうしたこうした発想なしで記述され、ある一つの
+関数を書き換えるだけのクラス拡張を行いたい場合も想定されます。
+拡張された子クラスで、単に関数を書き換えることは、子クラスのインスタンス
+での、関数参照には有効ですが、もし親クラスがその関数を参照していた場合、
+親クラスのコードは依然元々の自分のメンバー関数を参照しています。
+<p>For example:
+<blockquote>&nbsp;
+<br><font face="Courier New,Courier"><font size=-1>class parent {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;void foo() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp; printf(
+"parent foo called\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;void bar() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp; foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>} // end of class parent</font></font>
+<p><font face="Courier New,Courier"><font size=-1>class child extends parent
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void foo() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"child foo called\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+</blockquote>
+子クラスのインスタンスが(親クラスで定義されている)関数bar()を呼び出したとき、
+子クラスで関数foo()が再定義されているにもかかわらず、関数bar()からは、
+親クラスのfoo()が参照されます。
+<br>
+もし子クラスで、関数が 'overwrite'属性と共に再定義されると、その関数が
+親クラスからも参照されます。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>class child_a
+extends parent {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; overwrite void
+foo() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; print(
+"child foo called\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+</blockquote>
+この場合、親クラスの関数bar()が子クラスのインスタンスから呼び出された場合、
+子クラスで再定義された関数foo()が関数bar()から参照されます。
+このように、関数のオーバーライトを行う場合、その関数の引数は親クラスの
+ものと一致しなければなりません。
+</blockquote>
+
+<h2>
+<a NAME="9.6 Various Attributes for Class Declaration"></a>
+9.6 クラス宣言に用いられる様々な属性
+</h2>
+
+<blockquote>
+クラスは次の属性と共に宣言することが出来ます。
+<ul>
+<li>
+extern&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+-- 実際のメンバー関数の定義が別ファイルに存在する(外部参照)
+</li>
+
+<li>
+local&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+-- このクラスは、外部のソースファイルとは共有されない
+</li>
+
+<li>
+abstract&nbsp;&nbsp; 
+-- このクラスはアブストラクト クラスで、アブストラクト関数を含むことが出来る
+</li>
+</ul>
+クラスのメンバー変数は次の属性を用いることが出来ます。
+<ul>
+<li>
+local&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ -- この変数は、このクラス内でのみ参照される
+</li>
+
+<li>
+protected&nbsp;
+ -- この変数は保護されており、このクラス内か拡張された子クラスからのみ
+参照される
+</li>
+
+<li>
+final&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+-- この変数はファイナルで、子クラスによって再定義することは出来ない
+</li>
+</ul>
+クラス メンバー関数は、次の属性を用いて定義することが出来ます。
+<blockquote>
+<li>
+local&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+-- この関数は、このクラス内のみで参照される
+</li>
+
+<li>
+protected&nbsp; 
+-- この関数は保護されており、このクラス内か拡張された子クラスからのみ
+参照される
+</li>
+
+<li>
+final&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+-- この関数はファイナルで、子クラスによって再定義することは出来ない
+</li>
+
+<li>
+overwrite -- 
+この関数は、対応する親クラスの関数参照を書き換える
+</li>
+</blockquote>
+
+</blockquote>
+
+</body>
+</html>

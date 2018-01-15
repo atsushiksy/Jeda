@@ -1,0 +1,245 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="switch_tester.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="random_distribution.html">next</a>
+<h1>
+<font size=+1>11. Direct Tests</font></h1>
+
+<ul>Based on <a href="test_plan.html">the test plan</a>, the following
+direct tests are created under tests directory. The following explains
+what each test is doing.
+<br><a href="index.html#rx_bug">As mentioned before</a>, the test cell_in_slide.j
+detected the rx protocol implementation problem in utopia1_atm_rx.v. The
+design is modified to fix this problem to proceed the verification.
+<br>All the tests has the same function name 'squat_test()' which is called
+from the common initialization code in squat_test_suite.j.
+<br>&nbsp;
+<ul>
+<li>
+<a href="../tests/manage_if_test.j">manage_if_test.j</a></li>
+
+<br>This test writes various pattern to the config registers then reads
+out the contents to check the value is correct. The actual test is implemented
+in the function <a href="switch_tester.html#check_config_reg">check_config_reg()</a>
+in switch_tester class. This test checks walking 1, walking 0, and random
+pattern checking. In order to make sure that every entry does not mapped
+on the same address, it writes all the pattern to the register first, then
+reads out for checking. It is important to test RAM structure in this way,
+as testing with a write followed by a read on an address won't detect the
+address decoding problem.
+<li>
+<a href="../tests/cell_in_slide.j">cell_in_slide.j</a></li>
+
+<br>Here's the core code of the slide test.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 3 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( j = 0 ;
+j &lt; 3 ; j++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+i != j ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for( k = 0 ; k &lt; 20 ; k++ ) {&nbsp; //</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for( m = 1 ; m &lt; 17 ; m++ ) {&nbsp; //</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 10, i, m ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( k, j, m ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>This test picks two ports (with i and j loop) and sends two cells
+from those ports with various timing relation (with k loop).
+<p><img SRC="slide_timing_test.gif" height=149 width=418></ul>
+
+<ul>&nbsp;
+<br>The test also picks different output port with m loop. This loop will
+select all the possible output combinations as the entry 1 to 15 of the
+config register is configured as:
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1: pattern[15:12] = 4'b0001 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2: pattern[15:12] = 4'b0010 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3: pattern[15:12] = 4'b0100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4: pattern[15:12] = 4'b1000 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+5: pattern[15:12] = 4'b0011 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6: pattern[15:12] = 4'b0110 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+7: pattern[15:12] = 4'b1100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+8: pattern[15:12] = 4'b0101 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+9: pattern[15:12] = 4'b1010 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10: pattern[15:12] = 4'b1001 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+11: pattern[15:12] = 4'b0111 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+12: pattern[15:12] = 4'b1011 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+13: pattern[15:12] = 4'b1101 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+14: pattern[15:12] = 4'b1110 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+15: pattern[15:12] = 4'b1111 ;</font></font>
+<p>Thus, this simple test loop exhaustively checks all the combinations
+of two ports, -10 to 10 cycle timing difference, and all the possible output
+ports include multiple outputs.</ul>
+
+<ul>
+<li>
+<a href="../tests/cell_out_congest.j">cell_out_congest.j</a></li>
+
+<br>This test sends many cells from 4 ports simultaneously with the config
+register entry 15, thus all the cells are sent to 4 output ports. This
+will create the output port congestion and eventually flow control the
+input.
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // send 200 cells
+back to back with entry 15 which send 4 cells to all</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; //&nbsp; the
+output ports</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 200 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 0, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 1, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 2, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 3, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<ul>&nbsp;</ul>
+
+<li>
+<a href="../tests/slow_tx.j">slow_tx.j</a></li>
+
+<br>This test first set the slow response to the tx side. The following
+call will set that the cell will stay at least 100 cycle within the switch.
+(max 200 cycle)</ul>
+
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; // set slow response</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; tester.start_receiver_checker(
+100, 100 ) ;</font></font>
+<p>Then it sends 4 cells from each port, which will be transferred to one
+of the port respectively. The test waits the completion of the transfer
+of each 4 cells.
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // send 4 sells
+one by one but each cell will stay more than 100 cycle</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 20 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+j = 0 ; j &lt; 4 ; j++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 0, 1 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 1, 2 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 2, 3 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 3, 4 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+now wait for the completion, before another try</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; tester.wait_done()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;
+<ul>&nbsp;</ul>
+
+<li>
+<a href="../tests/error_cell.j">error_cell.j</a></li>
+
+<br>This test sends error cells at 50% of probability. The error cell will
+not be forwarded to the checker, so if the error cell is transferred to
+the output port, it will cause the cell mismatch.
+<p><font face="Courier New,Courier"><font size=-1>int gen_error() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; x = random() ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // 50% probability
+of error</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( x &amp; 8
+) return 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; else return 1
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void errorcell_test1()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // send 200 sells
+with some with hec error</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 200 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 0, 1, gen_error() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 1, 2, gen_error() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 2, 3, gen_error() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 3, 4, gen_error() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<ul>&nbsp;</ul>
+
+<li>
+<a href="../tests/starvation.j">starvation.j</a></li>
+
+<br>This test simply sends many cells from all the input port that will
+be transferred to all the output ports. As the model does not have fair
+arbitration mechanism, only port 0 will be processed and this test will
+cause a time out error. This problem can be fixed by putting fair arbitration
+mechanism (e.g round robin) to the model. I did not change the model and
+this test will cause a timeout error.
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // send 500 sells
+with transfer out to all 4 output port.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // due to unfair
+arbitration, input port 1,2,3 will cause a starvation.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 500 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 0, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 1, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 2, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 3, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;</ul>
+</ul>
+<a href="switch_tester.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="random_distribution.html">next</a>
+</body>
+</html>

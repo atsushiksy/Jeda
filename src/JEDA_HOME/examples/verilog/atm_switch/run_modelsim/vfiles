@@ -1,0 +1,5 @@
+../verilog/squat_test.v
+../verilog/squat.v
+../verilog/utopia1_atm_rx.v
+../verilog/utopia1_atm_tx.v
+

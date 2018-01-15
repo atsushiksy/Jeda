@@ -1,0 +1,500 @@
+thread 0: wait for sync 0
+thread 2: wait for sync 0
+thread 1: sending trigger 0
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 1
+thread 2: wait for sync 1
+thread 1: sending trigger 1
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 2
+thread 2: wait for sync 2
+thread 1: sending trigger 2
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 3
+thread 2: wait for sync 3
+thread 1: sending trigger 3
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 4
+thread 2: wait for sync 4
+thread 1: sending trigger 4
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 5
+thread 2: wait for sync 5
+thread 1: sending trigger 5
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 6
+thread 2: wait for sync 6
+thread 1: sending trigger 6
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 7
+thread 2: wait for sync 7
+thread 1: sending trigger 7
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 8
+thread 2: wait for sync 8
+thread 1: sending trigger 8
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 9
+thread 2: wait for sync 9
+thread 1: sending trigger 9
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 10
+thread 2: wait for sync 10
+thread 1: sending trigger 10
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 11
+thread 2: wait for sync 11
+thread 1: sending trigger 11
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 12
+thread 2: wait for sync 12
+thread 1: sending trigger 12
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 13
+thread 2: wait for sync 13
+thread 1: sending trigger 13
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 14
+thread 2: wait for sync 14
+thread 1: sending trigger 14
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 15
+thread 2: wait for sync 15
+thread 1: sending trigger 15
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 16
+thread 2: wait for sync 16
+thread 1: sending trigger 16
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 17
+thread 2: wait for sync 17
+thread 1: sending trigger 17
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 18
+thread 2: wait for sync 18
+thread 1: sending trigger 18
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 19
+thread 2: wait for sync 19
+thread 1: sending trigger 19
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 20
+thread 2: wait for sync 20
+thread 1: sending trigger 20
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 21
+thread 2: wait for sync 21
+thread 1: sending trigger 21
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 22
+thread 2: wait for sync 22
+thread 1: sending trigger 22
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 23
+thread 2: wait for sync 23
+thread 1: sending trigger 23
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 24
+thread 2: wait for sync 24
+thread 1: sending trigger 24
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 25
+thread 2: wait for sync 25
+thread 1: sending trigger 25
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 26
+thread 2: wait for sync 26
+thread 1: sending trigger 26
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 27
+thread 2: wait for sync 27
+thread 1: sending trigger 27
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 28
+thread 2: wait for sync 28
+thread 1: sending trigger 28
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 29
+thread 2: wait for sync 29
+thread 1: sending trigger 29
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 30
+thread 2: wait for sync 30
+thread 1: sending trigger 30
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 31
+thread 2: wait for sync 31
+thread 1: sending trigger 31
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 32
+thread 2: wait for sync 32
+thread 1: sending trigger 32
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 33
+thread 2: wait for sync 33
+thread 1: sending trigger 33
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 34
+thread 2: wait for sync 34
+thread 1: sending trigger 34
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 35
+thread 2: wait for sync 35
+thread 1: sending trigger 35
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 36
+thread 2: wait for sync 36
+thread 1: sending trigger 36
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 37
+thread 2: wait for sync 37
+thread 1: sending trigger 37
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 38
+thread 2: wait for sync 38
+thread 1: sending trigger 38
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 39
+thread 2: wait for sync 39
+thread 1: sending trigger 39
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 40
+thread 2: wait for sync 40
+thread 1: sending trigger 40
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 41
+thread 2: wait for sync 41
+thread 1: sending trigger 41
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 42
+thread 2: wait for sync 42
+thread 1: sending trigger 42
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 43
+thread 2: wait for sync 43
+thread 1: sending trigger 43
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 44
+thread 2: wait for sync 44
+thread 1: sending trigger 44
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 45
+thread 2: wait for sync 45
+thread 1: sending trigger 45
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 46
+thread 2: wait for sync 46
+thread 1: sending trigger 46
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 47
+thread 2: wait for sync 47
+thread 1: sending trigger 47
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 48
+thread 2: wait for sync 48
+thread 1: sending trigger 48
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 49
+thread 2: wait for sync 49
+thread 1: sending trigger 49
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 50
+thread 2: wait for sync 50
+thread 1: sending trigger 50
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 51
+thread 2: wait for sync 51
+thread 1: sending trigger 51
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 52
+thread 2: wait for sync 52
+thread 1: sending trigger 52
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 53
+thread 2: wait for sync 53
+thread 1: sending trigger 53
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 54
+thread 2: wait for sync 54
+thread 1: sending trigger 54
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 55
+thread 2: wait for sync 55
+thread 1: sending trigger 55
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 56
+thread 2: wait for sync 56
+thread 1: sending trigger 56
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 57
+thread 2: wait for sync 57
+thread 1: sending trigger 57
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 58
+thread 2: wait for sync 58
+thread 1: sending trigger 58
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 59
+thread 2: wait for sync 59
+thread 1: sending trigger 59
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 60
+thread 2: wait for sync 60
+thread 1: sending trigger 60
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 61
+thread 2: wait for sync 61
+thread 1: sending trigger 61
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 62
+thread 2: wait for sync 62
+thread 1: sending trigger 62
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 63
+thread 2: wait for sync 63
+thread 1: sending trigger 63
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 64
+thread 2: wait for sync 64
+thread 1: sending trigger 64
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 65
+thread 2: wait for sync 65
+thread 1: sending trigger 65
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 66
+thread 2: wait for sync 66
+thread 1: sending trigger 66
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 67
+thread 2: wait for sync 67
+thread 1: sending trigger 67
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 68
+thread 2: wait for sync 68
+thread 1: sending trigger 68
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 69
+thread 2: wait for sync 69
+thread 1: sending trigger 69
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 70
+thread 2: wait for sync 70
+thread 1: sending trigger 70
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 71
+thread 2: wait for sync 71
+thread 1: sending trigger 71
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 72
+thread 2: wait for sync 72
+thread 1: sending trigger 72
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 73
+thread 2: wait for sync 73
+thread 1: sending trigger 73
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 74
+thread 2: wait for sync 74
+thread 1: sending trigger 74
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 75
+thread 2: wait for sync 75
+thread 1: sending trigger 75
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 76
+thread 2: wait for sync 76
+thread 1: sending trigger 76
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 77
+thread 2: wait for sync 77
+thread 1: sending trigger 77
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 78
+thread 2: wait for sync 78
+thread 1: sending trigger 78
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 79
+thread 2: wait for sync 79
+thread 1: sending trigger 79
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 80
+thread 2: wait for sync 80
+thread 1: sending trigger 80
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 81
+thread 2: wait for sync 81
+thread 1: sending trigger 81
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 82
+thread 2: wait for sync 82
+thread 1: sending trigger 82
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 83
+thread 2: wait for sync 83
+thread 1: sending trigger 83
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 84
+thread 2: wait for sync 84
+thread 1: sending trigger 84
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 85
+thread 2: wait for sync 85
+thread 1: sending trigger 85
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 86
+thread 2: wait for sync 86
+thread 1: sending trigger 86
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 87
+thread 2: wait for sync 87
+thread 1: sending trigger 87
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 88
+thread 2: wait for sync 88
+thread 1: sending trigger 88
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 89
+thread 2: wait for sync 89
+thread 1: sending trigger 89
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 90
+thread 2: wait for sync 90
+thread 1: sending trigger 90
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 91
+thread 2: wait for sync 91
+thread 1: sending trigger 91
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 92
+thread 2: wait for sync 92
+thread 1: sending trigger 92
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 93
+thread 2: wait for sync 93
+thread 1: sending trigger 93
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 94
+thread 2: wait for sync 94
+thread 1: sending trigger 94
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 95
+thread 2: wait for sync 95
+thread 1: sending trigger 95
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 96
+thread 2: wait for sync 96
+thread 1: sending trigger 96
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 97
+thread 2: wait for sync 97
+thread 1: sending trigger 97
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 98
+thread 2: wait for sync 98
+thread 1: sending trigger 98
+thread 0: got sync
+thread 2: got sync
+thread 0: wait for sync 99
+thread 2: wait for sync 99
+thread 1: sending trigger 99
+thread 0: got sync
+thread 2: got sync

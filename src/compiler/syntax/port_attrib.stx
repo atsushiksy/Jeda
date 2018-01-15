@@ -1,0 +1,45 @@
+
+port_attrib:
+  clock_attrib
+  |
+  drive_attrib
+  |
+  sample_attrib
+  |
+  depth_attrib
+  |
+  node_attrib
+  ;
+  
+clock_attrib:
+  '@' clock_port_name
+  ;
+  
+clock_port_name: 
+  Identifier 
+  |
+  Identifier '.' Identifier
+  ;
+
+drive_attrib:
+  'drive' edge_specification opt_skew
+  ;
+
+sample_attrib:
+  'sample' edge_specification opt_skew 
+  ;
+    
+opt_skew:
+  /* empty */
+  |
+  'skew' constant
+  ;
+
+depth_attrib:
+  'depth' constant
+  ;
+
+node_attrib:
+  'node' String_literal
+  ;
+

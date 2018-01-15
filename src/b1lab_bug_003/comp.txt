@@ -1,0 +1,7 @@
+C compile: gcc -I/home/atsushi/work/jeda/src/release/include -c -g -D_REENTRANT -DJEDA_DEBUGGER  -fPIC  -g jvc_mpeg2_env.jeda.c -o jvc_mpeg2_env.jeda.o 
+Link command: gcc -g -D_REENTRANT -o jvc_mpeg2_env  jvc_mpeg2_env.jeda.o /home/atsushi/work/jeda/src/release/lib/smain.o /home/atsushi/work/jeda/src/release/lib/jedadbg.a /home/atsushi/work/jeda/src/release/lib/libreadline.a /home/atsushi/work/jeda/src/release/lib/libhistory.a -lpthread -lnsl -lm -ll -lc -ltermcap  
+
+
+C compile: gcc -I/home/atsushi/work/jeda/src/release/include -c -O2  -D_REENTRANT  -fPIC  jvc_mpeg2_env.jeda.c -o jvc_mpeg2_env.jeda.o 
+Link command: gcc -D_REENTRANT -o jvc_mpeg2_env  jvc_mpeg2_env.jeda.o /home/atsushi/work/jeda/src/release/lib/smain.o /home/atsushi/work/jeda/src/release/lib/jedaexe.a -lpthread -lnsl -lm -ll -lc -ltermcap  
+

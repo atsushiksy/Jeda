@@ -1,0 +1,40 @@
+Bug report 
+*********************************************
+Number   : 6 
+Severity : Segmentation fault
+Date     : 04/28/2003
+reported : Mike Yin, Be One Lab Inc.
+*********************************************
+
+Bug description:
+------------------error.log---------------------------------------------
+bash-2.03$ !j
+jedax -exe jvc_mpeg2_env.j -g -dl
+file: jvc_mpeg2_env.j
+/eda/jeda/jeda-x.sparc_solaris7.3.1.p10/bin/jedacmp   -g jvc_mpeg2_env.j
+OUT_FILE: jvc_mpeg2_env.jo
+ 0 compile errors
+/eda/jeda/jeda-x.sparc_solaris7.3.1.p10/bin/jedalnk  -JL_o jvc_mpeg2_env  -JL_S -JL_G  jvc_mpeg2_env.jo
+OUT_C_FILE: jvc_mpeg2_env.jeda.c
+Loading file "jvc_mpeg2_env.jo"
+OUT_VERILOG_FILE: jvc_mpeg2_env.jeda.v
+!!! illegal type for jz!#^*&^
+!!! illegal type for jz!#^*&^
+ 0 link errors
+C compile: gcc -I/eda/jeda/jeda-x.sparc_solaris7.3.1.p10/include -c -g -D_REENTRANT -DJEDA_DEBUGGER  -fPIC  -g jvc_mpeg2_env.jeda.c -o jvc_mpeg2_env.jeda.o 
+Link command: gcc -shared -D_REENTRANT -o jvc_mpeg2_env.dl  jvc_mpeg2_env.jeda.o /eda/jeda/jeda-x.sparc_solaris7.3.1.p10/lib/dbg_obj/*.o /eda/jeda/jeda-x.sparc_solaris7.3.1.p10/lib/rl_obj/*.o -lpthread -lnsl -lm -ll -lc -ltermcap -lsocket   
+Link command: gcc -g -D_REENTRANT -o jvc_mpeg2_env  jvc_mpeg2_env.jeda.o /eda/jeda/jeda-x.sparc_solaris7.3.1.p10/lib/smain.o /eda/jeda/jeda-x.sparc_solaris7.3.1.p10/lib/jedadbg.a /eda/jeda/jeda-x.sparc_solaris7.3.1.p10/lib/libreadline.a /eda/jeda/jeda-x.sparc_solaris7.3.1.p10/lib/libhistory.a -lpthread -lnsl -lm -ll -lc -ltermcap -lsocket  
+bash-2.03$ ./jvc_mpeg2_env
+Segmentation Fault (core dumped)
+---------------------------------------------------------------------------
+
+
+To repro:
+all the .j files have been included to repro this bug.
+It looks like something overflow.
+
+The messeage in error.log report:
+line10:OUT_VERILOG_FILE: jvc_mpeg2_env.jeda.v
+line11:!!! illegal type for jz!#^*&^
+line11:!!! illegal type for jz!#^*&^
+Could you tell me how to locate the illegal type in the code?

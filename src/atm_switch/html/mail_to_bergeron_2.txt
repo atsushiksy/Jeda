@@ -1,0 +1,31 @@
+From atsushi@juniper.net Fri Nov 30 13:48 PST 2001
+Date: Fri, 30 Nov 2001 13:48:22 -0800 (PST)
+From: Atsushi Kasuya <atsushi@juniper.net>
+To: janick@bergeron.com
+Subject: Re: Verification Guild Project
+Cc: atsushi@juniper.net
+
+Hi,
+
+It turns that the fix is relatively simple, and I guess the designer
+just forgot to implement as the comment above says.
+Here's my fix:
+
+      repeat (52) begin
+         cell = cell << 8;
+         @ (posedge clk);
+         i = i + 1;
+         cell[8:1] = data;
+         
+         // During byte #52 (in sequence 1-53)
+         // check if there will be room in the buffer.
+         // If not, deassert enable during byte 53
+         //***AK fix: add i==52 to if condition
+         if (i == 52 && cell_bfr[0] !== 1'bx) begin 
+            en <= #1 1'b1;
+         end
+      end
+
+Thanks,
+Atsushi
+

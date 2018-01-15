@@ -1,0 +1,55 @@
+This example is taken from Janick Bergeron's Verification Guild Project.
+(http://www.janick.bergeron.com/guild/project.html)
+
+
+The directories under this drectory are:
+  verilog:  contains the verilog models. 
+            Verilog Models are down loaded from the web above. 
+            I created a dummy verilog top "squat_dummy.v" to run jedatemp.
+            utopia1_atm_rx.v has a bug fix.
+    
+  include:  contains jeda include files (.jh)
+  
+  utils:    contains jeda utilities. e.g. cell class, driver, receiver
+  
+  suites:   contains jeda top level. It initialize the classes and call a test
+  
+  tests:    contains various tests. Each tests will be linked to library (.dl)
+  
+  run:      contains Makefile to compile jeda files, and run_regress script
+               to run all the test
+
+The tests:
+
+    manage_if_test.j 
+      testing management if and its contents
+    cell_in_slide.j  
+      testing conflict case in the various input timing
+    cell_out_conjest.j
+      test the output conflict case to check the flow control mechanism
+    slow_tx.j
+      test the case that tx side is slow and cell is conjested
+    error_cell.j
+      inject error cell to check it's correctly dropped
+    starvation.j
+      create the design problem case that the arbitration per port is not
+      fair, and other than port0 won't be serviced
+    random_test.j
+      configurable random test.
+
+To run simulation:
+  cd to run directory and type:
+  
+    make (must be GNU make)
+    run <testname>
+    
+  where <testname> is the name of the test above without .j
+  
+    e.g.
+    
+      make
+      run manage_if_test
+      
+  
+
+

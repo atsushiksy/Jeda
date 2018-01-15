@@ -1,0 +1,272 @@
+/* 
+   
+   Copyright (C) 2001 Juniper Networks Inc.
+   Copyright (C) 2002-2003 Jeda Technologies Inc.
+ 
+
+   This program is free software; you can redistribute it and/or modify it
+   under the terms of the GNU General Public License as published by the
+   Free Software Foundation; either version 2, or (at your option) any
+   later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA.  
+   
+*/
+
+This directory contains the Jeda demo for multi-processor bus snooper.
+Both snooper model and testing code are written in Jeda. Verilog testbench
+is just used to generate VCD dump. 
+
+The sub-directories:
+
+  utils: contains primitive classes, bus drivers and bus transaction 
+         functions to construct tests
+  include: contains include files (portset, global variables 
+           and other definitions)
+  models:  contains bus snooper model (DUT) written in Jeda
+  run:     contains Makefile(to compile Jeda files), and run script
+  suites:  contains a Jeda top program common to all the tests
+  tests:   contains test files (all has the same function name snooper_test)
+  verilog: contains verilog testbench file
+  module_run: show how to use module based compile feature
+  
+To run test with Verilog-XL, cd to run directory, then type
+
+  make
+  run <test>
+  
+where <test> is the prefix of test file name in tests directory, e.g.
+
+  run simple_read_write
+
+
+The following tests are in the tests directory:
+
+  simple_read_write          :  simple read and write transaction
+  out_of_order_reply         :  send multiple requests from cpu and return 
+                                the ack in totally out of order
+  writeback_cancel           :  send writeback just after foregin rto hit on 
+                                the bus to confirm the cancel mechanism
+  multi_transaction_sequence :  various sequence of cpu request and system bus
+                                activity combination
+  multi_transaction_random   :  run multiple threads of multi transaction cases
+                                randomly
+
+This 'run' script assumes that Verilog is invoked with "verilog" command.
+The script run make to compile all the jeda files, then execute verilog
+with +jeda_code=<test>.dl plus argument
+
+
+To run with vcs, goto 'run' directory, and type:
+  
+  make
+  cmpvcs
+  
+Then run ./simv with:
+
+  ./simv +jeda_code=<test>.dl
+  
+You can statically link the jeda compiled code with:
+
+  make
+  cmpvcs_static <test>
+  
+This will create simv_<test> binary in run directory.
+
+
+----------------< Description of the model >------------------------------
+
+The DUT we model here is a bus snooper used in the shared memory 
+multi-processor system. A simplified structure of such system is
+shown in the block diagram below. We only model the bus snooper
+as DUT and write a testbench that mimics the activities of the CPU
+bus and the system bus.
+
+
+       +-------+                        +-------+
+       |  CPU  |                        |  CPU  |
+       +-------+                        +-------+
+           |                                |
+       +-------+                        +-------+
+       | Cache |                        | Cache |  (Usually L2 Cache)
+       +-------+                        +-------+
+           |                                |      <-- CPU bus
+       +-------+                        +-------+
+       | Snoop |                        | Snoop | <- DUT
+       +-------+                        +-------+
+           |                                |
+    ========================================================= System Bus
+                          |
+       +--------------------------------------+
+       |             Main Memory              |
+       +--------------------------------------+
+       
+The bus snooper contains the shadow copy of the CPU cache tag address
+and snoops the system bus to check if the memory address on the bus
+hits the cache. The model implements "Write-Invalidate" cache coherency
+system. (If you are not familiar with such a protocol, please read proper
+textbooks such as "Scalable Parallel Computing" Kai Hwang, Zhiwei Xu, 
+McGraw-Hill )
+
+Both CPU bus and system bus use a split transaction protocol. The command on
+the address bus and the corresponding data bus activity are totally isolated
+and there's no fixed timing between them. To avoid the complexity of the
+protocol, the ownership of a memory address is strictly depend on the 
+system bus's address bus activity. The ownership of an entry moves when a
+command hits on the address bus, even the corresponding data has not been
+received to the owner.
+
+CPU bus expects the reply (ACK NACK ACKD) in the order that the command is
+issued. 
+
+System Bus uses device id and command id, to identify the corresponding
+reply (data) to the command. Thus, the reply can be out-of-order, and
+it's the snooper's job to sort back the reply on the system bus to
+the cpu bus in the order of the command.
+
+CPU bus uses the following commands
+
+  RTS  :  Read to share
+  RTO  :  Read to own 
+  WB   :  Write back
+  INV  :  Invalidate
+
+System bus is using the following bus command:
+
+  RTS  :  Read to share
+  RTO  :  Read to own 
+  WB   :  Write back
+
+The system bus support up to 8 CPU subsystems. The arbitration signals and
+bus snoop signals are sets of one output, seven inputs. Thus the output of
+one snooper can be observed by other seven snoopers.
+
+Arbitration is done as the distributed mechanism. Every snooper runs the
+round robin argolithm individually to identify who's the winner. 
+
+Snooping is done with shared signal and owned signal.
+The address bus and shared, owned signals has fixed cycle relation.
+The share and owned signal are driven 3 cycle from the address cycle.
+This gives enough time to lookup the cache entry. (This cycle can be
+extended of 3 cycle is not enough.)
+
+    |   0   |   1   |   2   |   3   |  
+      <ADDR>
+                             <shared>
+                             <owned>
+
+Here's the rule for the shared and owned signal assertion.
+         
+    Shared signal will be driven when 
+       1) Foreign RTS to an shared entry
+       2) Own RTO to an entry which is already cached (Cancel data read)
+
+    Owned signal will be driven when
+       1) Foreign RTS/RTO to an owned entry
+       2) Onw WB to an entry which is not owned (Foreign RTO hits before
+          WB hits the system bus
+
+There's a potential race condition that CPU requesting the WB and 
+before the transaction is on the system address bus, another CPU requests
+RTO on the bus. As the ownership of the entry is moved strictly on the 
+address bus activity, the WB should not be done by the CPU. In such case
+the snooper cancels the WB transaction by pulling owned signal. The memory
+subsystem just ignores the transaction when it observes the owned signal.
+
+The model also use shared signal to cancel the data transfer on RTO when 
+the valid entry is already in the cache. (Case that the cache state is
+not I) This case, only other cache snooper need to invalidate the entry,
+but there's no need to transfer actual data.  
+
+A cache entry in the snooper is in one of the four state, M (modified),
+O (Owned), E (Exclusive), S (Shared), I (Invalid).
+
+The following shows the transition of the cache state upon the
+foreign address bus transaction.
+
+
+ 1) Foreign RTS
+      I -> I
+      S -> S  (pull shared)
+      E -> S  (pull shared)
+      O -> O  (pull shared & owned, issue RTS to CPU and returns the data)
+      M -> O  (pull shared & owned, CPU returns the data)
+
+ 2) Foreign RTO (not shared)
+      I -> I
+      S -> I  (issue INV to CPU)
+      E -> I  (issue INV to CPU)
+      O -> I  (pull shared & owned, issue RTO to CPU to return the data)
+      M -> I  (pull shared & owned, issue RTO to CPU to return the data)
+
+The following shows the transition of cache state upon own Own transaction.
+
+ 1) Own RTS
+      if not-shared, not-owned, -> E
+      if shared, not-owned,     -> S
+      if owned,                 -> S  
+
+ 2) Own RTO 
+      if own state is not I, pull shared to cancel the data transfer, -> M  
+
+ 3) CPU WB
+      if own state is not O or M, 
+        pull owned and cancel the transaction (not change the state)
+      else -> I
+      
+    
+
+
+
+-----------< Description of the verification strategy >----------------
+
+The verification strategy used in this example is to write a transaction 
+base stimulus-responce tests. This stimulus-responce verification model 
+is the base idea of developing Jeda. 
+The tests are constructed with correction of transactions that create a 
+stimulus to the DUT and expect a correct responce (behavior) from the DUT. 
+
+Advantages of the stimulus-responce style verification are:
+
+  1) Each transaction sequence is a simple activity of the expected behavior
+    of the system to a single stimulus.
+  2) Sequence of the pipeline movement can be written as the movement on
+    the pipeline stages. 
+  3) Complicated test can be conformed by just combining multiple transactions.
+  4) No need to write behavior model
+
+
+
+-----------< Tips you'll find in this example >----------------
+
+Here's some tips that you may find handy when you do design verification
+with Jeda.
+
+
+  1) Do not write driver that directly access the port.
+    As you can see in this example, the class processor_bus, system_bus
+    are defined (utils/bus_class_0.j) and all the drivers (and dut model)
+    are written to talk to the class. This way, even when your testbench
+    structure is changed, your drive will still work fine.
+    
+  2) The files under utils has the layered name ( *_0.j, *_1.j, etc) based
+     on its reference order. 
+     The Makefile in run directory uses the wildcard information to construct
+     the references. Thus, the Makefile is very short, and do not need to 
+     modify (in most of the case), even when adding a new file.
+     Note: this Makefile only works with 'gmake'
+     
+  3) Avoid global variables as much as possible.
+     If you need many variables for communication among threads, try to
+     package them into class, instead of declaring them as global variable.
+     When you reuse you drivers and tests on a different environment
+     (e.g. reuse block level driver for chip level), having global variables
+     causes a lot of problems (e.g. name conflict).

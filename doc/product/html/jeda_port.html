@@ -1,0 +1,390 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (X11; U; SunOS 5.7 sun4u) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_class.html">Prev</a>
+| <a href="jeda_concurrent.html">Next</a>
+<h1>
+10. Port, Portset, and Signal</h1>
+
+<blockquote>Jeda interact with Verilog via a module (Jeda module) that
+is generated during the compile/link process. The module has ports corresponds
+to the internal port declared in Jeda code. The Verilog testbench should
+instanciate the Jeda module and connect the ports to proper location to
+run the simulation with Jeda.</blockquote>
+
+<h2>
+<a NAME="10.1 port"></a>10.1 port</h2>
+
+<blockquote>Jeda interfaces to the simulator (Verilog) world via a port.
+A port is defined like verilog port with keywords 'input', 'output', or
+'inout'. A port can be declared anywhere outside functions. A port can
+be declared as a single bit, or vector. A port io direction should be one
+of the following:
+<ul>
+<li>
+input&nbsp; -- port is input to Jeda.</li>
+
+<li>
+output -- port is output from Jeda.</li>
+
+<li>
+inout&nbsp; -- port is inout to/from Jeda.</li>
+</ul>
+The port direction can be followed by the bit_range to specify a bus signal.
+It can take either big-endian [2:0] or small-endian bit order [0:2].&nbsp;
+Non-zero lsb vector is also allowed (e.g. [5:3], [3:5] ).
+<p>Example:
+<blockquote><font face="Courier New,Courier"><font size=-1>input single
+;&nbsp; // single bit input port</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [3:0] nibble
+; // 4 bit bus output port</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout [7:0] a_bus ;&nbsp;
+// 8 bit bus inout port</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout [0:7] b_but ;&nbsp;
+// 8 bit small endian inout port</font></font>
+<br><font face="Courier New,Courier"><font size=-1>input [9:2] nz_in ;&nbsp;
+// 8 bit non-zero lsb input</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [2:9] nz_out
+;&nbsp; // 8 bit non-zero lsb, small endian</font></font></blockquote>
+When a port is declared, it becomes the (Verilog) port on the Jeda module.
+Jeda module in Verilog corresponding above:
+<blockquote><font face="Courier New,Courier"><font size=-1>module jeda_module
+(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; CLOCK,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; single,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; nibble,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; a_bus</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>input CLOCK ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>input single ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [3:0] nibble
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout [7:0] a_bus ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout [0:7] b_bus ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>input [9:2] nz_in ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [2:9] nz_out
+;</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="10.2 port access"></a>10.2 port access</h2>
+
+<blockquote>A reference to a port has two meanings, a pointer to the port,
+and the value on the port.
+<br>Regular reference to a port name means the pointer to the port. The
+pointer can be stored to a signal variable for indirect access to the port.
+<blockquote><font face="Courier New,Courier"><font size=-1>signal p_sig
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>p_sig = a_bus ; // signal
+p_sig holds a pointer to a_bus</font></font></blockquote>
+The access to the value of the port is done with 'depth' suffix ( '.n'
+where n is the integer number ). The depth must be 0 when a value is stored
+to the port.
+<blockquote><font face="Courier New,Courier"><font size=-1>a_bus.0 = 8'hff
+;&nbsp;&nbsp; // driving a_bus</font></font>
+<p><font face="Courier New,Courier"><font size=-1>i = single.0 ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// sampling single</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="10.3 port attribute"></a>10.3 port attribute</h2>
+
+<blockquote>A port can have various attributes to determine how to interface
+to the simulator. Attributes can be added on the port declaration following
+to the port name. When the attribute is omitted to the global port variables
+the following default value is used:
+<p><font face="Courier New,Courier"><font size=-1>default_attrib := @CLOCK
+sample posedge skew 0 drive posedge skew 1 ;</font></font>
+<p>Attributes only need to be added if the default values are needed to
+be changed.
+<p>Example:
+<blockquote><font face="Courier New,Courier"><font size=-1>input single
+@other_clock ; // clock reference to other_clock</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [3:0] nibble
+drive negedge skew 2 ; // @CLOCK is used</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout [7:0] a_bus sample
+negedge skew -2 ; // @CLOCK, drive are default</font></font></blockquote>
+Attributes to be added to the port variables are the followings:
+<br>&nbsp;
+<h3>
+<a NAME="10.3.1 Clock Attribute"></a>10.3.1 Clock Attribute</h3>
+
+<blockquote>Clock attribute specifies the reference clock to the port.
+The reference clock is used when assignment or evaluation is specified
+with cycle element. The clock attribute is specified with '@' followed
+by clock port name. If the clock attribute is omitted, the system clock
+'CLOCK' is used as the reference clock.
+<p>Example:
+<blockquote><font face="Courier New,Courier"><font size=-1>input clock
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [7:0] data @clock
+drive posedge skew 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>input [7:0] sig @clock
+sample posedge ;</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<blockquote>
+<blockquote>When 'data' specified above is driven with clock reference,
+the posedge of the port 'clock', instead of CLOCK is used as the clock
+reference.
+<blockquote><font face="Courier New,Courier"><font size=-1>@5 data.0 =
+8'hff ;</font></font></blockquote>
+When 'sig' above is sampled with clock reference, the posedge of the port
+'clock' is used as the reference.
+<blockquote><font face="Courier New,Courier"><font size=-1>// sampling
+of sig is done at posedge of 'clock'</font></font>
+<br><font face="Courier New,Courier"><font size=-1>if( @2,5( sig.0 == 8'h55
+) ) printf( "sig becomes 8'h55\n" ) ;</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<blockquote>
+<h3>
+<a NAME="10.3.2 Drive Attribute"></a>10.3.2 Drive Attribute</h3>
+
+<blockquote>Drive attribute determines the timing the port is driven when
+assignment to a port (value) is associated with the cycle element. Skew
+value can be added to delay the actual drive timing from the clock edge.
+Skew is given as unit time of the simulator. Drive attribute should only
+be added to output or inout port type.
+<p>Syntax:
+<blockquote><font face="Courier New,Courier"><font size=-1>drive_attribute
+::= drive &lt;edge> [ &lt;skew> ]</font></font></blockquote>
+&nbsp; where
+<blockquote><font face="Courier New,Courier"><font size=-1>&lt;edge></font></font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; posedge&nbsp;
+
+</font>driving edge is positive edge. This is the default.</font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; negedge&nbsp;
+
+</font>driving edge is negative edge.</font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; bothedge 
+</font>driving
+edge is both positive and negative edge</font></blockquote>
+</blockquote>
+</blockquote>
+
+<blockquote>
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>Skew:</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; skew &lt;value></font></font>
+<blockquote>Integer constant &lt;value> is to specify the unit delay from
+the drive edge to the value shows up on the simulator. Assignment to the
+port is scheduled at the given edge, and effective after the given skew.
+This allows the code stays at edge of clock for various procedures, and
+drive the data with skew to avoid racing conditions. This value must be
+a positive integer.</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+
+<blockquote>
+<h3>
+<a NAME="10.3.3 sample attribute"></a>10.3.3 sample attribute</h3>
+
+<blockquote>Sample attribute determines the timing the port data is sampled
+when access to the port (value) is associated with the cycle element. Negative
+skew value can be added to access the value at the given unit time before
+the given clock edge. Skew must be negative or compiler will report an
+error. Sample attribute should only be added to input or inout port type.
+<p>Syntax:
+<blockquote><font face="Courier New,Courier"><font size=-1>sample_attribute
+::= sample &lt;edge> [ &lt;skew> ]</font></font></blockquote>
+where
+<blockquote><font face="Courier New,Courier"><font size=-1>&lt;edge></font></font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; posedge&nbsp;
+
+</font>Sampling edge is positive edge. This is the default.</font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; negedge&nbsp;
+
+</font>Sampling edge is negative edge.</font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; bothedge 
+</font>Sampling
+edge is both positive and negative edge</font></blockquote>
+
+<blockquote><font face="Courier New,Courier"><font size=-1>Skew:</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; skew &lt;value></font></font>
+<blockquote>Negative integer constant &lt;value> is to specify the unit
+delay from the sampling edge to the actual sampling timing. As it is a
+negative value, the sampling will be done beefier the sampling edge.</blockquote>
+<font face="Courier New,Courier"><font size=-1>depth &lt;value></font></font>
+<blockquote>This depth attribute specifies the number of pipeline cycles
+to be kept. The pipelined port value can be accessed with &lt;port_name>.n
+where n is the integer constant.</blockquote>
+<font face="Courier New,Courier"><font size=-1>node &lt;string></font></font>
+<blockquote>This node attribute specifies the direct connection of this
+port to a node in the simulator. When the node attribute is specified,
+the port will not show up on the port list of the Jeda module, and cross
+module reference is used to connect the node specified in &lt;string>.
+Thus, the &lt;string> must be the path to the desired node from the Jada
+module instance.
+<br>This direct connection can be also done with connection set block (explained
+later).</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="10.4 Portset"></a>10.4 Portset</h2>
+
+<blockquote>Ports can be grouped with 'portset' to represent a logical
+collection of ports.
+<p>Example:
+<blockquote><font face="Courier New,Courier"><font size=-1>portset a_bus
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input clock ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output [31:0]
+out_bus ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; inout&nbsp; [31:0]
+bidi_bus ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+The port within a port_set will show up on Jeda module as <font face="Courier New,Courier"><font size=-1>&lt;portset_name>_&lt;port_name></font></font>.
+<p>The portset 'a_bus' above will compiled to the Jeda module as:
+<blockquote><font face="Courier New,Courier"><font size=-1>input a_bus_clock
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [31:0] a_bus_out_bus
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout&nbsp; [31:0] a_bus_bidi_bus
+;</font></font></blockquote>
+Note: The user must avoid the combination of portset name and port name
+that ends up the same result, e.g.
+<blockquote>portset:<font face="Courier New,Courier"> foo_x&nbsp; </font>port:<font face="Courier New,Courier">
+_bar&nbsp; </font>Jeda module port<font face="Courier New,Courier"> foo_x_bar</font>
+<br>portset:<font face="Courier New,Courier"> foo_&nbsp;&nbsp; </font>port:<font face="Courier New,Courier">
+x_bar </font>Jeda module port<font face="Courier New,Courier"> foo_x_bar</font></blockquote>
+</blockquote>
+
+<blockquote>A port set can declared with portset attribute which becomes
+the default attributes for the port within the portset. Default attribute
+is effective to all the port within the portset, unless individual attribute
+on the port is specified.
+<blockquote><font face="Courier New,Courier"><font size=-1>portset foo
+@fastclock {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; inout [7:0] data
+;&nbsp;&nbsp;&nbsp;&nbsp; // fastclock is used</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input [5:0] command
+;&nbsp; // fastclock is used</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input [2:0] error
+@ slowclock ; // overwritten to slowclock</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>portset foo @fastclock
+drive posedge skew 2 sample posedge {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; inout [7:0] data
+;&nbsp;&nbsp;&nbsp;&nbsp; // fastclock is used, drive posedge skew 2</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input [5:0] command
+;&nbsp; // fastclock is used, sample posedge</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input [2:0] error
+@ slowclock ; // overwritten to slowclock,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// sample posedge</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+Access to the port in portset is done with '.' operator. Reference without
+depth represent the pointer value of the port.
+<blockquote><font face="Courier New,Courier"><font size=-1>signal&nbsp;
+sig_a ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>sig_a = foo.data ;</font></font></blockquote>
+To access the value of the port, depth must be used as:
+<blockquote><font face="Courier New,Courier"><font size=-1>&lt;portset_name>.&lt;port_name>.0</font></font>&nbsp;
+: regular access to the data
+<br><font face="Courier New,Courier"><font size=-1>&lt;portset_name>.&lt;port_name>.n</font></font>&nbsp;
+: data of n-th pipeline</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="10.5 Signal"></a>10.5 Signal</h2>
+
+<blockquote>Signal is the Jeda data type that can store the pointer to
+a port. When a signal variable is declared, it is empty and needed to be
+assigned a port (pointer).
+<blockquote><font face="Courier New,Courier"><font size=-1>signal sig ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>sig = foo.data ; // foo
+is portset, data is a port</font></font>
+<br>&nbsp;</blockquote>
+Sub-bit information of the port can also be specified at the store. Then,
+the access to the signal value is done on the sub-bit of the port
+<blockquote><font face="Courier New,Courier"><font size=-1>signal sub_sig
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>sub_sig = foo.data[2:0]
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( sub_sig.0 == 3'b000
+) // same as foo.data[2:0] == 3'b000</font></font>
+<br><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="10.6 Class Functions for Port and Signal"></a>10.6 Class Functions
+for Port and Signal</h2>
+
+<blockquote>A class function 'drive_clock' can be called on port or signal
+to generate clock.</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>drive_clock(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int period1,
+int period2 = period1, int init = 0, int dly = 0</font></font>
+<br><font face="Courier New,Courier"><font size=-1>) ;</font></font></blockquote>
+This member function drives the output/inout port with given clock period,
+where
+<blockquote><font face="Courier New,Courier"><font size=-1>period1 :</font></font>
+first period of clock in unit delay.
+<br><font face="Courier New,Courier"><font size=-1>period2 :</font></font>
+second period of clock. period2 = period1 if omitted.
+<br><font face="Courier New,Courier"><font size=-1>init&nbsp;&nbsp;&nbsp;
+:</font></font> initial value of clock. init = 0 if omitted.
+<br><font face="Courier New,Courier"><font size=-1>dly&nbsp;&nbsp;&nbsp;&nbsp;
+:</font></font> delay in unit delay)befor clock starts toggling. dly =
+0 if omitted.</blockquote>
+</blockquote>
+
+<p><br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+init&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+__________&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+__________</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+____________________|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|__________|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |__________</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+^</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|&lt;-------&lt;dly>------>&lt;-period1->&lt;-period2->&nbsp; (repeat)</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+time called</font></font>
+<br>&nbsp;
+<br>&nbsp;
+<h2>
+<a NAME="10.7 Connection Set"></a>10.7 Connection Set</h2>
+
+<blockquote>Connection set is a way of connecting ports to specific simulator
+node.</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>connectionset
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; sigs.siga "verilog_top.port_a"
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; sigs.sigb "verilog_top.port_b"
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; single_sig "verilog_top.port_c"
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+Within the 'connectionset' block, the port and node are listed with termination
+of ';'. Actual operation of this is exactly the same as 'node' attribute
+on the port declaration. But connectionset can be specified individually
+at compile/link time, so that the port declaration can be kept "clean"
+from those node path information. (which may be changed when simulating
+with different model, e.g. RTL &amp; Gate)</blockquote>
+
+<br>&nbsp;
+</body>
+</html>

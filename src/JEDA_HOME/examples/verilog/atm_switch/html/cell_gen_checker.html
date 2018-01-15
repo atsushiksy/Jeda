@@ -1,0 +1,148 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="cell_driver_receiver.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="switch_tester.html">next</a>
+<h1>
+<font size=+1>9. Cell Generator and Checker</font></h1>
+
+<h2>
+9.2 Cell Generator</h2>
+
+<ul>Through out the verification, cells with random data are used. The
+member function rand_cell() in cell_class will set a random data with required
+VPI value. The bit [2:0] in the forth data byte is used to specify where
+this cell is sent. (The actual code is found in <a href="../utils/cell_classes_0.j">cell_classes_0.j</a>)
+<br>With this information, it is easy to handle the received cell for checking
+by the sending order. (as we don't expect the reorder happens on the cells
+from the same port.)
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; // create a cell
+with given gfc and random contents</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; //&nbsp;&nbsp;
+use pt to indicate the input port for checking</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void rand_cell(
+bit [7:0] vpi, bit [2:0] pt ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 53 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+data[i] = random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data[0][3:0]
+= vpi[7:4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data[1][7:4]
+= vpi[3:0] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data[3][2:0]
+= pt ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; set_hec()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+There's another member function set_hec_err() to produce a error cell.
+<br>&nbsp;
+<ul>&nbsp;<font face="Courier New,Courier"><font size=-1> void set_hec_err()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data[4]
+= ~data[4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; err
+= 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+</ul>
+
+<h2>
+9.2 Cell Checker</h2>
+
+<ul>The cell checker (source <a href="../utils/cell_checker_1.j">cell_checker_1.j</a>)
+checks the cells coming out of each port. Thus, 4 instances of the checker
+will be allocated in this environment. The checker checks the bit[2:0]
+of the 4th byte (data[3][2:0]) to determine where the cell is sent from.
+Then compare the cell with the cell in the checking queue for the corresponding
+port. Using a part of the data to transfer the input port simplifies the
+checking as we don't expect the cell reorder happens within the switch
+as far as the cells are sent from a port to a port.
+<br>It has the semaphore to detect the completion of checks. The semaphore
+is initialized to zero and get a unit every time it completes the check
+of a cell. Thus, getting an expecting number of cells from the semaphore
+provides the completion condition.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class cell_checker {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; single_cell_queue
+rcv_que ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; cell_queue_array
+chk_que ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; semaphore done_sem
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font></ul>
+The member function check_loop() create a thread to receive a cell from
+the receiver, and compare it with the cell in the check queue.
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; void check_loop()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cell_class
+cell, ccell ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+iport ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell = rcv_que.que.receive() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+iport = cell.data[3][2:0] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"checker %d got a cell %h %h %h %h from %d at %d\n",</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+id, cell.data[0], cell.data[1], cell.data[2], cell.data[3],</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+iport, get_cycle()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( chk_que.num_element( iport ) ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ccell = chk_que.receive( iport ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for( i = 0 ; i &lt; 53 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( cell.data[i] != ccell.data[i] ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+error(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Data[%d] got %h expect %h\n", i, cell.data[i], ccell.data[i]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+done_sem.put() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+else {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+error( "No check cell found on checker %d from %d", id, iport ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;</ul>
+<a href="cell_driver_receiver.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="switch_tester.html">next</a>
+</body>
+</html>

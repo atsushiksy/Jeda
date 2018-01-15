@@ -1,0 +1,274 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_concurrent.html">Prev</a>
+| <a href="jeda_sys_funcs.html">Next</a>
+<h1>
+12. Aspect Oriented Programming</h1>
+
+<blockquote>Aspect oriented programming (AOP) is a new concept in the programming
+paradigm. In this capter, the aspect mechanism will be explained.
+<br>For the dailed concept of AOP, related information, please refere AspectJ
+project web suite (<a href="http://www.aspectj.org">www.aspectj.org</a>).
+<br>Unlike AspectJ, (current) AOP mechanism in Jeda is relatively simple.
+It can add extra code called 'advice' to the location of a function call
+that maches to the specified pattern. This pattern is called pointcut.
+The function callis only the target for the pointcut pattern matching.</blockquote>
+
+<h2>
+<a NAME="11.1 Fork mechanism"></a>12.1 Aspect</h2>
+
+<blockquote>The aspect block is the unit to code the aspect to Jeda code.
+The aspect block is similar to the class, but itself is the only entity
+and can not create the instance of it. Thus, it can't have 'new' function.
+Within the aspect, member variables, member functions, and advice can be
+declared.
+<blockquote><font face="Courier New,Courier"><font size=-1>&nbsp; aspect&nbsp;
+foo_asp&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+x, y, z ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; void
+foo_func() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+x = 100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+y = 200 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+z = 300 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; advice
+void foo_adv()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+call( io_drive.drive_data )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "io_drive.drive_data is called\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></blockquote>
+The member variables and member function can be referenced with
+<br>&lt;aspect_name>.&lt;member_name>. In the aspect above, member variable
+x can be accessed from outside of the aspect as:
+<p>&nbsp;&nbsp; <font face="Courier New,Courier"><font size=-1>foo_asp.x
+= 500 ;</font></font>
+<p>and member function foo_func() can be called:
+<p>&nbsp;&nbsp; <font face="Courier New,Courier"><font size=-1>foo_asp.foo_func()
+;</font></font></blockquote>
+
+<h2>
+<a NAME="11.2 Terminate"></a>12.2 Advice</h2>
+
+<blockquote>The advice is the special executable unit for the aspect oriented
+programming. Advice is similar to member function in class that executes
+the code. But advice can not be called directly from other functions. The
+advice is executed at the condition specified by the pointcut matches.
+The pointcut location is defined at the other function calls.&nbsp; Multiple
+pointcut specifications can be declared for an advice.
+<blockquote><font face="Courier New,Courier"><font size=-1>&nbsp; aspect&nbsp;
+foo_asp&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+x, y, z ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; advice
+void foo_adv()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+call( io_drive.drive_data ) // call pointcut</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "io_drive.drive_data is called\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="11.3 Thread Execution"></a>12.3 Pointcut</h2>
+
+<blockquote>The pointcut is the way to pick the location and timing that
+the advice is executed. There are three mechanism to declare the pointcut
+specifications:
+<ul>
+<li>
+call( &lt;pattern> )</li>
+
+<br>call pointcut is used to specify the execution of the advice at the
+call (before execution) of function(s) that matches the pattern.
+<li>
+return( &lt;pattern> )</li>
+
+<br>return pointcut is used to specify the execution of the advice at the
+return from the function(s) that matches the pattern.
+<li>
+overwrite( &lt;pattern> )</li>
+
+<br>overwrite pointcut is used to specify the execution of the advice as
+the replace of the function(s) that matches the pattern.</ul>
+The pattern in the pointcut specification can be the exact match of the
+name(s) using identifier (e.g. io_drive.drive_data ) or use string pattern(
+e.g. io_drive."drive\w*" ). When the string is used, regular expression
+engine is used to detect the matching pattern. (See the rules in regular
+expression class explanation)
+<br>The pattern must be down to the function name (or string that match
+to function names), but class name and member variable names can be used
+to specify in the pattern as the path down to the function. For example,
+the following code catches the cycles of the threads waiting for the semaphore.
+<p><font face="Courier New,Courier"><font size=-1>aspect how_long {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int thread_count
+= 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int cycle_count&nbsp;
+= 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int cycle_que&lt;>
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; advice void wait_sem()
+call( io_drive.drive_sem.get ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; thread_count++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cycle_que.send(
+get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; advice void got_sem()
+return( io_drive.drive_sem.get ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cycle_count
++= ( get_cycle() - cycle_que.receive() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; int ave_wait()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+thread_count ) return cycle_count/thread_count ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; else
+return 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p>Note that pointcut matching is only done for functions and member functions
+of classes. Function and advice under aspect are not the target of the
+pointcut search. This will prevent the infinite recursive advice call.</blockquote>
+
+<h2>
+<a NAME="11.4 Clone Variable"></a>12.4 Data type of advice and return value
+modification</h2>
+
+<blockquote>When non-void data type is declared on advice, the type must
+be matched with the type of function(s) at the pointcut. If the type did
+not match, the advice call will not be attached to the function even the
+name matched to the pointcut pattern. When the advice type is void, the
+advice will be matched with any type of
+<br>functions. In this case, the return value can't be set within the advice.
+<p>For 'call' advice case, return value on advice won't effect, as the
+pointcut function will be called after the call advice.
+<p>For 'overwrite' advice case, return value must be set by the advice,
+so the advice type must be matched with the pointcut function. The runtime
+error will be detected if advice does not return the value in this case.
+<p>For 'return 'advice case, using the return statement with value will
+overwrite the return value from the pointcut function. The return statement
+without value (or reaching at the end of advice) will keep the original
+value from the pointcut function. (This is only effective on 'return' advice.)
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; advice int change_ret_val(
+int x ) return( foo.get_x ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+x > 100 ) return 100 ;&nbsp;&nbsp; // modify the return value</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; else
+return ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// use the original value</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p>For 'overwrite' advice case, the return value must be set within the
+advice. If overwrite advice does not return the value, the runtime error
+will be reported as the function case.
+<p>&nbsp; <font face="Courier New,Courier"><font size=-1>advice int missing_retval(
+int x ) overwrite( foo.get_x ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+p ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; p
+= x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+missing return &lt;value> statement, will cause runtime error</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></blockquote>
+
+<h2>
+<a NAME="11.5 thread_pause()"></a>12.5 Arguments on advice</h2>
+
+<blockquote>The advice with no argument will match with function with any
+arguments. In those cases, the advice can't see the arguments that is passed
+to the matched function(s).
+<p>When the argument(s) are specified (which must match with that of pointcut
+function), the advice can refer the argument(s). If an argument is 'var'
+type, the advice can modify it before it passed to the actual function.</blockquote>
+
+<h2>
+<a NAME="11.7 Event"></a>12.6 Special expressions in advice</h2>
+
+<blockquote>
+<h3>
+12.6.1 this</h3>
+</blockquote>
+
+<blockquote>When 'this' is used within advice, this expression returns
+the instance of the top class of the pointcut specification. When a join
+point 'Driver.drive' is used, this() returns the instance of Driver class
+at the pointcut. The top class name must be deterministic&nbsp; to use
+'this' expression within advice. The pointcut specifications must start
+with a class name (not a string), and all the class name must be the same
+if multiple pointcut specifications are specified.
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; advice
+void check_drive()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+call( Driver.drive )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+call( Driver.receive)</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Driver foo = this ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br>&nbsp;
+<h3>
+12.6.1 return</h3>
+This special expression returns the return value of the join point function.
+Only valid when the advice type is specified, and it only can be used in
+return pointcut advice. When this expression is used in non-advice block,
+it will cause a compile error. When this expression is used in non-return
+pointcut advice, it will cause a runtime error. The data type of the return
+expression is the same as the advice data type.
+<br>&nbsp;
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; advice int add_one()
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return( foo.bar )
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int rval = return ;
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rval++ ;
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return rval ;
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+<blockquote>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="11.8 Semaphore"></a>12.7 Advice Related Functions</h2>
+
+<blockquote>There are two special system functions that can be used within
+advice.
+<ul>
+<li>
+int pointcut_line()</li>
+
+<br>This function returns the current line number of the pointcut location.
+<li>
+string pointcut_file()</li>
+
+<br>This function returns the file name of the pointcut location.</ul>
+</blockquote>
+
+<blockquote>These are handy to add some debugging information as an aspect.
+The following example add extra line and file printout to any printf call
+within the Driver class.
+<blockquote><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;
+aspect verbose {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+advice void verbose_print() call( Driver.".*".printf ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "Line %d in %s", pointcut_line(), pointcut_file() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font></blockquote>
+</blockquote>
+
+</body>
+</html>

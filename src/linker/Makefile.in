@@ -1,0 +1,156 @@
+MK = @NAME_OF_MAKE@
+
+CC = gcc  -lang-c-c++-comments -g -DYYRESTART -DEVALEXP
+
+CMP_SRC = linker_main.c scan_const.c nametable.c link_check.c \
+          ccodegen.c output_c_code.c vcodegen.c aspect.c 
+CMP_OBJ = ${CMP_SRC:.c=.o}
+
+#
+# link_init.c is removed, init is done via jeda_util.jdo
+#
+
+INC_DIR = ../include
+CMP_INC = ${INC_DIR}/link_error_msg.h   ${INC_DIR}/linker.h \
+          ${INC_DIR}/bit_macro.h      ${INC_DIR}/compiler_macro.h \
+          ${INC_DIR}/codegen_macro.h ${INC_DIR}/jeda_pli.h
+
+RUN_DIR = ../runtime
+
+LEX_INC =  vinst.tab.h \
+           vinst_keyword_table.h 
+
+LEX_SRC = lex.yy.c
+LEX_OBJ = ${LEX_SRC:.c=.o}
+
+
+YACC_PINC = vinst_keyword_token.h \
+            vinst_nonterminal_node_type.h 
+
+
+YACC_SRC = y_tab.c
+YACC_OBJ = ${YACC_SRC:.c=.o}
+YACC_DBGOBJ = y_tab_dbg.o
+#YACC_HDR = y.tab.h
+YACC_HDR = vinst.tab.h
+
+
+PERL_SCRIPTS = gen_table.pl gen_token.pl gen_parser.pl gen_action.pl
+
+DRVD_FILES = vinst_keyword_table.h vinst_keyword_token.h \
+             vinst_nonterminal_node_type.h
+
+PERL_MACRO = gen_code_out_macro.pl
+
+PERL_BIT_MACRO = gen_bit_macro.pl
+
+MACRO_SOURCE = ${RUN_DIR}/code_exec.c ${RUN_DIR}/data.c \
+               ${RUN_DIR}/exec_b_i_alu_ops.c ${RUN_DIR}/exec_float_alu_ops.c \
+               ${RUN_DIR}/exec_int_alu_ops.c ../compiler/bit_operations.c \
+               ${RUN_DIR}/thread.c ${RUN_DIR}/exec_pli.c
+               
+MACRO_INC = ${INC_DIR}/code_exec_macro.h ${INC_DIR}/data_macro.h \
+               ${INC_DIR}/exec_b_i_alu_ops.h \
+               ${INC_DIR}/exec_float_alu_ops.h \
+               ${INC_DIR}/exec_int_alu_ops.h ${INC_DIR}/bit_macro.h \
+               ${INC_DIR}/exec_object_macro.h ${INC_DIR}/thread_macro.h \
+               ${INC_DIR}/exec_pli_macro.h
+       
+TARGET = jedalnk debuglnk
+
+REG_DIR = ../regexp
+REG_OBJ = ${REG_DIR}/regexp.o 
+
+all: ${TARGET}
+
+macros: ${MACRO_INC}
+
+jedapure: ${YACC_OBJ} ${CMP_OBJ} ${LEX_OBJ} ${REG_OBJ}
+	purify gcc -o $@ -dn ${YACC_OBJ} ${CMP_OBJ} ${LEX_OBJ} ${REG_OBJ} @LEXLIB@ @LIBS@
+
+jedalnk: ${YACC_OBJ} ${CMP_OBJ} ${LEX_OBJ} ${REG_OBJ}
+	gcc -o $@ ${YACC_OBJ} -dn ${CMP_OBJ} ${LEX_OBJ} ${REG_OBJ} @LEXLIB@ @LIBS@
+
+debuglnk: ${YACC_DBGOBJ} ${CMP_OBJ} ${LEX_OBJ} ${REG_OBJ}
+	gcc -o $@ -dn ${YACC_DBGOBJ} ${CMP_OBJ} ${LEX_OBJ} ${REG_OBJ} @LEXLIB@ @LIBS@
+
+${YACC_OBJ}: ${YACC_SRC} ${CMP_INC}
+	${CC} -c -o $@ ${YACC_SRC}
+	
+${YACC_DBGOBJ}: ${YACC_SRC} ${CMP_INC}
+	${CC} -c -g -o $@ -DYYDEBUG=1 ${YACC_SRC}
+
+${CMP_OBJ}: ${CMP_INC} ${YACC_HDR} ${MACRO_INC}
+
+${YACC_SRC}: vinst.y
+	bison -v -d vinst.y
+	perl gen_jd_parse.pl < vinst.tab.c > y_tab.c
+ 
+${YACC_HDR}: vinst.y
+	bison -v -d vinst.y
+	perl gen_jd_parse.pl < vinst.tab.c > y_tab.c
+
+vinst_keyword_table.h: vinst_keyword.data ${PERL_SCRIPTS}
+	perl gen_table.pl < vinst_keyword.data > $@
+
+vinst_keyword_token.h: vinst_keyword.data ${PERL_SCRIPTS}
+	perl gen_token.pl < vinst_keyword.data > $@
+
+vinst_nonterminal_node_type.h: vinst_nonterminal_node_type.data \
+                                      ${PERL_SCRIPTS}
+	perl gen_node_type.pl < vinst_nonterminal_node_type.data > $@
+
+
+vinst.y: vinst.y.pp vinst_keyword.data vinst_parser_action.data ${PERL_SCRIPTS} ${YACC_PINC}
+	perl gen_parser.pl | perl gen_action.pl > $@
+
+# note: lex started failing with the error message
+#  "fatal flex scanner internal error--end of buffer missed"
+#  this supporse to be an error when lex entry is called recursively,
+#    but there's (I believe) no chance that could happen in this simple code.
+
+${LEX_SRC}: vinst.l 
+	@LEX@ vinst.l
+	cp $@ $@.t
+	perl gen_jd_parse.pl < $@.t > $@
+
+${LEX_OBJ}: ${LEX_INC} ${LEX_INC}
+
+clean:
+	${RM} ${DRVD_FILES}
+	${RM} ${CMP_OBJ}
+	${RM} ${LEX_OBJ}
+	${RM} ${LEX_SRC}
+	${RM} ${YACC_HDR} ${YACC_SRC} vinst.y
+	${RM} ${TARGET}                
+
+    
+${INC_DIR}/code_exec_macro.h: ${RUN_DIR}/code_exec.c 
+	cd ../runtime ; ${MK}
+
+${INC_DIR}/exec_pli_macro.h: ${RUN_DIR}/exec_pli.c 
+	cd ../runtime ; ${MK}
+
+${INC_DIR}/data_macro.h: ${RUN_DIR}/data.c 
+	cd ../runtime ; ${MK}
+
+${INC_DIR}/exec_b_i_alu_ops.h: ${RUN_DIR}/exec_b_i_alu_ops.c 
+	cd ../runtime ; ${MK}
+
+${INC_DIR}/exec_float_alu_ops.h:  ${RUN_DIR}/exec_float_alu_ops.c ${PERL_MACRO}
+	cd ../runtime ; ${MK}
+
+${INC_DIR}/exec_int_alu_ops.h: ${RUN_DIR}/exec_int_alu_ops.c ${PERL_MACRO}
+	cd ../runtime ; ${MK}
+
+${INC_DIR}/bit_macro.h: ../compiler/bit_operations.c ${PERL_BIT_MACRO}
+	cd ../runtime ; ${MK}
+
+${INC_DIR}/exec_object_macro.h: ${RUN_DIR}/exec_object.c ${PERL_MACRO}
+	cd ../runtime ; ${MK}
+
+${INC_DIR}/thread_macro.h: ${RUN_DIR}/thread.c ${PERL_MACRO}
+	cd ../runtime ; ${MK}
+
+${REG_OBJ}:
+	cd ${REG_DIR} ; ${MK}

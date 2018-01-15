@@ -1,0 +1,3 @@
+
+C compile: gcc -I/home/atsushi/work/jeda/src/release/include -c -g -D_REENTRANT -DJEDA_DEBUGGER  -fPIC  -g -g error_cell.jeda.c -o error_cell.jeda.o 
+Link command: gcc -shared -D_REENTRANT -o error_cell.so  error_cell.jeda.o /home/atsushi/work/jeda/src/release/lib/jeda_veriuser.o /home/atsushi/work/jeda/src/release/lib/jeda_pli_static.o /home/atsushi/work/jeda/src/release/lib/dbg_obj/*.o /home/atsushi/work/jeda/src/release/lib/rl_obj/*.o -lpthread -lnsl -lm -ll -lc -ltermcap   

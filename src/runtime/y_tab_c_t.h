@@ -1,0 +1,67 @@
+typedef union {
+  char *string_value ;
+  JD_dbg_expression_node *expression ;
+  int keyword ;
+} YYSTYPE;
+#define	Identifier	257
+#define	Real_num	258
+#define	Real_or_Depth	259
+#define	Decimal_num	260
+#define	V_decimal_num	261
+#define	C_decimal_num	262
+#define	V_hex_num	263
+#define	C_hex_num	264
+#define	V_octal_num	265
+#define	C_octal_num	266
+#define	V_bin_num	267
+#define	C_bin_num	268
+#define	String_literal	269
+#define	JD_WORD_NULL	270
+#define	JD_WORD_SUPER	271
+#define	JD_WORD_THIS	272
+#define	JD_ANDTILDA	273
+#define	JD_TILDAAND	274
+#define	JD_ORTILDA	275
+#define	JD_TILDAOR	276
+#define	JD_EORTILDA	277
+#define	JD_TILDAEOR	278
+#define	JD_LAND	279
+#define	JD_LOR	280
+#define	JD_RSHIFT	281
+#define	JD_URSHIFT	282
+#define	JD_LSHIFT	283
+#define	JD_EQEQ	284
+#define	JD_LE	285
+#define	JD_GE	286
+#define	JD_NE	287
+#define	JD_EQEQEQ	288
+#define	JD_NEQEQ	289
+#define	JD_Q_EQ	290
+#define	JD_Q_NEQ	291
+#define	JD_QEQEQ	292
+#define	JD_EQEQQ	293
+#define	JD_C_EQEQ	294
+#define	JD_D_PLUS	295
+#define	JD_D_MINUS	296
+#define	JD_D_AT	297
+#define	JD_C_EQ	298
+#define	JD_PLUS_EQ	299
+#define	JD_MINUS_EQ	300
+#define	JD_STAR_EQ	301
+#define	JD_SLSH_EQ	302
+#define	JD_MOD_EQ	303
+#define	JD_LSHIFT_EQ	304
+#define	JD_RSHIFT_EQ	305
+#define	JD_URSHIFT_EQ	306
+#define	JD_AND_EQ	307
+#define	JD_OR_EQ	308
+#define	JD_EOR_EQ	309
+#define	JD_NAND_EQ	310
+#define	JD_ANDN_EQ	311
+#define	JD_NOR_EQ	312
+#define	JD_ORN_EQ	313
+#define	JD_NEOR_EQ	314
+#define	JD_EORN_EQ	315
+
+
+extern YYSTYPE JDB_yylval;

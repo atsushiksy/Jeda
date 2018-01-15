@@ -1,0 +1,91 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_compile_link.html">Prev</a>
+| <a href="jeda_example.html">Next</a>
+<h1>
+16. Verilogテストベンチの作成
+</h1>
+
+<blockquote>
+ユーザーのJedaコードは、Verilog環境では、一つのモジュール(Jedaモジュール)
+によって代表されます。Verilogシミュレーションを実行するためには、
+Jedaモジュールのインスタンスと、DUT(テスト中のデバイス)のインスタンスとが、
+適切に接続された、Verilogテストベンチを構築する必要があります。
+Jedaでは、このプロセスを容易にする、２種類の手段を提供します。
+一つは、テンプレートジェネレータ、もう一つは、リンカーのテストベンチ生成
+オプション(-JL_V)です。
+</blockquote>
+
+<h2>
+16.1 テンプレート ジェネレータ
+</h2>
+
+<blockquote>
+Jedaには、シンプルなテンプレート ジェネレータ(jedatemp)が付随しています。
+このプログラムは、Verilogコードを読み込み、Jedaのテストベンチ テンプレート
+ファイルを作成します。このテストベンチには、DUTのインスタンスとJedaモジュール
+のインスタンスが生成され、全てのDUT信号は、Jedaモジュールを接続されます。
+この方法は、一つのモジュールのインスタンスがDUTとして用いられる場合に
+有効です。
+<p>jedatempのコマンドシンタックスは、
+<br>&nbsp;
+<blockquote>jedatemp&nbsp; [options] &lt;verilog_file>
+<p>ここでオプションは:
+<ul>
+<li>
+-m &lt;module_name></li>
+
+<br>テストを行なうモジュール名を指定します。省略されると、Verilogファイルの
+最初のモジュールがDUTとなります。
+<li>
+-c &lt;clock_name></li>
+<br>モジュールのクロックポート名を指定します。省略されるとCLOCKが参照クロック
+として使用されます。
+
+<li>
+-i &lt;include_file></li>
+<br>
+インクルードファイルを指定します。このインクルードファイルの宣言は、Verilog
+テストベンチの endmodule のすぐ前に挿入されます。このファイルに、波形表示
+用のダンプの指示などを行なうことができます。
+<li>
+-h</li>
+
+<br>単に、使用時のヘルプを表示します。</ul>
+</blockquote>
+注：このjedatempは、完全なVerilogパーサではないので、正しいシンタックスの
+Verilogファイルも受け付けられない場合があります。このような場合、ポートの
+定義と入出力宣言(input、output、inout)のみの疑似ファイルを作り、
+試してみると良いでしょう。(自分でjedatempのコードを直す気がないのであれば)
+</blockquote>
+
+<h2>
+<a NAME="16.2 Testbench generation option"></a>
+16.2 Jedaリンカーのテストベンチ生成オプション
+</h2>
+
+<blockquote>
+Jedaリンカー(jedalnk)には、Verilogテストベンチを生成するオプションがあります。
+このオプションは、リンカーの-JL_Vフラグで実行されます。
+jedaスクリプトに、-JL_Vオプションを指定しても、実行できます。
+例えば:
+<p>&nbsp;&nbsp;&nbsp; jeda -dl -JL_V foo.j
+<p>テストベンチ ファイルは、 &lt;outname>.jeda_top.vとなります。 
+(上記の例では、foo.jeda_top.v) 
+このテストベンチ ファイルには、Jedaモジュールのインスタンスと、
+全てのJedaのポートへのwire接続、およびCLOCKの生成コードが出力されます。
+<br>
+もし、最終的なテストベンチが、複数のモジュールインスタンスと様々な
+ポートセット接続を必要とするような場合、ユーザーはJedaコード側から
+必要なポート(およびポートセット)を定義することで、DUTを除いた
+テストベンチのテンプレートを作成することが出来ます。
+このテンプレートに、必要なモジュール インスタンスとインスタンス間の接続を
+追加することによって、最終的なシミュレーション用のテストベンチを作成
+することが出来ます。
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+
+<h1>
+Appendix D. Observing Jeda Execution from Verilog Dump</h1>
+
+<blockquote>While debugging Verilog code with a wave form software, it
+is handy to know what's going on in Jeda code on Verilog Dump. In Jeda
+Module, there's some information that the user can observe to correlate
+the Verilog activity with Jeda execution. If the activity of Jeda Module
+is recorded in the dump file, the user can observe those Jeda execution
+information.
+<br>Note that D.4 Global Variable, and D.5 Static Variable transition can
+only be observed when the code is compiled with -g (debug) option.</blockquote>
+
+<h2>
+D.1 CLOCK and CycleCount</h2>
+
+<blockquote>Jeda's internal cycle is based on CLOCK signal on the Jeda
+Module. The user can drive it from Jeda code (using drive_clock() member
+function), or drive it from outside. The positive edge of the CLOCK signal
+is used to count the timeout.
+<br>Various message from Jeda and Jeda Debugger includes the cycle information
+as the result of counting posedge of CLOCK. This counting is done in the
+Jeda Module, on a reg CycleCount:
+<p>&nbsp;&nbsp;&nbsp; reg [31:0] CycleCount ;
+<p>The user can always use this number in the message by calling get_cycle()
+function as:
+<p>&nbsp;&nbsp;&nbsp; printf( "Drive data to %h at cycle %d\n", data, get_cycle()
+) ;
+<p>This is handy number (rather than simulation time) to know where you
+are, and correlate the Jeda activity to the Verilog execution.
+<br>&nbsp;</blockquote>
+
+<h2>
+D.2&nbsp; Jeda Output Port</h2>
+
+<blockquote>When the user declares an output or inout port, the output value
+from the jeda code will be stored in a reg with name jeda_out_&lt;port>,
+or jeda_out_&lt;portset>_&lt;port>. For example, if you have a port 'output
+[7:0] OUTB' , you'll find the reg declaration:
+<blockquote>reg [7:0] jeda_out_OUTB ;</blockquote>
+By observing such jeda_out_&lt;name> regs, you can observe which value
+is driven by Jeda code.
+<br>&nbsp;</blockquote>
+
+<h2>
+D.3&nbsp; Jeda Input Port</h2>
+
+<blockquote>When the user declares an input or inout port, the input value
+to the jeda code is on a wire with name jeda_in_&lt;port>, or jeda_in_&lt;portset>_&lt;port>.
+For example, if you have a port 'input [7:0] INB' , you'll find the wire
+declaration:
+<blockquote>wire vectored [7:0] jeda_in_INB ;</blockquote>
+By observing such jeda_in_&lt;name> wires, you can observe which value
+is used as the input by Jeda code.
+<br>&nbsp;</blockquote>
+
+<h2>
+D.4 Global Variable</h2>
+
+<blockquote>A global variable with int or bit type (non-array) has a shadow
+variable in Jeda Module with the name var_&lt;name>. For example, a global
+variable
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int x ;
+<p>will have a shadow variable
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integer var_x ;
+<p>in Jeda Module, and the activity of the variable can be observed in
+the dump file.
+<br>Note that the value write back will only be done when Jeda code is
+compiled and linked with -g option.</blockquote>
+
+<h2>
+D.4 Static Variable</h2>
+
+<blockquote>A static variable declared in a function, a class, a member
+function has a shadow variable in Jeda Module with the name svar_&lt;class>_&lt;func>_&lt;var>,
+where &lt;class> is the class name (or empty if not in a class), &lt;func>
+is the function name (or empty if not in a function), and &lt;var> is the
+variable name. For example, a static var in a function:
+<p>&nbsp; void foo() {
+<br>&nbsp;&nbsp;&nbsp; static bit [7:0] bbb ;
+<br>&nbsp;&nbsp;&nbsp; ..
+<br>&nbsp; }
+<p>will have a shadow variable
+<p>&nbsp; reg [7:0] svar__foo_bbb ;
+<p>in Jeda Module and the activity of the static variable can be observed
+in the dump file.
+<br>Note that the value write back will only be done when Jeda code is
+compiled and linked with -g option.</blockquote>
+
+<br>&nbsp;
+<br>&nbsp;
+<blockquote>&nbsp;</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+<ul>&nbsp;</ul>
+
+</body>
+</html>

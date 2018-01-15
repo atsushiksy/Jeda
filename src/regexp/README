@@ -1,0 +1,128 @@
+This directory contains the port of regexp engine (University of Tronto, 
+written by Henry Spencer) to Jeda language.
+Original README file is README.regexp, and original source file is in
+regexp.shar. (To extract the original, type "sh regexp.shar")
+
+Many features are ported from Perl5 extention written by Larry Wall. 
+See below for a part of Larry's Copyright.
+
+/*
+ *
+ * The modifications to the engine are:
+
+ * Dynamic allocation of startp, endp array according to the result of
+ * pre-compilation 
+ * Support argument with instruction to handle more than 10 parentheses
+ *   
+ * The names of the function have been changed from regcomp and regexec to
+ * JD_regcomp and JD_regexec to avoid possible conflicts with other libraries.
+ * 
+ * JD_regdealloc is added to dealocate the space allocated by JD_regcomp.
+ *  
+ * Many features are ported from Perl5 extention written by Larry Wall. 
+ * Here's a part of Larry's Copyright, and the README file is stored as
+ * README.perl in this directory.
+ *
+ ****    Alterations to Henry's code are...
+ ****
+ ****    Copyright (c) 1991-1997, Larry Wall
+ ****
+ ****    You may distribute under the terms of either the GNU General Public
+ ****    License or the Artistic License, as specified in the README file.
+ *
+ * 
+ * Limited feature of Perl5 Regexp feature are supported.
+ *
+ * Supported special characters
+ *
+ *  Code             Maches
+ *  .                Any charactor (include '/n')
+ *  \a               Alarm (beep)
+ *  \n               Newline
+ *  \r               Carriage return
+ *  \t               Tab
+ *  \f               Formfeed
+ *  \e               Escape
+ *  \d               A digit, same as [0-9]
+ *  \D               A nondigit
+ *  \w               A word character(alphanumeric), same as [a-zA-Z_0-9]
+ *  \W               A nonword character
+ *  \s               A whitespace character, same as [ \t\n\r\f]
+ *  \S               A non-whitespace character
+ *
+ *  \0               null character
+ *  \<single digit> corresponding parentheses actually matched
+ *  \<two or three octal digit> character with the octal value
+ *  \x<one or two hex digit> character with the hex value
+ *  \c<Single Character> Corresponding control character
+ * 
+ * Supported Assertions
+ *
+ *  Assertion         Meaning
+ *  ^                 Matches at the beginning of the string
+ *  $                 Matches at the end of the string
+ *  \b                Matches at word boundary (between \w and \w)
+ *  \B                Matches except at word boundary
+ * 
+ * Supported Quantifiers
+ *
+ * Quantifire         Range
+ * *                  0 or more times
+ * +                  1 or more times
+ * ?                  0 or 1 time
+ *
+ *
+ */
+ 
+/* opcode is copied from Perl5 implementation, but not all are used */
+/* opcode ANYBUT (used in original regexp.c) is added (with new number) */
+/* definition	number	opnd?	meaning (x -- not supported here) */
+#define	END	 0	/* no	End of program. */
+#define	BOL	 1	/* no	Match "" at beginning of line. */
+#define MBOL	 2	/* no x Same, assuming multiline. */
+#define SBOL	 3	/* no x Same, assuming singleline. */
+#define	EOL	 4	/* no	Match "" at end of line. */
+#define MEOL	 5	/* no x Same, assuming multiline. */
+#define SEOL	 6	/* no x Same, assuming singleline. */
+#define	ANY	 7	/* no x Match any one character (except newline). */
+#define	SANY	 8	/* no   Match any one character. */
+#define	ANYOF	 9	/* sv x Match character in (or not in) this class. */
+#define	CURLY	10	/* sv x Match this simple thing {n,m} times. */
+#define	CURLYX	11	/* sv x Match this complex thing {n,m} times. */
+#define	BRANCH	12	/* node	Match this alternative, or the next... */
+#define	BACK	13	/* no	Match "", "next" ptr points backward. */
+#define	EXACT	14	/* sv	Match this string (preceded by length). */
+#define	EXACTF	15	/* sv x Match this string, folded (prec. by length). */
+#define	EXACTFL	16	/* sv x Match this string, folded in locale (w/len). */
+#define	NOTHING	17	/* no	Match empty string. */
+#define	STAR	18	/* node	Match this (simple) thing 0 or more times. */
+#define	PLUS	19	/* node	Match this (simple) thing 1 or more times. */
+#define BOUND	20	/* no	Match "" at any word boundary */
+#define BOUNDL	21	/* no x Match "" at any word boundary */
+#define NBOUND	22	/* no	Match "" at any word non-boundary */
+#define NBOUNDL	23	/* no x Match "" at any word non-boundary */
+#define REF	24	/* num	Match already matched string */
+#define REFF	25	/* num x Match already matched string, folded */
+#define REFFL	26	/* num x Match already matched string, folded in loc. */
+#define	OPEN	27	/* num	Mark this point in input as start of #n. */
+#define	CLOSE	28	/* num	Analogous to OPEN. */
+#define MINMOD	29	/* no x Next operator is not greedy. */
+#define GPOS	30	/* no x Matches where last m//g left off. */
+#define IFMATCH	31	/* no x Succeeds if the following matches. */
+#define UNLESSM	32	/* no x Fails if the following matches. */
+#define SUCCEED	33	/* no x Return from a subroutine, basically. */
+#define WHILEM	34	/* no x Do curly processing and see if rest matches. */
+#define ALNUM	35	/* no	Match any alphanumeric character */
+#define ALNUML	36 	/* no x Match any alphanumeric char in locale */
+#define NALNUM	37	/* no x Match any non-alphanumeric character */
+#define NALNUML	38	/* no x Match any non-alphanumeric char in locale */
+#define SPACE	39	/* no	Match any whitespace character */
+#define SPACEL	40	/* no x Match any whitespace char in locale */
+#define NSPACE	41	/* no x Match any non-whitespace character */
+#define NSPACEL	42	/* no x Match any non-whitespace char in locale */
+#define DIGIT	43	/* no	Match any numeric character */
+#define NDIGIT	44	/* no	Match any non-numeric character */
+#define	ANYBUT	45	/* sv   Match character not in this class. */
+
+ 
+ 

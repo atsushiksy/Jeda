@@ -1,0 +1,43 @@
+
+CC = gcc -lang-c-c++-comments -g -DYYRESTART -DEVALEXP
+
+INC_DIR = ../include
+
+TEMP_SRC = main.c 
+TEMP_OBJ = ${TEMP_SRC:.c=.o}
+
+YACC_SRC = jtemp.tab.c
+YACC_OBJ = jtemp.o
+YACC_DBGOBJ = jtemp_dbg.o
+YACC_HDR = jtemp.tab.h
+
+LEX_INC =  jtemp.tab.h  
+
+LEX_SRC = lex.yy.c
+LEX_OBJ = ${LEX_SRC:.c=.o}
+
+TARGET = jedatemp
+
+all: ${TARGET}
+
+jedatemp: ${TEMP_OBJ} ${LEX_OBJ} ${YACC_OBJ}
+	gcc -o $@ ${TEMP_OBJ} ${LEX_OBJ} ${YACC_OBJ}
+
+${YACC_SRC}: jtemp.y
+	bison -v -d jtemp.y
+
+${YACC_HDR}: jtemp.y
+	bison -v -d jtemp.y
+
+${YACC_OBJ}: ${YACC_SRC} ${CMP_INC}
+	${CC} -c -o $@ ${YACC_SRC}
+	
+${YACC_DBGOBJ}: ${YACC_SRC} ${CMP_INC}
+	${CC} -c -g -o $@ -DYYDEBUG=1 ${YACC_SRC}
+
+
+${LEX_SRC}: jtemp.l ${LEX_INC}
+	flex jtemp.l
+
+${LEX_OBJ}: ${LEX_INC} ${LEX_INC}
+

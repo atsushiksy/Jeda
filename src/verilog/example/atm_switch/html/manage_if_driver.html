@@ -1,0 +1,165 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="cell_n_queue.html">prev</a> : <a href="index.html">index</a> :
+<a href="cell_driver_receiver.html">next</a>
+<p><font size=+1>7. Management Interface Driver</font>
+<ul>Now we need to construct various drivers that mimics the chips/logics
+interfacing the DUT.
+<p>The UTOPIA interface specification defines two types of management interface,
+Intel and Motorola, but here we only implement the Intel version.
+<br>Also, the focus of this example is not on fully testing the management
+interface section, so the driver implemented here is quite simple, and
+can not control the timing to test out the corner cases.
+<br>The focus here is to show how to write a driver that is port-independent
+such that it can be used to interface to multiple ports. (Even though we
+we only have one management interface port here.) The complete management
+interface driver is found in&nbsp; <a href="../utils/mif_driver_0.j">mif_driver_0.j</a>.
+<p>The driver class has a set of signal variables that are used to drive
+the namagement interface. This is always a good idea not to drive the port
+directly, but drive the signal indirectly on any driver. This makes the
+code reusable, and easy to interface to more than one ports in the future.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class mif_driver {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal busmode
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal sel ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal rd_ds
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal wr_rw
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal rdy_dtack
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal rst ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal clk ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font></ul>
+
+<p><br>The constructor function new() takes the arguments to set the proper
+ports to the signals. Then the constructor drives the signals to the idle
+state. This driver handles the reset signal to the DUT as well.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void new(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_busmode,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_addr,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_sel,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_data,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_rd_ds,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_wr_rw,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_rdy_dtack,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_rst,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_clk</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; busmode
+= a_busmode ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; addr
+= a_addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; sel
+= a_sel ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data
+= a_data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rd_ds
+= a_rd_ds ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; wr_rw
+= a_wr_rw ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rdy_dtack
+= a_rdy_dtack ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rst
+= a_rst ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clk
+= a_clk ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+drive signals to inactive state</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; busmode.0
+= 1'b1 ; // intel compatible mode, we only use this</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; addr.0
+= 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; sel.0
+= 1'b1 ; // active low</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data.0
+= 8'bz ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rd_ds.0
+= 1'b1 ; // active low</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; wr_rw.0
+= 1'b1 ; // active low</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rst.0
+= 1'b1 ; // active hi, put under reset</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+The function drive_reset() drives the reset signal with given cycle.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void drive_reset(
+int duration ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rst.0
+= 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @duration(posedge
+clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rst.0
+= 1'b0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"DUT comes out from reset at %d\n", get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+The function read() reads the given address of the interface. It can take
+the expected return value as the optional argument.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; bit [7:0] read(
+bit[11:0] adr, bit [7:0] exp_data = 8'bx )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[7:0] ret ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>When the argument ex_data is omitted, the default value 8'bx is
+assigned to it. This makes the masked comparison in the function always
+passes.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; if( !(ret ==?
+exp_data) ) { // dont care if x on exp_data</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; error(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"mif.read expect data error, exp %h act %h at %d\n",</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+exp_data, ret</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; )
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+After driving 'sel' and 'rd_ds', the driver waits for the 'rdy_dtack' signal
+driven back from DUT. This is done with the assert() function with the
+timed expression. The TIME_OUT_LIMIT is defined to 1000 cycle. At the end
+of access, it drives the address to a random value to make sure there's
+no dependency to the address on idle state.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>assert( @1, TIME_OUT_LIMIT(
+rdy_dtack.0 === 1'b0 ) ) ;</font></font></ul>
+
+<p><br>The function write() writes the given data to the given address
+of the interface.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void write( bit[11:0]
+adr, bit [7:0] dat ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+n ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>These drivers are used in the switch tester class explained later.</ul>
+<a href="cell_n_queue.html">prev</a> : <a href="index.html">index</a> :
+<a href="cell_driver_receiver.html">next</a>
+</body>
+</html>

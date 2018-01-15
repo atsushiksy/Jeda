@@ -1,0 +1,481 @@
+forkknife(0)
+forkknife(0) sending bar.trigger
+forkknife(0): wait for foo sync
+thread 0: wait for boo sync 0
+thread 2: wait for boo sync 0
+thread 1: wait for bar sync 0
+thread 1: got sync
+thread 1: sending foo trigger 0
+forkknife(0) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(0) done.
+forkknife(1)
+forkknife(1) sending bar.trigger
+forkknife(1): wait for foo sync
+thread 0: wait for boo sync 1
+thread 2: wait for boo sync 1
+thread 1: wait for bar sync 1
+thread 1: got sync
+thread 1: sending foo trigger 1
+forkknife(1) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(1) done.
+forkknife(2)
+forkknife(2) sending bar.trigger
+forkknife(2): wait for foo sync
+thread 0: wait for boo sync 2
+thread 2: wait for boo sync 2
+thread 1: wait for bar sync 2
+thread 1: got sync
+thread 1: sending foo trigger 2
+forkknife(2) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(2) done.
+forkknife(3)
+forkknife(3) sending bar.trigger
+forkknife(3): wait for foo sync
+thread 0: wait for boo sync 3
+thread 2: wait for boo sync 3
+thread 1: wait for bar sync 3
+thread 1: got sync
+thread 1: sending foo trigger 3
+forkknife(3) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(3) done.
+forkknife(4)
+forkknife(4) sending bar.trigger
+forkknife(4): wait for foo sync
+thread 0: wait for boo sync 4
+thread 2: wait for boo sync 4
+thread 1: wait for bar sync 4
+thread 1: got sync
+thread 1: sending foo trigger 4
+forkknife(4) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(4) done.
+forkknife(5)
+forkknife(5) sending bar.trigger
+forkknife(5): wait for foo sync
+thread 0: wait for boo sync 5
+thread 2: wait for boo sync 5
+thread 1: wait for bar sync 5
+thread 1: got sync
+thread 1: sending foo trigger 5
+forkknife(5) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(5) done.
+forkknife(6)
+forkknife(6) sending bar.trigger
+forkknife(6): wait for foo sync
+thread 0: wait for boo sync 6
+thread 2: wait for boo sync 6
+thread 1: wait for bar sync 6
+thread 1: got sync
+thread 1: sending foo trigger 6
+forkknife(6) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(6) done.
+forkknife(7)
+forkknife(7) sending bar.trigger
+forkknife(7): wait for foo sync
+thread 0: wait for boo sync 7
+thread 2: wait for boo sync 7
+thread 1: wait for bar sync 7
+thread 1: got sync
+thread 1: sending foo trigger 7
+forkknife(7) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(7) done.
+forkknife(8)
+forkknife(8) sending bar.trigger
+forkknife(8): wait for foo sync
+thread 0: wait for boo sync 8
+thread 2: wait for boo sync 8
+thread 1: wait for bar sync 8
+thread 1: got sync
+thread 1: sending foo trigger 8
+forkknife(8) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(8) done.
+forkknife(9)
+forkknife(9) sending bar.trigger
+forkknife(9): wait for foo sync
+thread 0: wait for boo sync 9
+thread 2: wait for boo sync 9
+thread 1: wait for bar sync 9
+thread 1: got sync
+thread 1: sending foo trigger 9
+forkknife(9) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(9) done.
+forkknife(10)
+forkknife(10) sending bar.trigger
+forkknife(10): wait for foo sync
+thread 0: wait for boo sync 10
+thread 2: wait for boo sync 10
+thread 1: wait for bar sync 10
+thread 1: got sync
+thread 1: sending foo trigger 10
+forkknife(10) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(10) done.
+forkknife(11)
+forkknife(11) sending bar.trigger
+forkknife(11): wait for foo sync
+thread 0: wait for boo sync 11
+thread 2: wait for boo sync 11
+thread 1: wait for bar sync 11
+thread 1: got sync
+thread 1: sending foo trigger 11
+forkknife(11) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(11) done.
+forkknife(12)
+forkknife(12) sending bar.trigger
+forkknife(12): wait for foo sync
+thread 0: wait for boo sync 12
+thread 2: wait for boo sync 12
+thread 1: wait for bar sync 12
+thread 1: got sync
+thread 1: sending foo trigger 12
+forkknife(12) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(12) done.
+forkknife(13)
+forkknife(13) sending bar.trigger
+forkknife(13): wait for foo sync
+thread 0: wait for boo sync 13
+thread 2: wait for boo sync 13
+thread 1: wait for bar sync 13
+thread 1: got sync
+thread 1: sending foo trigger 13
+forkknife(13) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(13) done.
+forkknife(14)
+forkknife(14) sending bar.trigger
+forkknife(14): wait for foo sync
+thread 0: wait for boo sync 14
+thread 2: wait for boo sync 14
+thread 1: wait for bar sync 14
+thread 1: got sync
+thread 1: sending foo trigger 14
+forkknife(14) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(14) done.
+forkknife(15)
+forkknife(15) sending bar.trigger
+forkknife(15): wait for foo sync
+thread 0: wait for boo sync 15
+thread 2: wait for boo sync 15
+thread 1: wait for bar sync 15
+thread 1: got sync
+thread 1: sending foo trigger 15
+forkknife(15) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(15) done.
+forkknife(16)
+forkknife(16) sending bar.trigger
+forkknife(16): wait for foo sync
+thread 0: wait for boo sync 16
+thread 2: wait for boo sync 16
+thread 1: wait for bar sync 16
+thread 1: got sync
+thread 1: sending foo trigger 16
+forkknife(16) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(16) done.
+forkknife(17)
+forkknife(17) sending bar.trigger
+forkknife(17): wait for foo sync
+thread 0: wait for boo sync 17
+thread 2: wait for boo sync 17
+thread 1: wait for bar sync 17
+thread 1: got sync
+thread 1: sending foo trigger 17
+forkknife(17) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(17) done.
+forkknife(18)
+forkknife(18) sending bar.trigger
+forkknife(18): wait for foo sync
+thread 0: wait for boo sync 18
+thread 2: wait for boo sync 18
+thread 1: wait for bar sync 18
+thread 1: got sync
+thread 1: sending foo trigger 18
+forkknife(18) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(18) done.
+forkknife(19)
+forkknife(19) sending bar.trigger
+forkknife(19): wait for foo sync
+thread 0: wait for boo sync 19
+thread 2: wait for boo sync 19
+thread 1: wait for bar sync 19
+thread 1: got sync
+thread 1: sending foo trigger 19
+forkknife(19) sending boo.trigger
+thread 0: got sync
+thread 2: got sync
+forkknife(19) done.
+forkknife(0)
+forkknife(0) done.
+main calling thread_pause() 0.
+thread 0: wait for boo sync 0
+thread 2: wait for boo sync 0
+thread 1: wait for bar sync 0
+main sending bar.trigger 0.
+thread 1: got sync
+thread 1: sending foo trigger 0
+thread 0: got sync
+thread 2: got sync
+main thread joined 0.
+forkknife(1)
+forkknife(1) done.
+main calling thread_pause() 1.
+thread 0: wait for boo sync 1
+thread 2: wait for boo sync 1
+thread 1: wait for bar sync 1
+main sending bar.trigger 1.
+thread 1: got sync
+thread 1: sending foo trigger 1
+thread 0: got sync
+thread 2: got sync
+main thread joined 1.
+forkknife(2)
+forkknife(2) done.
+main calling thread_pause() 2.
+thread 0: wait for boo sync 2
+thread 2: wait for boo sync 2
+thread 1: wait for bar sync 2
+main sending bar.trigger 2.
+thread 1: got sync
+thread 1: sending foo trigger 2
+thread 0: got sync
+thread 2: got sync
+main thread joined 2.
+forkknife(3)
+forkknife(3) done.
+main calling thread_pause() 3.
+thread 0: wait for boo sync 3
+thread 2: wait for boo sync 3
+thread 1: wait for bar sync 3
+main sending bar.trigger 3.
+thread 1: got sync
+thread 1: sending foo trigger 3
+thread 0: got sync
+thread 2: got sync
+main thread joined 3.
+forkknife(4)
+forkknife(4) done.
+main calling thread_pause() 4.
+thread 0: wait for boo sync 4
+thread 2: wait for boo sync 4
+thread 1: wait for bar sync 4
+main sending bar.trigger 4.
+thread 1: got sync
+thread 1: sending foo trigger 4
+thread 0: got sync
+thread 2: got sync
+main thread joined 4.
+forkknife(5)
+forkknife(5) done.
+main calling thread_pause() 5.
+thread 0: wait for boo sync 5
+thread 2: wait for boo sync 5
+thread 1: wait for bar sync 5
+main sending bar.trigger 5.
+thread 1: got sync
+thread 1: sending foo trigger 5
+thread 0: got sync
+thread 2: got sync
+main thread joined 5.
+forkknife(6)
+forkknife(6) done.
+main calling thread_pause() 6.
+thread 0: wait for boo sync 6
+thread 2: wait for boo sync 6
+thread 1: wait for bar sync 6
+main sending bar.trigger 6.
+thread 1: got sync
+thread 1: sending foo trigger 6
+thread 0: got sync
+thread 2: got sync
+main thread joined 6.
+forkknife(7)
+forkknife(7) done.
+main calling thread_pause() 7.
+thread 0: wait for boo sync 7
+thread 2: wait for boo sync 7
+thread 1: wait for bar sync 7
+main sending bar.trigger 7.
+thread 1: got sync
+thread 1: sending foo trigger 7
+thread 0: got sync
+thread 2: got sync
+main thread joined 7.
+forkknife(8)
+forkknife(8) done.
+main calling thread_pause() 8.
+thread 0: wait for boo sync 8
+thread 2: wait for boo sync 8
+thread 1: wait for bar sync 8
+main sending bar.trigger 8.
+thread 1: got sync
+thread 1: sending foo trigger 8
+thread 0: got sync
+thread 2: got sync
+main thread joined 8.
+forkknife(9)
+forkknife(9) done.
+main calling thread_pause() 9.
+thread 0: wait for boo sync 9
+thread 2: wait for boo sync 9
+thread 1: wait for bar sync 9
+main sending bar.trigger 9.
+thread 1: got sync
+thread 1: sending foo trigger 9
+thread 0: got sync
+thread 2: got sync
+main thread joined 9.
+forkknife(10)
+forkknife(10) done.
+main calling thread_pause() 10.
+thread 0: wait for boo sync 10
+thread 2: wait for boo sync 10
+thread 1: wait for bar sync 10
+main sending bar.trigger 10.
+thread 1: got sync
+thread 1: sending foo trigger 10
+thread 0: got sync
+thread 2: got sync
+main thread joined 10.
+forkknife(11)
+forkknife(11) done.
+main calling thread_pause() 11.
+thread 0: wait for boo sync 11
+thread 2: wait for boo sync 11
+thread 1: wait for bar sync 11
+main sending bar.trigger 11.
+thread 1: got sync
+thread 1: sending foo trigger 11
+thread 0: got sync
+thread 2: got sync
+main thread joined 11.
+forkknife(12)
+forkknife(12) done.
+main calling thread_pause() 12.
+thread 0: wait for boo sync 12
+thread 2: wait for boo sync 12
+thread 1: wait for bar sync 12
+main sending bar.trigger 12.
+thread 1: got sync
+thread 1: sending foo trigger 12
+thread 0: got sync
+thread 2: got sync
+main thread joined 12.
+forkknife(13)
+forkknife(13) done.
+main calling thread_pause() 13.
+thread 0: wait for boo sync 13
+thread 2: wait for boo sync 13
+thread 1: wait for bar sync 13
+main sending bar.trigger 13.
+thread 1: got sync
+thread 1: sending foo trigger 13
+thread 0: got sync
+thread 2: got sync
+main thread joined 13.
+forkknife(14)
+forkknife(14) done.
+main calling thread_pause() 14.
+thread 0: wait for boo sync 14
+thread 2: wait for boo sync 14
+thread 1: wait for bar sync 14
+main sending bar.trigger 14.
+thread 1: got sync
+thread 1: sending foo trigger 14
+thread 0: got sync
+thread 2: got sync
+main thread joined 14.
+forkknife(15)
+forkknife(15) done.
+main calling thread_pause() 15.
+thread 0: wait for boo sync 15
+thread 2: wait for boo sync 15
+thread 1: wait for bar sync 15
+main sending bar.trigger 15.
+thread 1: got sync
+thread 1: sending foo trigger 15
+thread 0: got sync
+thread 2: got sync
+main thread joined 15.
+forkknife(16)
+forkknife(16) done.
+main calling thread_pause() 16.
+thread 0: wait for boo sync 16
+thread 2: wait for boo sync 16
+thread 1: wait for bar sync 16
+main sending bar.trigger 16.
+thread 1: got sync
+thread 1: sending foo trigger 16
+thread 0: got sync
+thread 2: got sync
+main thread joined 16.
+forkknife(17)
+forkknife(17) done.
+main calling thread_pause() 17.
+thread 0: wait for boo sync 17
+thread 2: wait for boo sync 17
+thread 1: wait for bar sync 17
+main sending bar.trigger 17.
+thread 1: got sync
+thread 1: sending foo trigger 17
+thread 0: got sync
+thread 2: got sync
+main thread joined 17.
+forkknife(18)
+forkknife(18) done.
+main calling thread_pause() 18.
+thread 0: wait for boo sync 18
+thread 2: wait for boo sync 18
+thread 1: wait for bar sync 18
+main sending bar.trigger 18.
+thread 1: got sync
+thread 1: sending foo trigger 18
+thread 0: got sync
+thread 2: got sync
+main thread joined 18.
+forkknife(19)
+forkknife(19) done.
+main calling thread_pause() 19.
+thread 0: wait for boo sync 19
+thread 2: wait for boo sync 19
+thread 1: wait for bar sync 19
+main sending bar.trigger 19.
+thread 1: got sync
+thread 1: sending foo trigger 19
+thread 0: got sync
+thread 2: got sync
+main thread joined 19.
+all done.

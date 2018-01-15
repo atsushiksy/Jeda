@@ -1,0 +1,54 @@
+
+var_definition:
+  opt_var_func_attrib var_func_type var_name_list semicolon
+  ;
+
+var_name_list:
+  var_name 
+  |
+  var_name_list ',' var_name
+  ;
+  
+var_name:
+  Identifier opt_array_range opt_var_init
+  ;
+
+/*
+  An array can be statically allocated (e.g. ary[5]), string indexed
+  associative array (e.g. sary[*]), associative array (e.g. asary[]),
+  and list (e.g. list <> ).
+*/
+opt_array_range:
+  /* emptry */
+  |
+  array_ranges  
+  |
+  '['  '*'  ']' 
+  |
+  '['  ']'
+  |
+  '<'  '>' 
+  ;
+  
+array_ranges:
+  array_range
+  |
+  array_ranges array_range
+  ;
+  
+array_range:
+  '[' constant ']'
+  ;
+
+opt_var_init:
+  /* empty */
+  |
+  var_init 
+  ;
+  
+var_init:
+  '=' expression 
+  |
+  '=' new_expression
+  ;
+

@@ -1,0 +1,323 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=euc-jp">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (X11; U; SunOS 5.7 sun4u) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_prog_struct.html">prev</a>
+| <a href="jeda_data_dcl.html">Next</a>
+<h1>
+4. Basic Data types and Array forms</h1>
+
+<h2>
+<a NAME="4.1 Basic Data Type"></a>4.1 Basic Data Type</h2>
+
+<blockquote>The followings&nbsp; data types are supported in Jeda:
+<ul>
+<li>
+<b>int&nbsp;&nbsp;</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- 32 bit integer</li>
+
+<li>
+<b>bit&nbsp;</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- Verilog like
+multi-value (it can hold x and z) bit, it can be vectored as <font face="Courier New,Courier">bit
+[7:0]. The vector can be either big-endian (e.g. [7:0]) or small-endian
+(e.g. [0:7]). It can also be non zero lsb (e.g. [9:2], [2:9])</font></li>
+
+<li>
+<b>string&nbsp;&nbsp; </b>-- String</li>
+
+<li>
+<b>float&nbsp;&nbsp;&nbsp;&nbsp; </b>-- Single precision floating variable</li>
+
+<li>
+<b>double</b> -- Double precision floating variable</li>
+
+<li>
+<b>signal&nbsp;&nbsp; </b>-- Pointer to a port (interface to Verilog simulator)</li>
+</ul>
+Note: enum and class can be declared as the user defined data type.</blockquote>
+
+<h2>
+<a NAME="4.2 Array forms"></a>4.2 Array forms</h2>
+
+<blockquote>Any data type (including the user defined types) can be declared&nbsp;
+in various arry forms under the same data types. In Jeda array's&nbsp;
+provide in-built member functions that are used to access information about
+the arry.
+<ul>
+<li>
+Array&nbsp; -- A continuous allocation of&nbsp; space sufficient to hold&nbsp;
+the given data type. It is declared with [n] where n is a constant value.</li>
+
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; int a[5] ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; a[3] = 0 ;</font>
+<p>Note: Unlike Verilog, sub bit area of the bit vector array can be accessed
+directly as:
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; bit [63:0] aa[5]
+;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; aa[3][4:0] = 5'b01100
+;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; if( aa[4][0] ==
+1'b0 ) printf( "Boo!\n" ) ;</font>
+<br>&nbsp;
+<p>&nbsp;The following member functions are available to provide access
+to the array state:
+<ul>
+<li>
+int num_element()&nbsp; -- returns the array size.</li>
+</ul>
+&nbsp;&nbsp;&nbsp; e.g.
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( aa.num_element() &lt; 5 ) printf( "array size of a is too small!!\n"
+) ;</font>
+<br>&nbsp;
+<li>
+Multi-Dimemtional Array&nbsp; -- A continuous allocation of space sufficent
+to hold a data type in a multidimensional form declared as [n0]..[nk] where
+n &amp; k&nbsp; are each constant values:</li>
+</ul>
+
+<blockquote><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; int a[5][4][3]
+;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp; a[3][2][1] = 0 ;</font></blockquote>
+
+<blockquote>The following member function are available to provide access
+to the multidimensional array&nbsp; states:</blockquote>
+
+<ul>
+<ul>
+<li>
+int num_element()&nbsp; -- returns the array size.</li>
+</ul>
+
+<ul>
+<li>
+<font face="Courier New,Courier">int dimension() -- returns the number
+of dimension.</font></li>
+</ul>
+
+<ul>
+<li>
+<font face="Courier New,Courier">int dim_size( int n ) -- returns the array
+size of the n-th dimension.</font></li>
+
+<br>&nbsp;</ul>
+
+<li>
+Associative array&nbsp; -- A dynamically allocated array declared using
+[].&nbsp; At the time of creation/allocation&nbsp; the array is empty&nbsp;
+and the actual space is allocated when&nbsp; data gets stored. When reffering
+to an entry in the associative array use the same form as the array</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<p><font face="Courier New,Courier">&nbsp;&nbsp; int b[] ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp; b[94849] = 534 ;</font>
+<p>&nbsp;The associative array provides the following member functions
+to access its states:
+<ul>
+<li>
+int num_element()&nbsp; -- returns the number of elements in the associative
+array.</li>
+</ul>
+
+<ul>
+<li>
+int &lt;> index_list()&nbsp; --&nbsp; returns a list of&nbsp; type int
+that holds the index&nbsp; for all the elements in the array. The order
+of the list is completely random. (list.sort() can be used to sort it&nbsp;
+the order)</li>
+</ul>
+
+<ul>
+<li>
+int check_index( int index ) -- checks if the given index exists in the
+array, and returns 1 if true or 0 otherwise.</li>
+</ul>
+
+<ul>
+<li>
+void delete_index( int index ) -- deletes the element refferenced&nbsp;
+by index from the array.</li>
+</ul>
+
+<ul>
+<li>
+void flush_all() -- deletes all the elements in the array.</li>
+</ul>
+
+<br>&nbsp;
+<li>
+String Indexed associative array&nbsp; -- works just like an associative
+array but&nbsp; with a string as the index to the array declared using
+[*].</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<p><font face="Courier New,Courier">&nbsp; int c[*] ;</font>
+<br><font face="Courier New,Courier">&nbsp; c["boobie"] = 54 ;</font>
+<p>The string indexed associative array provides the following member functions
+to access its state:
+<br>&nbsp;
+<ul>
+<li>
+int num_element()&nbsp; -- returns the number of elements in the string
+indexed associative array.</li>
+</ul>
+
+<ul>
+<li>
+string &lt;> index_list()&nbsp; -- returns a list of string that contains
+all the index of the elements in the array. The order of the list is completely
+random. (list.sort() can be used to sort it in order)</li>
+</ul>
+
+<ul>
+<li>
+int check_index( string index ) -- checks if the given index exists in
+the array, and returns 1 it true, or 0 otherwise.</li>
+</ul>
+
+<ul>
+<li>
+void delete_index( string index ) -- deletes the element with the index
+from the array.</li>
+</ul>
+
+<ul>
+<li>
+void flush_all() -- deletes all the elements in the array</li>
+</ul>
+
+<li>
+List&nbsp; -- A list for a given data type is declared using &lt;>. When
+allocated for the first time a list is empty.&nbsp; List requires that
+the entries stored in the list to be of the same type of the list declaration,
+thus Jeda does not allow the mixture of list elements, e.g. strings and
+int in the same list. Adding element to the list can only be done at the
+beginning or the end of the list. The adding access is done via the member
+functions (e.g. push(), bpush() ).&nbsp; The removing access is normally
+done at the beginning or the end of the list with pop() and bpop() function.
+An element in the list can be accessed with an integer index as array.
+This is only for read access, and it can't be used for left hand of the
+assignment. Any one of the entries in the list can be directory removed
+with remove() funciton.</li>
+
+<p><br><font face="Courier New,Courier">&nbsp; int d&lt;> ;</font>
+<br><font face="Courier New,Courier">&nbsp; d.push(546) ;</font>
+<br><font face="Courier New,Courier">&nbsp; i = d.pop() ;</font>
+<br><font face="Courier New,Courier">&nbsp; d.push( 10 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; d.push( 50 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; i = d[0] ;&nbsp;&nbsp;&nbsp;&nbsp;
+// index access</font>
+<br><font face="Courier New,Courier">&nbsp; d.remove( 1 ) ;</font>
+<p>A list of data can be created using the&nbsp; '{&nbsp; }&nbsp; operator.
+This operator is mostly used to&nbsp; store more than 1 list entries&nbsp;
+at a time.
+<p><font face="Courier New,Courier">&nbsp;d = '{ 256, 568, 948, 224 } ;</font>
+<p>Lists are flexible in Jeda whereby&nbsp; list structures&nbsp; are used
+to&nbsp; for <a href="jeda_concurrent.html#10.9 List as Mailbox">mailbox</a>
+and <a href="jeda_concurrent.html#10.10 List as Region">region</a>.&nbsp;
+The following are lists of member functions used to access list data elements.
+The following terminologies are used through out the following discussion
+unless noted. <b>Top</b> of a list shall also mean to the <b>right</b>
+of the list. <b>Bottom</b> of a list shall also mean to the <b>left</b>
+of a given list.
+<br>&nbsp;
+<br>&nbsp;
+<ul>
+<li>
+push( <i>data</i> )&nbsp;&nbsp; --&nbsp; takes a same data type of the
+list type, <i>data</i>, adds&nbsp; it at the top of the list</li>
+</ul>
+
+<ul>
+<li>
+pop()&nbsp; -- returns the value at the top of the list&nbsp; If the list
+is empty, it returns 0 (for int &amp; bit), or null (other data types).</li>
+</ul>
+
+<ul>
+<li>
+bpush( <i>data</i> ) -- takes a same data type of the list&nbsp; type,
+<i>data</i>,&nbsp;
+adds it to the bottom of the list.</li>
+</ul>
+
+<ul>
+<li>
+bpop()&nbsp; --&nbsp; returns the value at the bottom of the list&nbsp;
+If the list is empty, it returns 0 (for int &amp; bit), or null (other
+data types).</li>
+
+<li>
+remove( int index )&nbsp; -- removing an entry indexed from the top.</li>
+
+<li>
+send( <i>data</i> ) -- (<a href="jeda_concurrent.html#10.9 List as Mailbox">MAILBOX</a>
+) has the same function as push(<i>data</i>) ,&nbsp; sends&nbsp; <i>data</i>
+to a mailbox.</li>
+</ul>
+
+<ul>
+<li>
+receive() -- (<a href="jeda_concurrent.html#10.9 List as Mailbox">MAILBOX</a>)
+has the same function as bpop() iff the list is not empty. If the list
+is empty, the caller is suspended in a fifo queue until a data is available.
+When timeout is detected it retuns 0 for int and bit data types and null
+for other data types.</li>
+
+<li>
+timeout( int <i>cycle </i>) --&nbsp; (<a href="jeda_concurrent.html#10.9 List as Mailbox">MAILBOX</a>
+and <a href="jeda_concurrent.html#10.10 List as Region">REGION</a>) sets
+a timeout value for receive() and enter() functions as the cycle number
+of CLOCK (system clock port) cycle. If 0 is set, it clears the timeout.</li>
+</ul>
+
+<ul>
+<li>
+int enter( <i>data</i> [, <i>data1</i>..] ) -- (<a href="jeda_concurrent.html#10.10 List as Region">REGION</a>)
+This function is for using a list as a region (critical region control).
+If any of the argument values does not already exist in the list, it then
+adds it and returns immediately. If&nbsp; <i>data, data1</i> etc. exists
+in the list, the caller is suspended in a fifo queue until the enter condition
+becomes true. It retuns 1 if succeedes, or return 0 when the timeout detected.</li>
+</ul>
+
+<ul>
+<li>
+int check_enter( <i>data</i> [, <i>data1</i>..] ) -- (<a href="jeda_concurrent.html#10.10 List as Region">REGION</a>)
+This function is the same as enter(), but immediately returns 0 if the
+enter condition is not true.</li>
+</ul>
+
+<ul>
+<li>
+void exit( <i>data</i> [, <i>data1</i>.. ] ) -- (<a href="jeda_concurrent.html#10.10 List as Region">REGION</a>)
+removes the arguments,
+<i>data, data1</i> etc. from the list.</li>
+</ul>
+
+<ul>
+<li>
+int num_element() -- returns the number of elements in the list</li>
+</ul>
+
+<ul>
+<li>
+sort() -- sorts the elements of a list. This function can be only called
+for int, bit, string lists.</li>
+</ul>
+</ul>
+</blockquote>
+
+</body>
+</html>

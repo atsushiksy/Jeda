@@ -1,0 +1,11 @@
+
+top_initial_statement:
+  'initial' 
+  statement
+  ;
+  
+initial_statement:
+  'initial' 
+  statement 
+  ;
+

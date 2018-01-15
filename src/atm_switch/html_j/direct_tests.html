@@ -1,0 +1,259 @@
+<html>
+<head>
+</head>
+<body>
+<a href="switch_tester.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="random_distribution.html">next</a>
+<h1>
+<font size=+1>11.ダイレクト テスト
+</font></h1>
+
+<ul>
+<a href="test_plan.html">テストプラン</a>に基づき、以下のダイレクトテスト
+がtestsディレクトリに作成されました。各テストが、どのような処理を行なって
+いるかを説明します。
+
+<br><a href="index.html#rx_bug">以前に説明したように</a>、cell_in_slide.j
+テストが、utopia1_atm_rx.v での rxプロトコルのインプリメンテーション上の
+問題点を検知しました。設計検証を進めるために、このファイルは修正されて
+います。
+<br>
+全てのテストは、同じ関数名 squat_test()にて始まり、squat_test_suite.j内の
+共通の初期化コードから呼び出されます。
+<br>&nbsp;
+<ul>
+<li>
+<a href="../tests/manage_if_test.j">manage_if_test.j</a></li>
+
+<br>
+このテストは、色々なパターンをコンフィグ レジスタに書き込んだ後、読みだして
+正しい値が書き込まれているかをチェックします。実際のテストは、テスター
+クラスの関数<a href="switch_tester.html#check_config_reg">check_config_reg()</a>で記述されています。
+このテストは、walking1、
+walking0、ランダムのパターンでチェックを行ないます。すべてのアドレスが
+正しくアクセスされることを検証するために、まずパターンを全てのレジスタに
+書き込み、その後、読みだしチェックを行なっています。RAM構造のものを
+このようにテストすることは重要で、書き込み後すぐに読みだしを行なうと
+アドレスデコードの問題などがある場合に検知できません。
+
+<li>
+<a href="../tests/cell_in_slide.j">cell_in_slide.j</a></li>
+
+<br>Here's the core code of the slide test.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 3 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( j = 0 ;
+j &lt; 3 ; j++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+i != j ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for( k = 0 ; k &lt; 20 ; k++ ) {&nbsp; //</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for( m = 1 ; m &lt; 17 ; m++ ) {&nbsp; //</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 10, i, m ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( k, j, m ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>
+このテストは、二つのポートを選んで(iとjのループ)、二つのセルをそのポートから
+色々なタイミング(kのループ)で送ります。
+<p><img SRC="../html/slide_timing_test.gif" height=149 width=418></ul>
+
+<ul>&nbsp;
+<br>
+また、このテストでは、異なった出力ポートも選択します(mのループ)。このループ
+は、全ての可能な出力先のコンビネーションをコンフィグ レジスタのエントリ
+１から１５でおこないます。これらのエントリは、以下のように設定されています。
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1: pattern[15:12] = 4'b0001 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2: pattern[15:12] = 4'b0010 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3: pattern[15:12] = 4'b0100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4: pattern[15:12] = 4'b1000 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+5: pattern[15:12] = 4'b0011 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6: pattern[15:12] = 4'b0110 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+7: pattern[15:12] = 4'b1100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+8: pattern[15:12] = 4'b0101 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+9: pattern[15:12] = 4'b1010 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10: pattern[15:12] = 4'b1001 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+11: pattern[15:12] = 4'b0111 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+12: pattern[15:12] = 4'b1011 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+13: pattern[15:12] = 4'b1101 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+14: pattern[15:12] = 4'b1110 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+15: pattern[15:12] = 4'b1111 ;</font></font>
+<p>
+したがって、このシンプルなテストのループは、２つのポートの組み合わせ全てで、
+-10から+10サイクルのタイミング差、および、全ての出力パターンの組み合わせを
+完全にチェックします。
+</ul>
+
+<ul>
+<li>
+<a href="../tests/cell_out_congest.j">cell_out_congest.j</a></li>
+
+<br>
+このテストは、４つのポートから同時にたくさんのセルを送り、全てのセルが
+レジスタエントリ１５を使用しているので、全て４つの出力ポートにフォワード
+されます。これにより、出力ポートの競合が発生し、最終的には入力側に
+フロー制御が発生します。
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // send 200 cells
+back to back with entry 15 which send 4 cells to all</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; //&nbsp; the
+output ports</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 200 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 0, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 1, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 2, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 3, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<ul>&nbsp;</ul>
+
+<li>
+<a href="../tests/slow_tx.j">slow_tx.j</a></li>
+
+<br>
+このテストは、まずtx側に遅いレスポンスを設定します。これによって、
+送られるセルは最小１００サイクル、最大２００サイクルの間、スイッチ内に
+留まることになります。
+</ul>
+
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; // set slow responce</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; tester.start_receiver_checker(
+100, 100 ) ;</font></font>
+<p>
+その後、各ポートから４つのセルを送り、各々は１つの出力ポートに転送されます。
+テストは、この４つのセルが転送終了するのを待ちます。
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // send 4 sells
+one by one but each cell will stay more than 100 cycle</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 20 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+j = 0 ; j &lt; 4 ; j++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 0, 1 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 1, 2 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 2, 3 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 3, 4 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+now wait for the completion, before another try</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; tester.wait_done()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;
+<ul>&nbsp;</ul>
+
+<li>
+<a href="../tests/error_cell.j">error_cell.j</a></li>
+
+<br>
+このテストは、５０％の確立でエラーセルを送ります。エラーセルは、破棄される
+はずで、もしチェッカーがエラーセルが転送されるのを受け取ると、セルのミスマッチ
+が発生します。
+<p><font face="Courier New,Courier"><font size=-1>int gen_error() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; x = random() ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // 50% probability
+of error</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( x &amp; 8
+) return 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; else return 1
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void errorcell_test1()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // send 200 sells
+with some with hec error</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 200 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 0, 1, gen_error() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 1, 2, gen_error() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 2, 3, gen_error() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 3, 4, gen_error() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<ul>&nbsp;</ul>
+
+<li>
+<a href="../tests/starvation.j">starvation.j</a></li>
+
+<br>
+このテストは、単にたくさんのセルを全ての入力ポートから送り、全てのセルが
+４つの出力ポートに転送されるようにします。DUTとして使用しているモデルは、
+フェアなアービトレーション メカニズムを持っていないので、入力ポート０のみ
+が処理され、テストはタイムアウト エラーを検知します。
+この問題点は、フェアなアービトレーション メカニズム (たとえばラウンドロビン)
+を用いることによって解決できますが、使用しているDUTはこの点を修正してなく、
+このテストではエラーが発生します。
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // send 500 sells
+with transfer out to all 4 output port.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // due to unfair
+arbitration, input port 1,2,3 will cause a starvation.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 500 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 0, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 1, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 2, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tester.send_cell( 0, 3, 15 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;</ul>
+</ul>
+<a href="switch_tester.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="random_distribution.html">next</a>
+</body>
+</html>

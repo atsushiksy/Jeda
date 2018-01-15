@@ -1,0 +1,45 @@
+
+statement:
+  null_statement
+  |
+  if_else_statement 
+  |
+  while_statement 
+  |
+  for_statement 
+  |
+  repeat_statement 
+  |
+  do_while_statement 
+  |
+  forever_statement 
+  |
+  case_statement 
+  |
+  casex_statement 
+  |
+  casez_statement 
+  |
+  break_statement 
+  |
+  continue_statement
+  |
+  fork_join_statement
+  |
+  terminate_statement
+  |
+  breakpoint_statement
+  |
+  expression_statement
+  |
+  assign_statement
+  |
+  function_call_statement
+  |
+  return_statement
+  |
+  verilog_task_call_statement
+  |
+  block
+  ;
+

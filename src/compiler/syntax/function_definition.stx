@@ -1,0 +1,80 @@
+
+function_definition:
+  opt_var_func_attrib 
+  opt_func_type 
+  func_name
+  '(' 
+    opt_formal_args 
+  ')' 
+  opt_outer_block
+  ;
+
+func_name:
+  Identifier 
+  ;
+
+
+opt_outer_block:
+  semicolon
+  |
+  block
+  ;
+
+opt_formal_args:
+  /* empty */
+  |
+  formal_args
+  ;
+  
+formal_args:
+  formal_arg
+  |
+  formal_args ',' formal_arg 
+  ;
+
+formal_arg:
+  opt_var var_func_type arg_name opt_array_range opt_arg_init 
+  |
+  var_func_type
+  |
+  '?'
+  |
+  '(' formal_args ')' '+'
+  |
+  '(' formal_args ')' '*'
+  |
+  '(' formal_args ')' '|'
+  |
+  '[' formal_args ']' 
+  ;
+
+opt_var:
+  /* empty */
+  |
+  'var' 
+  ;
+  
+arg_name:
+  Identifier
+  ;
+
+opt_arg_init:
+  /* empty */
+  |
+  arg_init 
+  ;
+  
+arg_init:
+  '=' constant 
+  |
+  '=' string_constant
+  |
+  '=' bool_null_expression
+  |
+  '=' enum_expression
+  ;
+
+enum_expression:
+  Identifier
+  ;
+

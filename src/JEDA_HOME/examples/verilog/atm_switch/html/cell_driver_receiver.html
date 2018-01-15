@@ -1,0 +1,315 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="manage_if_driver.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="cell_gen_checker.html">next</a>
+<h1>
+<font size=+1>8. UTOPIA Cell Driver and Receiver</font></h1>
+
+<ul>The UTOPIA port cell driver and receiver is implementing the UTOPIA
+ATM interface layer. The actual source files of the driver and receiver
+are found in <a href="../utils/cell_driver_1.j">cell_driver_1.j</a> and
+<a href="../utils/cell_receiver_1.j">cell_receiver.j</a>.</ul>
+
+<h2>
+8.1 UTOPIA Cell Driver</h2>
+
+<ul>The same way as the management interface driver, all the necessary
+signals to interface to the UTOPIA port is declared as the member of the
+driver.&nbsp; As we expect to have multiple instances of this class to
+drive multiple ports, it has the 'id' to identify which port it's talking
+to.
+<br>Two semaphores 'clav_sem' and 'drive_sem' are used as the mutex of
+the driver, so that multiple threads can call the driver anytime without
+considering the possible conflict.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class cell_driver {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal rx_clk
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal soc ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal en ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal clav ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; semaphore clav_sem
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; semaphore drive_sem
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font></ul>
+The constructor function new() gets necessary port information as signal
+variables and set up the driver. It also drives the output to the idle
+state, and allocate semaphores.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void new(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+a_id,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_rx_clk,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_data,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_soc,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_en,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_clav</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; id
+= a_id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rx_clk
+= a_rx_clk ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data
+= a_data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; soc
+= a_soc ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; en
+= a_en ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clav
+= a_clav ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+drive signals to inactive state</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clav.0
+= 1'b0 ; // active high</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; soc.0
+= 1'b0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data.0
+= 0 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+using two semaphore to allow back to back drive</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clav_sem
+= new ;&nbsp; // mutex for driving clav</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; drive_sem
+= new ;&nbsp; // mutex for sending a cell</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>The function drive_cell() accepts a cell instance and drive it to
+the UTOPIA port. It uses two semaphore to arbitrate on driving clav signal
+and data port. At the last byte of the cell, the current cell driver will
+drive clav to 0 weakly, and release the clav_sem. If another driver is
+ready to drive the next cell, this clav will be overwritten to 1, and cell
+will be continuously sent. The data transfer will be stalled when 'en'
+signal in the previous cycle is not asseted. Because the possible stall,
+the next driver can't start driving after getting clav_sem after 52th byte
+of the previous cell. Thus, we use the second semaphore drve_sem to control
+the byte drive port timing.
+<br>&nbsp;
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void drive_cell(
+int dly, cell_class cell ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i, j ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clav_sem.get()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+dly ) @dly(posedge rx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clav.0
+= 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @(posedge
+rx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; drive_sem.get()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 53 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+soc.0 = i?1'b0:1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+data.0 = cell.data[i] ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( i == 52 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clav.0 = 1'b0 weak ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clav_sem.put() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assert(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@1,MAX_ENABLE_DELAY (en.1 == 1'b0) // using pipe one signal</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ; // note that using</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; drive_sem.put()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"a cell driven on %d at %d\n", id, get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;</ul>
+Detecting the state of 'en' signal in the previous cycle is simply done
+by using the pipelined signal 'en.1'. This will always provide the status
+of the signal in the previous cycle.The port signal corresponding to this
+signal must have proper depth attribute.
+<p><img SRC="pipeline.gif" height=269 width=698></ul>
+
+<h2>
+8.2 UTOPIA Cell Receiver</h2>
+
+<ul>The cell receiver also holds a set of signals to talk to tx side of
+the UTOPIA port. When the receiver receives a cell, it transfers a instance
+of cell class with the received data to the single_cell_queue 'rcv_que'.
+This cell will be compared with the expected cell on the port.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class cell_receiver
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal tx_clk
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal soc ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal en ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal clav ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; single_cell_queue
+rcv_que ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int receive_count
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int receive_num
+;</font></font></ul>
+
+<p><br>The variables receive_count and receive_num is used to implement
+a mechanism to flow control the receiving port. The tester will increment
+the receive_num as it expects a cell, then the count will be transferred
+to receive_count which will tell receiver to drive 'clav' signal, after
+some delay that is generated by the random variable generator. There are
+two functions to provide different type of delay mechanism: receive_enable_loop()
+and receive_enable_loop_rnd().
+<p>The function receive_enable_loop() is used to control the delay between
+a sent cell to a received cell, with minimum delay plus some range of random
+delay. The variable 'receive_num' will be incremented by the test sequence
+when a cell is sent to a port and the corresponding cell is expected to
+show up on the port. It may be multiple cells come out on various port
+depend on the config register. In this case, the test sequence must increment
+the 'receive_num' on multiple receiver instances accordingly. This mechanism
+will not produce a flow control at all when a cell is continuously sent.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void receive_enable_loop(
+int rcv_dly_c, int rcv_dly_r ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+dly ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+while( receive_num == 0 ) @(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dly = rcv_dly_c + (rcv_dly_r?(random()%rcv_dly_r):0) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if(dly) @dly(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_count++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_num-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>The function receive_enable_loop_rnd() is used to control the delay
+between one received cell to next received cell. Thus, this mechanism can
+control that the flow control always happens. The receive count will only
+be incremented when it is zero and receive_num is not zero, which means
+the receiver completed receiving a cell, and another cell is expected.
+A delay generated by the random distribution class instance (will be explained
+in 12. Random Distribution Classes) give some delay between cell to cell.
+(You can set a constant zero not to have delay at all). This mechanism
+will provide a specific receiving rate on the ATM transfer side.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void receive_enable_loop_rnd(
+random_distribution rnd ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+dly ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; receive_count++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+while( receive_count || receive_num == 0 ) @(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dly = rnd.gen_random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if(dly) @dly(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_count++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_num-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>The function receive_loop() fork a thread to receive the cell from
+the port and transfer the cell object to the receive queue.
+<br>It checks if 'receive_count' value is not zero, which means it suppose
+to accept a cell. Then it drives 'clav' signal and starts receiving a cell.
+At the end of the cell byte receiving loop, it checks if 'receive_count'
+is still not zero to continuously receive the next cell. If the value is
+zero, it negates the clav signal and wait until receive_count becomes non-zero.
+This mechanism provides the flow control mechanism on the UTOPIA port.
+<br>When the receiver starts receiving cell byte, it expects that 'en'
+signal will be asserted within MAX_ENABLE_DELAY (set to 1000 cycle).
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void receive_loop()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cell_class
+cell ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( receive_count == 0 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+while( receive_count == 0 ) @(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clav.0 = 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clav.0 = 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_count-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for( i = 0 ; i &lt; 53 ; i++ ) {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( i == 52 &amp;&amp; receive_count == 0) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clav.0 = 1'b0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assert(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@1,MAX_ENABLE_DELAY (en.0 == 1'b0)</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ; // note that using</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assert( soc.0 == i?1'b0:1'b1 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell.data[i] = data.0 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "a cell received on %d at %d\n", id, get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+rcv_que.que.send( cell ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;
+<br>&nbsp;</ul>
+
+<br>&nbsp;</ul>
+<a href="manage_if_driver.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="cell_gen_checker.html">next</a>
+</body>
+</html>

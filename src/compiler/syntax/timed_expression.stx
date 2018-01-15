@@ -1,0 +1,15 @@
+ 
+timed_expression:
+  time_range '(' expression_list ')'
+  ;
+
+time_range:
+  '@' expression opt_clock_definition 
+  |
+  '@' opt_expression ',' expression opt_clock_definition
+  |
+  '@@' expression opt_clock_definition 
+  |
+  '@@' opt_expression ',' expression opt_clock_definition 
+  ;
+

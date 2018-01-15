@@ -1,0 +1,65 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="random_distribution.html">prev </a>: <a href="index.html">index</a>
+:
+<a href="run_simulation.html">next</a>
+<h1>
+<font size=+1>13. Random Test</font></h1>
+
+<ul>A simple random test is provided in <a href="../tests/random_test.j">random_test.j</a>.
+<br>The test body is simply calling configuration functions in the tester
+class. The test can be configured to use various random distribution type
+for input and output speed control by using plus arguments.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>void squat_test() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "Enter
+squat_test!\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; tester.set_config_reg()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; tester.set_rand_config()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; tester.start_receiver_checker_rnd()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; rand_test1()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "squat_test
+done!\n" ) ;</font></font><font face="Courier New,Courier"><font size=-1></font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font></ul>
+
+<p><br>The actual test sends 100 cells each from all the ports concurrently.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>void rand_test1() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i, j ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; tester.send_rnd_cells(
+0, 100 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; tester.send_rnd_cells(
+1, 100 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; tester.send_rnd_cells(
+2, 100 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; tester.send_rnd_cells(
+3, 100 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; tester.wait_done()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+</ul>
+<a href="random_distribution.html">prev </a>: <a href="index.html">index</a>
+:
+<a href="run_simulation.html">next</a>
+</body>
+</html>

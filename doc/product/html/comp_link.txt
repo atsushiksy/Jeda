@@ -1,0 +1,101 @@
+15. Compile, Link and Execution
+
+ This chapter explains how to compile Jeda code, link, and execute the code with Verilog simulator.
+
+15.1 General Flow
+
+ Jeda compiler (jedacmp) compiles Jeda source code(.j) to Jeda object file
+ (.jo). Jeda linker (jedalnk) links multiple Jeda object files (.jo) to a C
+ code (.jeda.c). This C code is compiled with C compiler to an object file.
+ Then, this object file is linked with runtime library to a dynamic
+ library form (.dl). This process can be done with a perl script "jedax"
+ (explained below). 
+ When Verilog simulator is executed, the Jeda PLI code (linked to Verilog
+ simulator) searches the plus argument "+jeda_code=<file_name>", and loads 
+ the file <file_name> as the Jeda code to be run.
+
+ The file(s) that does not contain main() function can be compiled into 
+ the module object (.jmo). The module file (.jmo) is the same format as the
+ compiled object (.o), and it can be linked to the rest of code (contains 
+ main() ). The module files are specified with -m <module_name> option when
+ the main file(s) are compiled.
+ 
+15.2 JEDA_HOME Environment Variable
+
+  To run Jeda compiler and linker, the environment variable JEDA_HOME must be
+  set to the installed directory. Also, $JEDA_HOME/bin must be added as the
+  command search path. See Appendix B Installation for further information.
+
+15.4 Jeda Script  (jeda)
+
+     Perl Script 'jedax' is normally used to handle the process of compile, 
+     link, c-compile, c-link. 
+     Command syntax is: 
+
+         jedax [options | filename]..
+
+     The options are: 
+
+         -out <name> 
+         define output name, actual output file will have proper  suffix. (default: prefix of the first file name) 
+         -jc 
+         jeda compile only to create jeda object file (.jo)
+         -jmo
+         jeda compile, link, c compile to generate module object (.jmo)
+         -dl 
+         create dynamic library file (.dl) 
+         -exe 
+         create standalone executable 
+         -cc <cc-path> 
+         specify cc command path (default 'gcc') 
+         -debug 
+         just print out system command sequence 
+         -D<defines> 
+         defines macro for jeda compile and c compile 
+         -I<path> 
+         defines include file search path for jeda & c compile 
+         -g 
+         debug mode compile for jeda & c 
+         -h 
+         auto-header generation on jeda compiler 
+         -U <util> 
+         specify the user defined util file. <util>.jh is used for compiler, and <util>.jo is used for linker. When user defined system
+         functions/classes are added, additional user's definition files should be specified. This option can be specified multiple times to specify
+         multiple user definition files. 
+         -JL_<flag> 
+         option for jeda linker.
+
+     Jeda script identifies the file type from the suffix of the files and determine what is needed for the compile/link process. The following
+     suffixes are identified: 
+       
+
+         .j 
+         Jeda source file. j-compile, j-link, c-compile, c-link 
+         .jo 
+         Jeda object file. j-link, c-compile, c-link 
+         .c 
+         C source file. c-compile, c-link 
+         .o 
+         C object file. c-link 
+         .a 
+         Archive file. c-link 
+         .so 
+         Shared object file. c-link 
+         .dl 
+         Dynamic library file. c-link
+
+     Example: 
+         1) compile jeda source (foo.j) and generate jeda object(foo.jo) 
+           jeda foo.j 
+
+         2) compile foo.jd and link with bar.jdo to create C source foo.jeda.c 
+           jeda foo.j bar.jo 
+
+         3) compile foo.j and link with bar.jo to zumoo.jeda.c, compile bee.c, 
+            then link all with zoolib.a to create zumoo.dl 
+
+            jeda -dl -out zumoo foo.j bar.jo bee.c zoolib.a 
+
+         4) link foo.jo, bar.jo to zomoo.jeda.c, then create zumoo.dl 
+
+            jeda -dl -out zumoo foo.jo bar.jo

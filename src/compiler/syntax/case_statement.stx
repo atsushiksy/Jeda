@@ -1,0 +1,31 @@
+
+case_statement:
+  opt_statement_prefix 'case' '(' expression ')' '{'
+    opt_case_items
+  '}' 
+  ;
+
+opt_case_items:
+  /* empty */
+  |
+  case_items
+  ;
+
+case_items:
+  case_item
+  |
+  case_items case_item
+  ;
+    
+case_item:
+  expression_list ':' statement
+  |
+  'default' ':' statement 
+  ;
+
+expression_list:
+  expression
+  |
+  expression_list ',' expression
+  ;
+

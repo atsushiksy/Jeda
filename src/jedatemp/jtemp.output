@@ -1,0 +1,1210 @@
+Conflict in state 85 between rule 34 and token '+' resolved as reduce.
+Conflict in state 85 between rule 34 and token '-' resolved as reduce.
+Conflict in state 85 between rule 34 and token '*' resolved as shift.
+Conflict in state 85 between rule 34 and token '/' resolved as shift.
+Conflict in state 86 between rule 35 and token '+' resolved as reduce.
+Conflict in state 86 between rule 35 and token '-' resolved as reduce.
+Conflict in state 86 between rule 35 and token '*' resolved as shift.
+Conflict in state 86 between rule 35 and token '/' resolved as shift.
+Conflict in state 87 between rule 36 and token '+' resolved as reduce.
+Conflict in state 87 between rule 36 and token '-' resolved as reduce.
+Conflict in state 87 between rule 36 and token '*' resolved as reduce.
+Conflict in state 87 between rule 36 and token '/' resolved as reduce.
+Conflict in state 88 between rule 37 and token '+' resolved as reduce.
+Conflict in state 88 between rule 37 and token '-' resolved as reduce.
+Conflict in state 88 between rule 37 and token '*' resolved as reduce.
+Conflict in state 88 between rule 37 and token '/' resolved as reduce.
+State 35 contains 15 shift/reduce conflicts.
+
+Grammar
+rule 1    source_text ->		/* empty */
+rule 2    source_text -> source_text description
+rule 3    description -> module
+rule 4    description -> primitive
+rule 5    module -> YYMODULE YYID port_list_opt ';' opt_module_items YYENDMODULE
+rule 6    port_list_opt ->		/* empty */
+rule 7    port_list_opt -> '(' port_list ')'
+rule 8    port_list -> port
+rule 9    port_list -> port_list ',' port
+rule 10   port -> port_reference
+rule 11   port -> '{' port_ref_list '}'
+rule 12   port_ref_list -> port_reference
+rule 13   port_ref_list -> port_ref_list ',' port_reference
+rule 14   @1 ->		/* empty */
+rule 15   port_reference -> YYID @1 port_reference_arg
+rule 16   port_reference_arg ->		/* empty */
+rule 17   port_reference_arg -> '[' YYINUMBER ']'
+rule 18   port_reference_arg -> '[' YYINUMBER ':' YYINUMBER ']'
+rule 19   opt_module_items ->		/* empty */
+rule 20   opt_module_items -> module_items
+rule 21   module_items -> module_item
+rule 22   module_items -> module_items module_item
+rule 23   module_item -> input_declaration
+rule 24   module_item -> output_declaration
+rule 25   module_item -> inout_declaration
+rule 26   module_item -> others
+rule 27   input_declaration -> YYINPUT range_opt variable_list ';'
+rule 28   output_declaration -> YYOUTPUT range_opt variable_list ';'
+rule 29   inout_declaration -> YYINOUT range_opt variable_list ';'
+rule 30   range_opt ->		/* empty */
+rule 31   range_opt -> range
+rule 32   range -> '[' constant ':' constant ']'
+rule 33   constant -> YYINUMBER
+rule 34   constant -> constant '+' constant
+rule 35   constant -> constant '-' constant
+rule 36   constant -> constant '*' constant
+rule 37   constant -> constant '/' constant
+rule 38   constant -> '(' constant ')'
+rule 39   variable_list -> identifier
+rule 40   variable_list -> variable_list ',' identifier
+rule 41   identifier -> YYID
+rule 42   identifier -> identifier '.' YYID
+rule 43   primitive -> YYPRIMITIVE YYID opt_module_items YYENDPRIMITIVE
+rule 44   others -> any
+rule 45   others -> others any
+rule 46   any -> YYOTHER
+rule 47   any -> YYID
+rule 48   any -> YYINUMBER
+rule 49   any -> YYRNUMBER
+rule 50   any -> YYSTRING
+rule 51   any -> '('
+rule 52   any -> ')'
+rule 53   any -> '['
+rule 54   any -> ']'
+rule 55   any -> '{'
+rule 56   any -> '}'
+rule 57   any -> '.'
+rule 58   any -> ','
+rule 59   any -> ':'
+rule 60   any -> ';'
+
+Terminals, with rules where they appear
+
+$ (-1)
+'(' (40) 7 38 51
+')' (41) 7 38 52
+'*' (42) 36
+'+' (43) 34
+',' (44) 9 13 40 58
+'-' (45) 35
+'.' (46) 42 57
+'/' (47) 37
+':' (58) 18 32 59
+';' (59) 5 27 28 29 60
+'[' (91) 17 18 32 53
+']' (93) 17 18 32 54
+'{' (123) 11 55
+'}' (125) 11 56
+error (256)
+YYID (257) 5 15 41 42 43 47
+YYINUMBER (258) 17 18 33 48
+YYRNUMBER (259) 49
+YYSTRING (260) 50
+YYENDMODULE (261) 5
+YYMODULE (262) 5
+YYINOUT (263) 29
+YYINPUT (264) 27
+YYOUTPUT (265) 28
+YYPRIMITIVE (266) 43
+YYENDPRIMITIVE (267) 43
+YYOTHER (268) 46
+
+Nonterminals, with rules where they appear
+
+source_text (29)
+    on left: 1 2, on right: 2
+description (30)
+    on left: 3 4, on right: 2
+module (31)
+    on left: 5, on right: 3
+port_list_opt (32)
+    on left: 6 7, on right: 5
+port_list (33)
+    on left: 8 9, on right: 7 9
+port (34)
+    on left: 10 11, on right: 8 9
+port_ref_list (35)
+    on left: 12 13, on right: 11 13
+port_reference (36)
+    on left: 15, on right: 10 12 13
+@1 (37)
+    on left: 14, on right: 15
+port_reference_arg (38)
+    on left: 16 17 18, on right: 15
+opt_module_items (39)
+    on left: 19 20, on right: 5 43
+module_items (40)
+    on left: 21 22, on right: 20 22
+module_item (41)
+    on left: 23 24 25 26, on right: 21 22
+input_declaration (42)
+    on left: 27, on right: 23
+output_declaration (43)
+    on left: 28, on right: 24
+inout_declaration (44)
+    on left: 29, on right: 25
+range_opt (45)
+    on left: 30 31, on right: 27 28 29
+range (46)
+    on left: 32, on right: 31
+constant (47)
+    on left: 33 34 35 36 37 38, on right: 32 34 35 36 37 38
+variable_list (48)
+    on left: 39 40, on right: 27 28 29 40
+identifier (49)
+    on left: 41 42, on right: 39 40 42
+primitive (50)
+    on left: 43, on right: 4
+others (51)
+    on left: 44 45, on right: 26 45
+any (52)
+    on left: 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60,
+    on right: 44 45
+
+
+state 0
+
+    $default	reduce using rule 1 (source_text)
+
+    source_text	go to state 1
+
+
+
+state 1
+
+    source_text  ->  source_text . description   (rule 2)
+
+    $   	go to state 97
+    YYMODULE	shift, and go to state 2
+    YYPRIMITIVE	shift, and go to state 3
+
+    description	go to state 4
+    module	go to state 5
+    primitive	go to state 6
+
+
+
+state 2
+
+    module  ->  YYMODULE . YYID port_list_opt ';' opt_module_items YYENDMODULE   (rule 5)
+
+    YYID	shift, and go to state 7
+
+
+
+state 3
+
+    primitive  ->  YYPRIMITIVE . YYID opt_module_items YYENDPRIMITIVE   (rule 43)
+
+    YYID	shift, and go to state 8
+
+
+
+state 4
+
+    source_text  ->  source_text description .   (rule 2)
+
+    $default	reduce using rule 2 (source_text)
+
+
+
+state 5
+
+    description  ->  module .   (rule 3)
+
+    $default	reduce using rule 3 (description)
+
+
+
+state 6
+
+    description  ->  primitive .   (rule 4)
+
+    $default	reduce using rule 4 (description)
+
+
+
+state 7
+
+    module  ->  YYMODULE YYID . port_list_opt ';' opt_module_items YYENDMODULE   (rule 5)
+
+    '(' 	shift, and go to state 9
+
+    $default	reduce using rule 6 (port_list_opt)
+
+    port_list_opt	go to state 10
+
+
+
+state 8
+
+    primitive  ->  YYPRIMITIVE YYID . opt_module_items YYENDPRIMITIVE   (rule 43)
+
+    YYID	shift, and go to state 11
+    YYINUMBER	shift, and go to state 12
+    YYRNUMBER	shift, and go to state 13
+    YYSTRING	shift, and go to state 14
+    YYINOUT	shift, and go to state 15
+    YYINPUT	shift, and go to state 16
+    YYOUTPUT	shift, and go to state 17
+    YYOTHER	shift, and go to state 18
+    '(' 	shift, and go to state 19
+    ')' 	shift, and go to state 20
+    ';' 	shift, and go to state 21
+    ',' 	shift, and go to state 22
+    '{' 	shift, and go to state 23
+    '}' 	shift, and go to state 24
+    '[' 	shift, and go to state 25
+    ']' 	shift, and go to state 26
+    ':' 	shift, and go to state 27
+    '.' 	shift, and go to state 28
+
+    $default	reduce using rule 19 (opt_module_items)
+
+    opt_module_items	go to state 29
+    module_items	go to state 30
+    module_item	go to state 31
+    input_declaration	go to state 32
+    output_declaration	go to state 33
+    inout_declaration	go to state 34
+    others	go to state 35
+    any 	go to state 36
+
+
+
+state 9
+
+    port_list_opt  ->  '(' . port_list ')'   (rule 7)
+
+    YYID	shift, and go to state 37
+    '{' 	shift, and go to state 38
+
+    port_list	go to state 39
+    port	go to state 40
+    port_reference	go to state 41
+
+
+
+state 10
+
+    module  ->  YYMODULE YYID port_list_opt . ';' opt_module_items YYENDMODULE   (rule 5)
+
+    ';' 	shift, and go to state 42
+
+
+
+state 11
+
+    any  ->  YYID .   (rule 47)
+
+    $default	reduce using rule 47 (any)
+
+
+
+state 12
+
+    any  ->  YYINUMBER .   (rule 48)
+
+    $default	reduce using rule 48 (any)
+
+
+
+state 13
+
+    any  ->  YYRNUMBER .   (rule 49)
+
+    $default	reduce using rule 49 (any)
+
+
+
+state 14
+
+    any  ->  YYSTRING .   (rule 50)
+
+    $default	reduce using rule 50 (any)
+
+
+
+state 15
+
+    inout_declaration  ->  YYINOUT . range_opt variable_list ';'   (rule 29)
+
+    '[' 	shift, and go to state 43
+
+    $default	reduce using rule 30 (range_opt)
+
+    range_opt	go to state 44
+    range	go to state 45
+
+
+
+state 16
+
+    input_declaration  ->  YYINPUT . range_opt variable_list ';'   (rule 27)
+
+    '[' 	shift, and go to state 43
+
+    $default	reduce using rule 30 (range_opt)
+
+    range_opt	go to state 46
+    range	go to state 45
+
+
+
+state 17
+
+    output_declaration  ->  YYOUTPUT . range_opt variable_list ';'   (rule 28)
+
+    '[' 	shift, and go to state 43
+
+    $default	reduce using rule 30 (range_opt)
+
+    range_opt	go to state 47
+    range	go to state 45
+
+
+
+state 18
+
+    any  ->  YYOTHER .   (rule 46)
+
+    $default	reduce using rule 46 (any)
+
+
+
+state 19
+
+    any  ->  '(' .   (rule 51)
+
+    $default	reduce using rule 51 (any)
+
+
+
+state 20
+
+    any  ->  ')' .   (rule 52)
+
+    $default	reduce using rule 52 (any)
+
+
+
+state 21
+
+    any  ->  ';' .   (rule 60)
+
+    $default	reduce using rule 60 (any)
+
+
+
+state 22
+
+    any  ->  ',' .   (rule 58)
+
+    $default	reduce using rule 58 (any)
+
+
+
+state 23
+
+    any  ->  '{' .   (rule 55)
+
+    $default	reduce using rule 55 (any)
+
+
+
+state 24
+
+    any  ->  '}' .   (rule 56)
+
+    $default	reduce using rule 56 (any)
+
+
+
+state 25
+
+    any  ->  '[' .   (rule 53)
+
+    $default	reduce using rule 53 (any)
+
+
+
+state 26
+
+    any  ->  ']' .   (rule 54)
+
+    $default	reduce using rule 54 (any)
+
+
+
+state 27
+
+    any  ->  ':' .   (rule 59)
+
+    $default	reduce using rule 59 (any)
+
+
+
+state 28
+
+    any  ->  '.' .   (rule 57)
+
+    $default	reduce using rule 57 (any)
+
+
+
+state 29
+
+    primitive  ->  YYPRIMITIVE YYID opt_module_items . YYENDPRIMITIVE   (rule 43)
+
+    YYENDPRIMITIVE	shift, and go to state 48
+
+
+
+state 30
+
+    opt_module_items  ->  module_items .   (rule 20)
+    module_items  ->  module_items . module_item   (rule 22)
+
+    YYID	shift, and go to state 11
+    YYINUMBER	shift, and go to state 12
+    YYRNUMBER	shift, and go to state 13
+    YYSTRING	shift, and go to state 14
+    YYINOUT	shift, and go to state 15
+    YYINPUT	shift, and go to state 16
+    YYOUTPUT	shift, and go to state 17
+    YYOTHER	shift, and go to state 18
+    '(' 	shift, and go to state 19
+    ')' 	shift, and go to state 20
+    ';' 	shift, and go to state 21
+    ',' 	shift, and go to state 22
+    '{' 	shift, and go to state 23
+    '}' 	shift, and go to state 24
+    '[' 	shift, and go to state 25
+    ']' 	shift, and go to state 26
+    ':' 	shift, and go to state 27
+    '.' 	shift, and go to state 28
+
+    $default	reduce using rule 20 (opt_module_items)
+
+    module_item	go to state 49
+    input_declaration	go to state 32
+    output_declaration	go to state 33
+    inout_declaration	go to state 34
+    others	go to state 35
+    any 	go to state 36
+
+
+
+state 31
+
+    module_items  ->  module_item .   (rule 21)
+
+    $default	reduce using rule 21 (module_items)
+
+
+
+state 32
+
+    module_item  ->  input_declaration .   (rule 23)
+
+    $default	reduce using rule 23 (module_item)
+
+
+
+state 33
+
+    module_item  ->  output_declaration .   (rule 24)
+
+    $default	reduce using rule 24 (module_item)
+
+
+
+state 34
+
+    module_item  ->  inout_declaration .   (rule 25)
+
+    $default	reduce using rule 25 (module_item)
+
+
+
+state 35
+
+    module_item  ->  others .   (rule 26)
+    others  ->  others . any   (rule 45)
+
+    YYID	shift, and go to state 11
+    YYINUMBER	shift, and go to state 12
+    YYRNUMBER	shift, and go to state 13
+    YYSTRING	shift, and go to state 14
+    YYOTHER	shift, and go to state 18
+    '(' 	shift, and go to state 19
+    ')' 	shift, and go to state 20
+    ';' 	shift, and go to state 21
+    ',' 	shift, and go to state 22
+    '{' 	shift, and go to state 23
+    '}' 	shift, and go to state 24
+    '[' 	shift, and go to state 25
+    ']' 	shift, and go to state 26
+    ':' 	shift, and go to state 27
+    '.' 	shift, and go to state 28
+
+    YYID	[reduce using rule 26 (module_item)]
+    YYINUMBER	[reduce using rule 26 (module_item)]
+    YYRNUMBER	[reduce using rule 26 (module_item)]
+    YYSTRING	[reduce using rule 26 (module_item)]
+    YYOTHER	[reduce using rule 26 (module_item)]
+    '(' 	[reduce using rule 26 (module_item)]
+    ')' 	[reduce using rule 26 (module_item)]
+    ';' 	[reduce using rule 26 (module_item)]
+    ',' 	[reduce using rule 26 (module_item)]
+    '{' 	[reduce using rule 26 (module_item)]
+    '}' 	[reduce using rule 26 (module_item)]
+    '[' 	[reduce using rule 26 (module_item)]
+    ']' 	[reduce using rule 26 (module_item)]
+    ':' 	[reduce using rule 26 (module_item)]
+    '.' 	[reduce using rule 26 (module_item)]
+    $default	reduce using rule 26 (module_item)
+
+    any 	go to state 50
+
+
+
+state 36
+
+    others  ->  any .   (rule 44)
+
+    $default	reduce using rule 44 (others)
+
+
+
+state 37
+
+    port_reference  ->  YYID . @1 port_reference_arg   (rule 15)
+
+    $default	reduce using rule 14 (@1)
+
+    @1  	go to state 51
+
+
+
+state 38
+
+    port  ->  '{' . port_ref_list '}'   (rule 11)
+
+    YYID	shift, and go to state 37
+
+    port_ref_list	go to state 52
+    port_reference	go to state 53
+
+
+
+state 39
+
+    port_list_opt  ->  '(' port_list . ')'   (rule 7)
+    port_list  ->  port_list . ',' port   (rule 9)
+
+    ')' 	shift, and go to state 54
+    ',' 	shift, and go to state 55
+
+
+
+state 40
+
+    port_list  ->  port .   (rule 8)
+
+    $default	reduce using rule 8 (port_list)
+
+
+
+state 41
+
+    port  ->  port_reference .   (rule 10)
+
+    $default	reduce using rule 10 (port)
+
+
+
+state 42
+
+    module  ->  YYMODULE YYID port_list_opt ';' . opt_module_items YYENDMODULE   (rule 5)
+
+    YYID	shift, and go to state 11
+    YYINUMBER	shift, and go to state 12
+    YYRNUMBER	shift, and go to state 13
+    YYSTRING	shift, and go to state 14
+    YYINOUT	shift, and go to state 15
+    YYINPUT	shift, and go to state 16
+    YYOUTPUT	shift, and go to state 17
+    YYOTHER	shift, and go to state 18
+    '(' 	shift, and go to state 19
+    ')' 	shift, and go to state 20
+    ';' 	shift, and go to state 21
+    ',' 	shift, and go to state 22
+    '{' 	shift, and go to state 23
+    '}' 	shift, and go to state 24
+    '[' 	shift, and go to state 25
+    ']' 	shift, and go to state 26
+    ':' 	shift, and go to state 27
+    '.' 	shift, and go to state 28
+
+    $default	reduce using rule 19 (opt_module_items)
+
+    opt_module_items	go to state 56
+    module_items	go to state 30
+    module_item	go to state 31
+    input_declaration	go to state 32
+    output_declaration	go to state 33
+    inout_declaration	go to state 34
+    others	go to state 35
+    any 	go to state 36
+
+
+
+state 43
+
+    range  ->  '[' . constant ':' constant ']'   (rule 32)
+
+    YYINUMBER	shift, and go to state 57
+    '(' 	shift, and go to state 58
+
+    constant	go to state 59
+
+
+
+state 44
+
+    inout_declaration  ->  YYINOUT range_opt . variable_list ';'   (rule 29)
+
+    YYID	shift, and go to state 60
+
+    variable_list	go to state 61
+    identifier	go to state 62
+
+
+
+state 45
+
+    range_opt  ->  range .   (rule 31)
+
+    $default	reduce using rule 31 (range_opt)
+
+
+
+state 46
+
+    input_declaration  ->  YYINPUT range_opt . variable_list ';'   (rule 27)
+
+    YYID	shift, and go to state 60
+
+    variable_list	go to state 63
+    identifier	go to state 62
+
+
+
+state 47
+
+    output_declaration  ->  YYOUTPUT range_opt . variable_list ';'   (rule 28)
+
+    YYID	shift, and go to state 60
+
+    variable_list	go to state 64
+    identifier	go to state 62
+
+
+
+state 48
+
+    primitive  ->  YYPRIMITIVE YYID opt_module_items YYENDPRIMITIVE .   (rule 43)
+
+    $default	reduce using rule 43 (primitive)
+
+
+
+state 49
+
+    module_items  ->  module_items module_item .   (rule 22)
+
+    $default	reduce using rule 22 (module_items)
+
+
+
+state 50
+
+    others  ->  others any .   (rule 45)
+
+    $default	reduce using rule 45 (others)
+
+
+
+state 51
+
+    port_reference  ->  YYID @1 . port_reference_arg   (rule 15)
+
+    '[' 	shift, and go to state 65
+
+    $default	reduce using rule 16 (port_reference_arg)
+
+    port_reference_arg	go to state 66
+
+
+
+state 52
+
+    port  ->  '{' port_ref_list . '}'   (rule 11)
+    port_ref_list  ->  port_ref_list . ',' port_reference   (rule 13)
+
+    ',' 	shift, and go to state 67
+    '}' 	shift, and go to state 68
+
+
+
+state 53
+
+    port_ref_list  ->  port_reference .   (rule 12)
+
+    $default	reduce using rule 12 (port_ref_list)
+
+
+
+state 54
+
+    port_list_opt  ->  '(' port_list ')' .   (rule 7)
+
+    $default	reduce using rule 7 (port_list_opt)
+
+
+
+state 55
+
+    port_list  ->  port_list ',' . port   (rule 9)
+
+    YYID	shift, and go to state 37
+    '{' 	shift, and go to state 38
+
+    port	go to state 69
+    port_reference	go to state 41
+
+
+
+state 56
+
+    module  ->  YYMODULE YYID port_list_opt ';' opt_module_items . YYENDMODULE   (rule 5)
+
+    YYENDMODULE	shift, and go to state 70
+
+
+
+state 57
+
+    constant  ->  YYINUMBER .   (rule 33)
+
+    $default	reduce using rule 33 (constant)
+
+
+
+state 58
+
+    constant  ->  '(' . constant ')'   (rule 38)
+
+    YYINUMBER	shift, and go to state 57
+    '(' 	shift, and go to state 58
+
+    constant	go to state 71
+
+
+
+state 59
+
+    range  ->  '[' constant . ':' constant ']'   (rule 32)
+    constant  ->  constant . '+' constant   (rule 34)
+    constant  ->  constant . '-' constant   (rule 35)
+    constant  ->  constant . '*' constant   (rule 36)
+    constant  ->  constant . '/' constant   (rule 37)
+
+    '+' 	shift, and go to state 72
+    '-' 	shift, and go to state 73
+    '*' 	shift, and go to state 74
+    '/' 	shift, and go to state 75
+    ':' 	shift, and go to state 76
+
+
+
+state 60
+
+    identifier  ->  YYID .   (rule 41)
+
+    $default	reduce using rule 41 (identifier)
+
+
+
+state 61
+
+    inout_declaration  ->  YYINOUT range_opt variable_list . ';'   (rule 29)
+    variable_list  ->  variable_list . ',' identifier   (rule 40)
+
+    ';' 	shift, and go to state 77
+    ',' 	shift, and go to state 78
+
+
+
+state 62
+
+    variable_list  ->  identifier .   (rule 39)
+    identifier  ->  identifier . '.' YYID   (rule 42)
+
+    '.' 	shift, and go to state 79
+
+    $default	reduce using rule 39 (variable_list)
+
+
+
+state 63
+
+    input_declaration  ->  YYINPUT range_opt variable_list . ';'   (rule 27)
+    variable_list  ->  variable_list . ',' identifier   (rule 40)
+
+    ';' 	shift, and go to state 80
+    ',' 	shift, and go to state 78
+
+
+
+state 64
+
+    output_declaration  ->  YYOUTPUT range_opt variable_list . ';'   (rule 28)
+    variable_list  ->  variable_list . ',' identifier   (rule 40)
+
+    ';' 	shift, and go to state 81
+    ',' 	shift, and go to state 78
+
+
+
+state 65
+
+    port_reference_arg  ->  '[' . YYINUMBER ']'   (rule 17)
+    port_reference_arg  ->  '[' . YYINUMBER ':' YYINUMBER ']'   (rule 18)
+
+    YYINUMBER	shift, and go to state 82
+
+
+
+state 66
+
+    port_reference  ->  YYID @1 port_reference_arg .   (rule 15)
+
+    $default	reduce using rule 15 (port_reference)
+
+
+
+state 67
+
+    port_ref_list  ->  port_ref_list ',' . port_reference   (rule 13)
+
+    YYID	shift, and go to state 37
+
+    port_reference	go to state 83
+
+
+
+state 68
+
+    port  ->  '{' port_ref_list '}' .   (rule 11)
+
+    $default	reduce using rule 11 (port)
+
+
+
+state 69
+
+    port_list  ->  port_list ',' port .   (rule 9)
+
+    $default	reduce using rule 9 (port_list)
+
+
+
+state 70
+
+    module  ->  YYMODULE YYID port_list_opt ';' opt_module_items YYENDMODULE .   (rule 5)
+
+    $default	reduce using rule 5 (module)
+
+
+
+state 71
+
+    constant  ->  constant . '+' constant   (rule 34)
+    constant  ->  constant . '-' constant   (rule 35)
+    constant  ->  constant . '*' constant   (rule 36)
+    constant  ->  constant . '/' constant   (rule 37)
+    constant  ->  '(' constant . ')'   (rule 38)
+
+    ')' 	shift, and go to state 84
+    '+' 	shift, and go to state 72
+    '-' 	shift, and go to state 73
+    '*' 	shift, and go to state 74
+    '/' 	shift, and go to state 75
+
+
+
+state 72
+
+    constant  ->  constant '+' . constant   (rule 34)
+
+    YYINUMBER	shift, and go to state 57
+    '(' 	shift, and go to state 58
+
+    constant	go to state 85
+
+
+
+state 73
+
+    constant  ->  constant '-' . constant   (rule 35)
+
+    YYINUMBER	shift, and go to state 57
+    '(' 	shift, and go to state 58
+
+    constant	go to state 86
+
+
+
+state 74
+
+    constant  ->  constant '*' . constant   (rule 36)
+
+    YYINUMBER	shift, and go to state 57
+    '(' 	shift, and go to state 58
+
+    constant	go to state 87
+
+
+
+state 75
+
+    constant  ->  constant '/' . constant   (rule 37)
+
+    YYINUMBER	shift, and go to state 57
+    '(' 	shift, and go to state 58
+
+    constant	go to state 88
+
+
+
+state 76
+
+    range  ->  '[' constant ':' . constant ']'   (rule 32)
+
+    YYINUMBER	shift, and go to state 57
+    '(' 	shift, and go to state 58
+
+    constant	go to state 89
+
+
+
+state 77
+
+    inout_declaration  ->  YYINOUT range_opt variable_list ';' .   (rule 29)
+
+    $default	reduce using rule 29 (inout_declaration)
+
+
+
+state 78
+
+    variable_list  ->  variable_list ',' . identifier   (rule 40)
+
+    YYID	shift, and go to state 60
+
+    identifier	go to state 90
+
+
+
+state 79
+
+    identifier  ->  identifier '.' . YYID   (rule 42)
+
+    YYID	shift, and go to state 91
+
+
+
+state 80
+
+    input_declaration  ->  YYINPUT range_opt variable_list ';' .   (rule 27)
+
+    $default	reduce using rule 27 (input_declaration)
+
+
+
+state 81
+
+    output_declaration  ->  YYOUTPUT range_opt variable_list ';' .   (rule 28)
+
+    $default	reduce using rule 28 (output_declaration)
+
+
+
+state 82
+
+    port_reference_arg  ->  '[' YYINUMBER . ']'   (rule 17)
+    port_reference_arg  ->  '[' YYINUMBER . ':' YYINUMBER ']'   (rule 18)
+
+    ']' 	shift, and go to state 92
+    ':' 	shift, and go to state 93
+
+
+
+state 83
+
+    port_ref_list  ->  port_ref_list ',' port_reference .   (rule 13)
+
+    $default	reduce using rule 13 (port_ref_list)
+
+
+
+state 84
+
+    constant  ->  '(' constant ')' .   (rule 38)
+
+    $default	reduce using rule 38 (constant)
+
+
+
+state 85
+
+    constant  ->  constant . '+' constant   (rule 34)
+    constant  ->  constant '+' constant .   (rule 34)
+    constant  ->  constant . '-' constant   (rule 35)
+    constant  ->  constant . '*' constant   (rule 36)
+    constant  ->  constant . '/' constant   (rule 37)
+
+    '*' 	shift, and go to state 74
+    '/' 	shift, and go to state 75
+
+    $default	reduce using rule 34 (constant)
+
+
+
+state 86
+
+    constant  ->  constant . '+' constant   (rule 34)
+    constant  ->  constant . '-' constant   (rule 35)
+    constant  ->  constant '-' constant .   (rule 35)
+    constant  ->  constant . '*' constant   (rule 36)
+    constant  ->  constant . '/' constant   (rule 37)
+
+    '*' 	shift, and go to state 74
+    '/' 	shift, and go to state 75
+
+    $default	reduce using rule 35 (constant)
+
+
+
+state 87
+
+    constant  ->  constant . '+' constant   (rule 34)
+    constant  ->  constant . '-' constant   (rule 35)
+    constant  ->  constant . '*' constant   (rule 36)
+    constant  ->  constant '*' constant .   (rule 36)
+    constant  ->  constant . '/' constant   (rule 37)
+
+
+    $default	reduce using rule 36 (constant)
+
+
+
+state 88
+
+    constant  ->  constant . '+' constant   (rule 34)
+    constant  ->  constant . '-' constant   (rule 35)
+    constant  ->  constant . '*' constant   (rule 36)
+    constant  ->  constant . '/' constant   (rule 37)
+    constant  ->  constant '/' constant .   (rule 37)
+
+
+    $default	reduce using rule 37 (constant)
+
+
+
+state 89
+
+    range  ->  '[' constant ':' constant . ']'   (rule 32)
+    constant  ->  constant . '+' constant   (rule 34)
+    constant  ->  constant . '-' constant   (rule 35)
+    constant  ->  constant . '*' constant   (rule 36)
+    constant  ->  constant . '/' constant   (rule 37)
+
+    '+' 	shift, and go to state 72
+    '-' 	shift, and go to state 73
+    '*' 	shift, and go to state 74
+    '/' 	shift, and go to state 75
+    ']' 	shift, and go to state 94
+
+
+
+state 90
+
+    variable_list  ->  variable_list ',' identifier .   (rule 40)
+    identifier  ->  identifier . '.' YYID   (rule 42)
+
+    '.' 	shift, and go to state 79
+
+    $default	reduce using rule 40 (variable_list)
+
+
+
+state 91
+
+    identifier  ->  identifier '.' YYID .   (rule 42)
+
+    $default	reduce using rule 42 (identifier)
+
+
+
+state 92
+
+    port_reference_arg  ->  '[' YYINUMBER ']' .   (rule 17)
+
+    $default	reduce using rule 17 (port_reference_arg)
+
+
+
+state 93
+
+    port_reference_arg  ->  '[' YYINUMBER ':' . YYINUMBER ']'   (rule 18)
+
+    YYINUMBER	shift, and go to state 95
+
+
+
+state 94
+
+    range  ->  '[' constant ':' constant ']' .   (rule 32)
+
+    $default	reduce using rule 32 (range)
+
+
+
+state 95
+
+    port_reference_arg  ->  '[' YYINUMBER ':' YYINUMBER . ']'   (rule 18)
+
+    ']' 	shift, and go to state 96
+
+
+
+state 96
+
+    port_reference_arg  ->  '[' YYINUMBER ':' YYINUMBER ']' .   (rule 18)
+
+    $default	reduce using rule 18 (port_reference_arg)
+
+
+
+state 97
+
+    $   	go to state 98
+
+
+
+state 98
+
+    $default	accept

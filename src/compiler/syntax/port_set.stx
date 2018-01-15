@@ -1,0 +1,20 @@
+
+portset_definition:
+  'portset' 
+  portset_name opt_port_attribs
+  '{'
+    port_declarations
+  '}' 
+  ;
+
+portset_name: 
+  Identifier
+  ;
+
+port_declarations:
+  port_declaration
+  |
+  port_declarations 
+  port_declaration
+  ;
+  

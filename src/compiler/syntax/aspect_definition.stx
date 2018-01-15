@@ -1,0 +1,82 @@
+
+aspect_name:
+  Identifier
+  ;
+
+aspect_definition:
+  opt_extern 'aspect' aspect_name 
+  '{'
+    opt_aspect_items
+  '}'
+  ;
+  
+opt_extern:
+  /* emptry */
+  | 
+  'extern'
+  ;
+
+opt_aspect_items:
+  /* empty */
+  |
+  aspect_items
+  ;
+     
+aspect_items:
+  aspect_item
+  |
+  aspect_items aspect_item
+  ;
+    
+aspect_item:
+  var_definition
+  |
+  enum_type_definition 
+  |
+  initial_statement
+  |
+  function_definition
+  |
+  advice_definition
+  ;
+  
+advice_name:
+  Identifier
+  ;
+
+
+advice_definition:
+  'advice' opt_func_type advice_name 
+  '(' 
+    opt_formal_args 
+  ')' 
+  pointcut_specifications
+  opt_outer_block
+  ;
+      
+pointcut_specifications:
+  pointcut_spec
+  |
+  pointcut_specifications pointcut_spec
+  ;
+
+pointcut_spec:
+  'call' '(' pointcut_pattern ')'  
+  |
+  'return' '(' pointcut_pattern ')'
+  |
+  'overwrite' '(' pointcut_pattern ')'
+  ;
+
+pointcut_pattern:
+  pointcut_element
+  |
+  pointcut_pattern '.' pointcut_element
+  ;
+  
+pointcut_element:
+  Identifier
+  |
+  String_literal
+  ;
+  

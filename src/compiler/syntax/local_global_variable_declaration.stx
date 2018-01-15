@@ -1,0 +1,4 @@
+
+local_global_variable_declaration:
+  var_definition
+  ;

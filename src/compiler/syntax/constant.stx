@@ -1,0 +1,132 @@
+
+constant:
+  number
+  |
+  constant '-' constant
+  |
+  constant '+' constant
+  |
+  constant '*' constant   
+  |
+  constant '/' constant   
+  |
+  constant '%' constant   
+  |
+  constant '&' constant   
+  |
+  constant '|' constant   
+  |
+  constant '^' constant   
+  |
+  constant '&~' constant  
+  |
+  constant '~&' constant  
+  |
+  constant '|~' constant  
+  |
+  constant '~|' constant  
+  |
+  constant '^~' constant  
+  |
+  constant '~^' constant  
+  |
+  constant '&&' constant  
+  |
+  constant '||' constant  
+  |
+  constant '>>' constant  
+  |
+  constant '>>>' constant 
+  |
+  constant '<<' constant  
+  |
+  constant '<' constant   
+  |
+  constant '>' constant   
+  |
+  constant '==' constant  
+  |
+  constant '<=' constant  
+  |
+  constant '>=' constant  
+  |
+  constant '!=' constant  
+  |
+  constant '===' constant 
+  |
+  constant '!==' constant 
+  |
+  constant '=?=' constant 
+  |
+  constant '!?=' constant 
+  |
+  constant '==?' constant 
+  |
+  constant '?==' constant 
+  |
+  '-' constant
+  |
+  '~' constant
+  |
+  '!' constant
+  |
+  '&' constant
+  |
+  '|' constant
+  |
+  '^' constant
+  |
+  '~&' constant
+  |
+  '&~' constant
+  |
+  '~|' constant
+  |
+  '|~' constant
+  |
+  '^~' constant 
+  |
+  '~^' constant 
+  |
+  constant '=:=' constant ':' constant 
+  |
+  constant '?' constant ':' constant 
+  |
+  '(' constant ')' 
+  |
+  constant_concatenation
+  ;
+
+constant_concatenation:
+  '{' constant_list '}' 
+  |
+  '{' constant '{' constant '}' '}'
+  ;
+  
+constant_list:
+  constant
+  |
+  constant_list ',' constant
+  ;
+
+/***********************************
+ *  string constant
+ ***********************************/
+  
+string_constant:
+  String_literal
+  |
+  '{' string_list '}' 
+  |
+  '{' constant '{' string_constant '}' '}'
+  |
+  constant '?' string_constant ':' string_constant 
+  |
+  '(' string_constant ')' 
+  ;
+
+string_list:
+  string_constant
+  |
+  string_list ',' string_constant
+    

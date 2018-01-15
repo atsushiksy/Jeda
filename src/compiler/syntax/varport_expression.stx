@@ -1,0 +1,52 @@
+
+varport_expression:
+  a_ver_expression
+  |
+  varport_expression '.' Identifier opt_depth opt_access_range
+  |
+  varport_expression '.' 'super'
+  ;
+  
+a_ver_expression:
+  Identifier opt_depth opt_access_range
+  |
+  'super'
+  |
+  'this'
+  ;
+
+  
+opt_depth:
+  /* empty */
+  |
+  Real_or_Depth
+  ;
+  
+opt_access_range:
+  /* empty */
+  |
+  access_range
+  ;
+
+access_range:
+  array_access_ranges
+  |
+  array_access_ranges bit_access_range
+  |
+  bit_access_range
+  ;
+  
+bit_access_range:
+  '[' expression ':' expression ']'
+  ;
+  
+array_access_ranges:
+  array_access_range
+  |
+  array_access_ranges array_access_range
+  ;
+  
+array_access_range:
+  '[' expression ']'  
+  ; 
+ 

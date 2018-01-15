@@ -1,0 +1,769 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_sys_funcs.html">Prev</a>
+| <a href="jeda_compile_link.html">Next</a>
+<h1>
+<a NAME="13. System Classes"></a>14. System Classes</h1>
+
+<blockquote>Jeda provides various predefined classes.</blockquote>
+
+<h2>
+<a NAME="13.1 Verilog Class"></a>14.1 Verilog Class</h2>
+
+<blockquote>Verilog class is the special class that the user can declare
+the verilog task which can be called from Jeda code. The declaration of
+Verilog task is done by defining verilog class member function with the
+path string to the Verilog task. The path must be accessible from Jeda
+Verilog Module in the Verilog testbench structure.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">class verilog {</font>
+<br><font face="Courier New,Courier">&nbsp; void foo ( bit x, bit [5:0]
+y ) "vtask.foo" ;</font>
+<br><font face="Courier New,Courier">&nbsp; void bar ( bit x, var bit [5:0]
+y ) "vtask.bar" ;</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+
+<p><br>The function type in the Verilog class must be 'void' only, and
+the argument must be int or bit (single or vectored) only. When var attribute
+is used on an argument, the value from verilog will be writen back to the
+caller's variable.
+<br>Such a verilog class&nbsp; declaration can be done multiple times to
+provide various Verilog tasks.
+<p>Calling the Verilog task is done as the member function call of verilog
+class.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">verilog.foo( xx, yy ) ;&nbsp;
+// calling Verilog task vtas.foo</font></blockquote>
+
+<p><br>Task in Verilog can not be called reentrantly, while Jeda can easily
+create such a situation. When more than one thread are calling the Verilog
+task, only one that comes first will be accepted, and the following calls
+are queued till the active call is finished.
+<blockquote>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="13.1 Random Classes"></a>14.2 Random Classes</h2>
+
+<blockquote>As the random functions, Jeda provides 2 different types of
+pseudo random generator class. Each instance of the class generates individual
+sequence of random from different (or the same if you like) seed.
+<h3>
+<a NAME="13.2.1 random_mt"></a>14.2.1 random_mt</h3>
+The class random_mt generates pseudo random variable based on Mersenne
+Twister Algorithm. (Same as random() function in Jeda) This random function
+is&nbsp; developed by Makoto Matsumoto and Takuji Nishimura, and it has
+the period of 2**19937-1.
+<br>Refer to the web suite for further information:
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="http://www.math.keio.ac.jp/~matumoto/emt.html">http://www.math.keio.ac.jp/~matumoto/emt.html</a>
+<p>The following member functions are provided:
+<br>&nbsp;
+<blockquote>
+<li>
+new( int seed = 0 )</li>
+
+<br>Constructor function. When seed = 0 is given, the default seed value
+will be used.
+<br>&nbsp;
+<li>
+int random()</li>
+
+<br>This function generate a non negative random value.
+<br>&nbsp;
+<li>
+int urandom()</li>
+
+<br>This function generate a unsigned random value.</blockquote>
+Example:</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>random_mt rmt
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>rmt = new( 594853 ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "random_mt
+generates %d\n", rmt.random() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>&nbsp;
+<h3>
+<a NAME="13.2.2 random_48"></a>14.2.2 random_48</h3>
+This class uses the linear congruential algorithm as rand48() function.
+<p>The following member functions are provided:
+<br>&nbsp;
+<blockquote>
+<li>
+new( int seed = 0 )</li>
+
+<br>Constructor function. When seed = 0 is given, the default seed value
+will be used.
+<br>&nbsp;
+<li>
+int random()</li>
+
+<br>This function generate a non negative random value.
+<br>&nbsp;
+<li>
+int urandom()</li>
+
+<br>This function generate a unsigned random value.</blockquote>
+Example:</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>random_48 r48
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>r48 = new( 594853 ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "random_48
+generates %d\n", r48.random() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+The above random variable classes are uniformally distributed. The following
+random variable classes provide several non-uniformal distributions.</blockquote>
+
+<blockquote>
+<h3>
+<a NAME="13.2.3 geom_random"></a>14.2.3 geom_random</h3>
+This class generates a random variable with the geometric distribution.
+The uniform random variable is transfered to a geometric random distribution.
+The floating version of Mersenne Twister random function is used as the
+base uniform random.
+<p>The following member functions are provided:
+<blockquote>
+<li>
+new( int num, int denom, int seed = 0 )</li>
+
+<br>Constructor function. The probability P = num/denom is used for the
+geometric distribution calculation. When seed = 0 is given, the default
+seed value will be used.
+<br>&nbsp;
+<li>
+int random()</li>
+
+<br>This function generate a geometric distributed random value from given
+probability P.</blockquote>
+Example:</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>geom_random
+geom ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>gom = new( 1, 10, 594853
+) ;&nbsp; // p = 1/10</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "geom_random
+generates %d\n", geom.random() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>
+<h3>
+<a NAME="13.2.4 exp_random"></a>14.2.4 exp_random</h3>
+This class generates a random variable with the expornential distribution.
+The uniform random variable is transfered to an expornential random distribution.
+The floating version of Mersenne Twister random function is used as the
+base uniform random.
+<p>The following member functions are provided:
+<br>&nbsp;
+<blockquote>
+<li>
+new( int mean, int seed = 0 )</li>
+
+<br>Constructor function. The mean is used for the expornential distribution
+calculation. When seed = 0 is given, the default seed value will be used.
+<br>&nbsp;
+<li>
+int random()</li>
+
+<br>This function generate an expornential distributed random value from
+given mean value.</blockquote>
+Example:</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>exp_random expo
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>expo = new( 5, 594853
+) ;&nbsp; // mean = 5</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "exp_random
+generates %d\n", expo.random() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>
+<h3>
+<a NAME="13.2.5 pdf_random"></a>14.2.5 pdf_random</h3>
+This class generates a value with user defined weight. The uniform random
+variable is transfered to a geometric random distribution. The floating
+version of Mersenne Twister random function is used as the base uniform
+random.
+<p>The following member functions are provided:
+<br>&nbsp;
+<ul>
+<li>
+new( int seed = 0 )</li>
+
+<br>Constructor function. When seed = 0 is given, the default seed value
+will be used.
+<br>&nbsp;
+<li>
+void set( int weight, int value )</li>
+
+<br>This function sets the weight and value to the pdf function. This function
+should be called multiple time to set the weights and correspoinding values.
+The probability that the given value is produced by this pdf becomes (weight
+/ total sum of weigit).
+<br>&nbsp;
+<li>
+int random()</li>
+
+<br>This function generate a pdf random value from given weights and values.</ul>
+Example:</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>pdf_random pdf
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>pdf = new( 594853 ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>pdf.set( 1, 10 ) ;&nbsp;
+// 1 will be 10%</font></font>
+<br><font face="Courier New,Courier"><font size=-1>pdf.set( 2, 20 ) ;&nbsp;
+// 2 will be 20%</font></font>
+<br><font face="Courier New,Courier"><font size=-1>pdf.set( 3, 30 ) ;&nbsp;
+// 3 will be 30%</font></font>
+<br><font face="Courier New,Courier"><font size=-1>pdf.set( 4, 20 ) ;&nbsp;
+// 4 will be 20%</font></font>
+<br><font face="Courier New,Courier"><font size=-1>pdf.set( 5, 20 ) ;&nbsp;
+// 5 will be 20%</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "pdf_random
+generates %d\n", pdf.random() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="13.3 Concurrent Programming Support Classes"></a>14.3 Concurrent
+Programming Support Classes</h2>
+
+<blockquote>Event and semaphore are handy classes for concurrent programming.
+<br>See <a href="jeda_concurrent.html">10. Concurrent Programming</a> for
+more information.
+<h3>
+<a NAME="13.3.1 Event"></a>14.3.1 Event</h3>
+Event class can be used for synchronization among threads.
+<br>See <a href="jeda_concurrent.html#10.7 Event">11.7 Event</a> for mode
+detailed programming information.
+<p>The following member functions are provided:
+<br>&nbsp;
+<ul>
+<li>
+void trigger()</li>
+
+<br>Generate a trigger. This trigger will be active within the current
+simulation time slot (unless it's cleared). This guarantees that receiver
+(if any) will get the trigger regardless of the order of the execution
+of the thread.
+<br>&nbsp;
+<li>
+void trigger_on()</li>
+
+<br>Generate a trigger and keep it at on state. This trigger remains active
+until it is cleared.
+<br>&nbsp;
+<li>
+void trigger_off()</li>
+
+<br>Clear a trigger if it's set.
+<br>&nbsp;
+<li>
+void trigger_pulse()</li>
+
+<br>Generate an impulse trigger. This trigger is only effective to the
+thread that is already waiting in the event variable. If there's no thread,
+the trigger disappear immediately.
+<br>&nbsp;
+<li>
+int sync()</li>
+
+<br>wait for a trigger. The thread will be resumed when a trigger is sent
+to the event variable. It returns 1 upon receiving the trigger. It returns
+0 when time out occurs.
+<br>&nbsp;
+<li>
+int sync_clear()</li>
+
+<br>wait for a trigger. When it is resumed, it clears the trigger so that
+only this thread receives the trigger. This call can be used to create
+a handshake mechanism.
+<br>&nbsp;
+<li>
+int check()</li>
+
+<br>This function checks and returns 1 if the trigger in the event is active,
+otherwise returns 0.
+<br>&nbsp;
+<li>
+int check_clear()</li>
+
+<br>This function checks and returns 1 if the trigger is active. It clears
+the active trigger when it gets the trigger. It returns 0 if trigger is
+not active.
+<br>&nbsp;
+<li>
+void timeout( int cycle_count )</li>
+
+<br>This function set the time out limit in the number of CLOCK cycle.
+Setting 0 clears the time out value.</ul>
+</blockquote>
+
+<blockquote>
+<h3>
+<a NAME="13.3.2 Semaphore"></a>14.3.2 Semaphore</h3>
+Semaphore class can be used for mutex among threads, and synchronization.
+<br>See&nbsp; Chapter <a href="jeda_concurrent.html#10.8 Semaphore">11.8
+Semaphore</a> for more detailed programming information.
+<p>The following&nbsp; member functions are provided:
+<ul>
+<li>
+new( int unit = 1 )</li>
+
+<br>Constructor function. Create a semaphore instance with the given unit.
+Default unit is 1.
+<br>&nbsp;
+<li>
+int get( int unit = 1 )</li>
+
+<br>This function attempts to get the given unit from the semaphore. If
+there's enough unit within the semaphore, the unit is subtracted, and the
+function immediately returns 1. If there's not enough unit in the semaphore,
+the calling thread will be put into a FIFO queue and suspended until the
+required unit is available. When the time out is set, and timer goes off
+while waiting, it returns 0.
+<br>&nbsp;
+<li>
+int check( int unit = 1 )</li>
+
+<br>This function checks the unit in the semaphore. If there's enough unit,
+the function subtract the given unit from the semaphore and returns 1.
+If there's not enough, it returns 0 without waiting.
+<br>&nbsp;
+<li>
+void put( int unit = 1 )</li>
+
+<br>This function put the given unit to the semaphore. If there's waiting
+thread and unit in the semaphore is enough for the thread waiting at the
+top of the queue, the waiting thread will be released after the unit subtraction.
+<br>&nbsp;
+<li>
+void timeout( int cycle )</li>
+
+<br>This function set the time out limit as the number of CLOCK cycle.
+Setting cycle = 0 disables the time out.</ul>
+</blockquote>
+
+<h2>
+<a NAME="13.4 File Class"></a>14.4 File Class</h2>
+
+<blockquote>This file class is to manipulate external files.
+<br>The following member functions are provided:
+<ul>
+<li>
+new()</li>
+
+<br>The constructor.
+<li>
+int open( string file_name, string mode )</li>
+
+<br>This function opens a file with given mode. It returns 1 if the file
+is successfully opened, or 0 otherwise.
+<br>Special filename, "stderr", "stdin", "stdout" can be used to talk to
+those predefined files. In such case, access mode strings is ignored, and
+mode will be as is.
+<br>A file name started or ended with "|" will be opend as a command pipe.
+<br>The following mode strings are supported ( the same as fopen mode):
+<ul>
+<ul>
+<li>
+r&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --
+open file for reading</li>
+</ul>
+
+<ul>
+<ul>
+<ul>
+<ul>The stream is positioned at the beginning of the file.</ul>
+</ul>
+</ul>
+</ul>
+
+<ul>
+<li>
+r+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- open file for
+read and writing.</li>
+
+<ul>
+<ul>
+<ul>The stream is positioned at the beginning of the file.</ul>
+</ul>
+</ul>
+</ul>
+
+<ul>
+<li>
+w&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- Truncate
+file to zero length or create a file for writing.</li>
+
+<ul>
+<ul>
+<ul>The stream is positioned at the beginning of the file.</ul>
+</ul>
+</ul>
+</ul>
+
+<ul>
+<li>
+w+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- open file for read
+and writing.</li>
+
+<ul>
+<ul>
+<ul>The stream is positioned at the beginning of the file.</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+
+<ul>
+<ul>
+<li>
+a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --
+open file for writing.</li>
+
+<ul>
+<ul>The file is created if it does not exist. The stream is positioned
+at the end of the file.</ul>
+</ul>
+</ul>
+
+<ul>
+<li>
+a+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- open file for
+read and writing.</li>
+
+<ul>
+<ul>The file is created if it does not exist. The stream is positioned
+at the end of the file.</ul>
+</ul>
+</ul>
+</ul>
+
+<li>
+void close()</li>
+
+<br>This function close the file.
+<li>
+void rewind()</li>
+
+<br>This function rewinds the stream pointer to the beginning of the file.
+<li>
+void fprintf()</li>
+
+<br>This function prints out the formatted text string to the file
+<li>
+string readline()</li>
+
+<br>This function reads one line and returns it as a string.</ul>
+Example:</blockquote>
+
+<blockquote>
+<ul><font face="Courier New,Courier"><font size=-1>file rd_file, wr_file
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>string s ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>rd_file = new ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>wr_file = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( !rd_file.open( "input.data",
+"r" ) )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; error( "Can't
+open input.data file\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( !wr_file.open( "output.data",
+"w" ) )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; error( "Can't
+open output.data file\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>s = rd_file.readline()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>while( s != null ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; wr_file.fprintf(
+s ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; s = rd_file.readline()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+</blockquote>
+
+<h2>
+<a NAME="13.5 Regular Expression Engine Class"></a>14.5 Regular Expression
+Engine Class</h2>
+
+<blockquote>The class regexp is the regular expression pattern matching
+engine. This class is based on the regular expression engine developed
+by University of Toronto (written by Henry Spencer) with some Perl5 extensions
+(by Larry Wall).
+<br>Note that NOT all the Perl5 features are supported in this class.
+<p>The following member functions are provided:
+<ul>
+<li>
+int match( string source, string regexp )</li>
+
+<br>This function tries the regular expression match, and returns 1 if
+succeeded, or 0 otherwise.
+<br>&nbsp;
+<li>
+string prematch()</li>
+
+<br>This function returns the prematch string from the previous match()
+call.
+<br>&nbsp;
+<li>
+string postmatch() ;</li>
+
+<br>This function returns the postmatch string from the previous match()
+call.
+<br>&nbsp;
+<li>
+&nbsp;string thismatch() ;</li>
+
+<br>This function returns the matched string from the previous match()
+call.</ul>
+
+<ul>
+<li>
+string backref( int num )</li>
+
+<br>This function returns the match in the parentheses from the previous
+match() call.</ul>
+The engine is extended with some of the Perl5 regular expression features.
+<br>The following special character features are supported.
+<blockquote>Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Matches
+<br>.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Any character (include '/n')
+<br>\a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Alarm (beep)
+<br>\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+New line
+<br>\r&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Carriage return
+<br>\t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Tab
+<br>\f&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Form feed
+<br>\e&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Escape
+<br>\d&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A digit, same as [0-9]
+<br>\D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A non digit
+<br>\w&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A word character(alphanumeric), same as [a-zA-Z_0-9]
+<br>\W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A nonword character
+<br>\s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A whitespace character, same as [ \t\n\r\f]
+<br>\S&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A non-whitespace character
+<br>\0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+null character
+<br>\&lt;single digit> corresponding parentheses actually matched
+<br>\&lt;two or three octal digit> character with the octal value
+<br>\x&lt;one or two hex digit> character with the hex value
+<br>\c&lt;Single Character> Corresponding control character
+<p>Supported Assertions
+<p>Assertion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Meaning
+<br>&nbsp;&nbsp;&nbsp; ^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Matches at the beginning of the string
+<br>&nbsp;&nbsp;&nbsp; $&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Matches at the end of the string
+<br>&nbsp;&nbsp;&nbsp; \b&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Matches at word boundary (between \w and \w)
+<br>&nbsp;&nbsp;&nbsp; \B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Matches except at word boundary
+<p>Supported Quantifiers
+<p>Quantifier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Range
+<br>&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0 or more times
+<br>&nbsp;&nbsp;&nbsp;&nbsp; +&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1 or more times
+<br>&nbsp;&nbsp;&nbsp;&nbsp; ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0 or 1 time
+<p>Example Code:
+<blockquote><font face="Courier New,Courier"><font size=-1>regexp&nbsp;
+rg ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>string s, id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>file f ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int rd_data[*] ; //
+string indexed array of int</font></font>
+<p><font face="Courier New,Courier"><font size=-1>rg = new ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>f = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( !f.fopen( "input.data",
+"r" ) ; )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; error( "Can't
+open input.data file\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>s = f.readline() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>while( s != null ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // check if the
+line has "name value" format</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( rg.match(
+s, "^\s*(\w+)\s+(\d+)" ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; id
+= backref(0) ;&nbsp; // (\w+) part</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; x
+= atoi( backref(1) ) ; // (\d+) part</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rd_data[id]
+= x ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //store to string indexed
+array</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; s = f.readline()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="13.6 Internet Domain Socket Class"></a>14.6 Internet Domain Socket
+Class</h2>
+
+<blockquote>This ip_class class is to construct the Internet domain stream
+(connection oriented) socket.
+<br>The following member functions are provided:
+<ul>
+<li>
+new()</li>
+
+<br>The constructor.
+<li>
+int server_bind( int port_no )</li>
+
+<br>This function calls bind() to open the port. It returns 1 if succeeded,
+or returns 0 otherwise.
+<li>
+int server_accept()</li>
+
+<br>This function calls listen() and accept() to establish the connection
+to a client via the port set by server_bind() call. It returns 1 when succeeded,
+or returns 0 otherwise.
+<li>
+int client_open_port( string machine, int port_no )</li>
+
+<br>This function calls gethostbyname() to get ip address information of
+the given machine name, then calls connect() to establish the connection
+via the given port_no as a client.
+<li>
+string read()</li>
+
+<br>This function reads a line from the socket stream.
+<li>
+void write( string out_string )</li>
+
+<br>This function writes the out_string to the socket stream. It adds '\n'
+charactor at the end of the given string.</ul>
+Example Code:
+<p>- Jeda code example invoking tcl/tk command and create the socket connection:
+<blockquote><font face="Courier New,Courier">main() {</font>
+<br><font face="Courier New,Courier">&nbsp; int port_no ;</font>
+<br><font face="Courier New,Courier">&nbsp; int i ;</font>
+<br><font face="Courier New,Courier">&nbsp; string s ;</font>
+<p><font face="Courier New,Courier">&nbsp; ip_socket tcl_soc ;</font>
+<br><font face="Courier New,Courier">&nbsp; string command ;</font>
+<p><font face="Courier New,Courier">&nbsp; tcl_soc = new ;</font>
+<p><font face="Courier New,Courier">&nbsp; port_no = 7000 ;</font>
+<p><font face="Courier New,Courier">&nbsp; while( !tcl_soc.server_bind(
+port_no ) ) {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; port_no++ ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; if( port_no > 8000
+) break ;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br>&nbsp;
+<p><font face="Courier New,Courier">&nbsp; printf( "Binded %d\n", port_no
+) ;</font>
+<p><font face="Courier New,Courier">&nbsp; command = sprintf( "wish tclcomm.tcl
+%d ", port_no ) ;</font>
+<p><font face="Courier New,Courier">&nbsp; system_exec( command ) ;</font>
+<p><font face="Courier New,Courier">&nbsp; printf( "Accepted %d\n", port_no
+) ;</font>
+<p><font face="Courier New,Courier">&nbsp; tcl_soc.server_accept() ;</font>
+<p><font face="Courier New,Courier">&nbsp; printf( "Accepted %d\n", port_no
+) ;</font>
+<p><font face="Courier New,Courier">&nbsp; for( i = 0 ; i &lt; 10 ; i++
+) {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; s = sprintf( "Are
+you there? %d", i ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; tcl_soc.write(
+s ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; s = tcl_soc.read();</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; printf( "jeda:
+got %s", s ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+
+<p><br>- Tcl/Tk code that create the connection as a client and communicate
+with button.
+<blockquote><font face="Courier New,Courier">proc read_command { } {</font>
+<br><font face="Courier New,Courier">&nbsp; global ip_socket</font>
+<br><font face="Courier New,Courier">&nbsp; global received_line</font>
+<br><font face="Courier New,Courier">&nbsp; global first</font>
+<br><font face="Courier New,Courier">&nbsp; gets $ip_socket line</font>
+<br>&nbsp;
+<p><font face="Courier New,Courier">&nbsp; if { $line != "" } {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; #puts $line</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; set first 1</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; set received_line
+$line</font>
+<br><font face="Courier New,Courier">&nbsp; } else {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; if { $first ==
+1 } {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #puts
+"Got garbage"</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set
+first 0</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; } else {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exit
+0</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br><font face="Courier New,Courier">}</font>
+<p><font face="Courier New,Courier">set first 1</font>
+<br>&nbsp;
+<p><font face="Courier New,Courier">set port_no [lindex $argv 0]</font>
+<p><font face="Courier New,Courier">set ip_socket [socket localhost $port_no
+]</font>
+<p><font face="Courier New,Courier">fconfigure $ip_socket -buffering line</font>
+<p><font face="Courier New,Courier">puts "We are here\n"</font>
+<p><font face="Courier New,Courier">frame .frame_in</font>
+<p><font face="Courier New,Courier">label .frame_in.label -text "Received:"</font>
+<br><font face="Courier New,Courier">entry .frame_in.entry -textvariable
+received_line -width 80 -back white -foreground black</font>
+<p><font face="Courier New,Courier">button .frame_in.button -text "What?"
+-command { puts $ip_socket "what" }</font>
+<p><font face="Courier New,Courier">pack .frame_in.label .frame_in.entry
+.frame_in.button -side left</font>
+<p><font face="Courier New,Courier">pack .frame_in -side top</font>
+<p><font face="Courier New,Courier">puts "We are here now\n"</font>
+<p><font face="Courier New,Courier">fileevent $ip_socket readable read_command</font>
+<p><font face="Courier New,Courier">puts "We are even here now\n"</font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<blockquote>
+<ul>&nbsp;</ul>
+</blockquote>
+
+</body>
+</html>

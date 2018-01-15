@@ -1,0 +1,893 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_sys_funcs.html">Prev</a>
+| <a href="jeda_compile_link.html">Next</a>
+<h1>
+<a NAME="14. System Classes"></a>
+14. システム クラス
+</h1>
+
+<blockquote>
+Jedaには、様々なシステムが提供するクラスがあります。
+</blockquote>
+
+<h2>
+<a NAME="14.1 Verilog Class"></a>
+14.1 verilog クラス
+</h2>
+
+<blockquote>
+verilogクラスは、ユーザーが、Jedaコードから呼び出すVerilogのタスクを定義する
+ための特別なクラスです。
+Verilogタスクの宣言は、Verilogタスクへのパスを示す文字列を持つverilogクラス
+のメンバー関数を、定義することで行ないます。このパスは、Jedaモジュールの
+インスタンスからのモジュール間参照として、アクセスされます。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">class verilog {</font>
+<br><font face="Courier New,Courier">&nbsp; void foo ( bit x, bit [5:0]
+y ) "vtask.foo" ;</font>
+<br><font face="Courier New,Courier">&nbsp; void bar ( bit x, var bit [5:0]
+y ) "vtask.bar" ;</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+
+<p><br>
+verilogクラスの関数は、voidタイプでなければなりません。また、引数のタイプは
+intまたはbitタイプでなければなりません。varタイプの引数が用いられると、
+Verilogからの値が呼び出し側の変数に戻されます。
+<br>
+このverilogクラスの宣言は、様々なVerilogタスクを使用するために、
+複数回にわたって行なうことが出来ます。
+<p>
+Verilogタスクの呼び出しは、verilogクラスのメンバー関数呼び出しとして
+行ないます。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">verilog.foo( xx, yy ) ;&nbsp;
+// calling Verilog task vtas.foo</font></blockquote>
+
+<p><br>
+Verilog内のタスクは、リエントラントに呼び出し出来ません。これに対し、
+Jedaのコードは、簡単にこうした状況をつくり出す可能性があります。
+複数のスレッドが、同時に同一のVerilogタスクを呼び出した場合、最初の
+スレッドが呼び出しを行ない、残りのスレッドは、前の呼び出しが完了するまで
+スレッドキューで待ち状態となります。
+<blockquote>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="14.1 Random Classes"></a>
+14.2 疑似乱数発生クラス
+</h2>
+
+<blockquote>
+乱数発生関数と同様に、Jedaには、二種類の疑似乱数発生クラスが提供されます。
+これらのクラスのインスタンスは、独立した乱数発生シーケンスを持ちます。
+<h3>
+<a NAME="14.2.1 random_mt"></a>
+14.2.1 random_mt クラス
+</h3>
+random_mtクラスは、Mersenne Twisterアルゴリズムを用いた疑似乱数を発生します。
+(random()関数と同じアルゴリズム) この乱数発生関数は、松本 眞氏と西村 拓士氏
+によって開発され、2**19937-1の周期を持ちます。
+<br>
+詳しい情報は、
+<a href="http://www.math.keio.ac.jp/~matumoto/mt.html">
+http://www.math.keio.ac.jp/~matumoto/mt.html
+</a>
+を参照してください。
+<p>
+以下のメンバー関数が利用できます。
+<br>&nbsp;
+<blockquote>
+<li>
+new( int seed = 0 )</li>
+
+<br>コンストラクタ関数。seed = 0 が与えられると、デフォルトのseed値が
+使用されます。
+<br>&nbsp;
+<li>
+int random()</li>
+
+<br>この関数は非負の乱数値を生成します。
+<br>&nbsp;
+<li>
+int urandom()</li>
+
+<br>この関数は、符号無し乱数値を発生します。
+</blockquote>
+例:</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>random_mt rmt
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>rmt = new( 594853 ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "random_mt
+generates %d\n", rmt.random() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>&nbsp;
+<h3>
+<a NAME="14.2.2 random_48"></a>
+14.2.2 random_48
+</h3>
+このクラスは、rand48()関数と同様の48ビット整数のlinear congruential
+アルゴリズムを使用した乱数発生を行ないます。
+<p>
+以下のメンバー関数が利用できます。
+<br>&nbsp;
+<blockquote>
+<li>
+new( int seed = 0 )</li>
+
+<br>
+<br>コンストラクタ関数。seed = 0 が与えられると、デフォルトのseed値が
+使用されます。
+<br>&nbsp;
+<li>
+int random()</li>
+
+<br>この関数は非負の乱数値を生成します。
+<br>&nbsp;
+<li>
+int urandom()</li>
+
+<br>この関数は、符号無し乱数値を発生します。
+</blockquote>
+例:</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>random_48 r48
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>r48 = new( 594853 ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "random_48
+generates %d\n", r48.random() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+上記の乱数クラスは、均一分散乱数を発生します。
+以下の乱数発生関数は、様々な非均一分散乱数を発生します。
+</blockquote>
+
+<blockquote>
+<h3>
+<a NAME="14.2.3 geom_random"></a>14.2.3 
+geom_random クラス
+</h3>
+このクラスは、geometric分散の乱数を発生します。
+均一分散の乱数が、geometric分散乱数に変換されます。ベースとなる均一分散
+乱数は、浮動小数点バージョンのMersenne Twister乱数発生関数が用いられています。
+<p>
+以下のメンバー関数が利用出来ます。
+<blockquote>
+<li>
+new( int num, int denom, int seed = 0 )</li>
+
+<br>
+コンストラクタ関数。確立 P = num/denom が geometric分散の計算に使用されます。
+seed = 0 が指定されると、デフォルトのseed値が使用されます。
+<br>&nbsp;
+<li>
+int random()</li>
+
+<br>
+この関数は、与えられた確立 P の geometric分散乱数を発生します。
+</blockquote>
+例:</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>geom_random
+geom ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>gom = new( 1, 10, 594853
+) ;&nbsp; // p = 1/10</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "geom_random
+generates %d\n", geom.random() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>
+<h3>
+<a NAME="14.2.4 exp_random"></a>
+14.2.4 exp_random クラス
+</h3>
+このクラスは、expornential分散の乱数発生を行ないます。
+均一分散の乱数が、expornential分散乱数に変換されます。ベースとなる均一分散
+乱数は、浮動小数点バージョンのMersenne Twister乱数発生関数が用いられています。
+<p>
+以下のメンバー関数が利用できます。
+<br>&nbsp;
+<blockquote>
+<li>
+new( int mean, int seed = 0 )</li>
+
+<br>
+コンストラクタ関数。平均値meanがexponential分散の計算に使用されます。
+seed = 0 が指定されると、デフォルトのseed値が使用されます。
+<br>&nbsp;
+<li>
+int random()</li>
+
+<br>
+この関数は、あたえられた平均値からexponential分散の乱数を生成します。
+</blockquote>
+例:</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>exp_random expo
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>expo = new( 5, 594853
+) ;&nbsp; // mean = 5</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "exp_random
+generates %d\n", expo.random() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>
+<h3>
+<a NAME="14.2.5 pdf_random"></a>
+14.2.5 pdf_random クラス
+</h3>
+このクラスは、ユーザーが指定した重みに応じた数値を生成します。
+均一分散の乱数が、重みに従って値に変換されます。ベースとなる均一分散
+乱数は、浮動小数点バージョンのMersenne Twister乱数発生関数が用いられています。
+<p>
+以下のメンバー関数が利用可能です。
+<br>&nbsp;
+<ul>
+<li>
+new( int seed = 0 )</li>
+
+<br> コンストラクタ関数。seed = 0 が指定されると、デフォルトのseed値が
+使用されます。
+<br>&nbsp;
+<li>
+void set( int weight, int value )</li>
+
+<br>
+この関数は、重みと値をpdf関数にセットします。この関数を複数回呼び出す
+ことで、様々な重みと対応する値を設定します。
+ある値がこのpdf関数によって生成される確立は、(weight / 全てのweightのトータル)
+となります。
+<br>&nbsp;
+<li>
+int random()</li>
+
+<br>
+この関数は、与えられたweightとvalueからpdf乱数を生成します。
+</ul>
+例:</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>pdf_random pdf
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>pdf = new( 594853 ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>pdf.set( 1, 10 ) ;&nbsp;
+// 1 will be 10%</font></font>
+<br><font face="Courier New,Courier"><font size=-1>pdf.set( 2, 20 ) ;&nbsp;
+// 2 will be 20%</font></font>
+<br><font face="Courier New,Courier"><font size=-1>pdf.set( 3, 30 ) ;&nbsp;
+// 3 will be 30%</font></font>
+<br><font face="Courier New,Courier"><font size=-1>pdf.set( 4, 20 ) ;&nbsp;
+// 4 will be 20%</font></font>
+<br><font face="Courier New,Courier"><font size=-1>pdf.set( 5, 20 ) ;&nbsp;
+// 5 will be 20%</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "pdf_random
+generates %d\n", pdf.random() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="14.3 Concurrent Programming Support Classes"></a>
+14.3 並列プログラミング サポート クラス
+</h2>
+
+<blockquote>
+eventとsemaphoreは、並列プログラミングを行なう際に便利なクラスです。
+<br>
+詳しい情報については、
+<a href="jeda_concurrent.html">11. 並列プログラミング</a>
+を参照してください。
+
+<h3>
+<a NAME="14.3.1 Event"></a>
+14.3.1 event クラス
+</h3>
+eventクラスは、スレッド間の同期に用いることができます。
+Event class can be used for synchronization among threads.
+<br>
+詳しい情報は、
+ <a href="jeda_concurrent.html#11.7 Event">
+11.7 event
+</a> 
+を参照してください。
+<p>
+以下のメンバー関数が利用できます。
+<br>&nbsp;
+<blockquote>
+<li>
+void trigger()</li>
+
+<br>
+トリガーを生成します。このトリガーは、現在のシミュレーション タイムスロット
+内でアクティブ状態を保持します。(クリアされない限り)
+このことは、スレッドの実行順序に無関係に、(もし存在すれば)受け取り側スレッドに
+そのタイムスロット内でトリガーが受け渡されることを保証します。
+<br>&nbsp;
+<li>
+void trigger_on()</li>
+
+<br>
+トリガーを生成し、それをONの状態に維持します。このトリガーは、クリアされる
+までアクティブ状態を保ちます。
+<br>&nbsp;
+
+<li>
+void trigger_off()</li>
+
+<br>
+トリガーを状態をクリアします。
+<br>&nbsp;
+
+<li>
+void trigger_pulse()</li>
+
+<br>
+インパルス トリガーを生成します。このトリガーは、もしそのevent変数にすでに
+トリガーを待っているスレッドが存在した場合のみ、トリガーが受け渡されます。
+もし、スレッドが待っていない場合、トリガーは直ちに消滅します。
+<br>&nbsp;
+<li>
+int sync()</li>
+
+<br>
+トリガーを待ちます。トリガが送られた時点で、スレッドは実行可能状態に
+戻ります。関数は、トリガーを受け取った場合には１を返し、タイムアウトで
+中断された場合には０を返します。
+<br>&nbsp;
+<li>
+int sync_clear()</li>
+
+<br>
+トリガーを待ちます。トリガが送られた時点で、スレッドは実行可能状態に
+戻り、そのトリガーはクリアされてただ一つのスレッドのみがトリガーを受信する
+ようにします(ハンドシェーク機能)。
+関数は、トリガーを受け取った場合には１を返し、タイムアウトで中断された場合
+には０を返します。
+<br>&nbsp;
+<li>
+int check()</li>
+
+<br>
+この関数は、event変数のトリガーがアクティブのとき１を返し、そうでないとき
+０を返します。
+<br>&nbsp;
+<li>
+int check_clear()</li>
+
+<br>
+この関数は、event変数のトリガーがアクティブのとき、その状態をクリアしてから
+１を返します。アクティブでないときは、０を返します。
+<br>&nbsp;
+<li>
+void timeout( int cycle_count )</li>
+
+<br>
+この関数は、CLOCK信号のサイクル数でタイムアウト値の設定を行います。
+０(ゼロ)が設定された場合は、タイムアウトは検出されません。
+This function set the time out limit in the number of CLOCK cycle.
+Setting 0 clears the time out value.</blockquote>
+</blockquote>
+</blockquote>
+
+<blockquote>
+<h3>
+<a NAME="14.3.2 Semaphore"></a>
+14.3.2 semaphore クラス
+</h3>
+semaphoreクラスは、スレッド間の排他制御と同期に用いることができます。
+<br>
+詳しい情報は、
+<a href="jeda_concurrent.html#11.8 Semaphore">
+11.8 semaphore
+</a> 
+を参照してください。
+<p>
+以下のメンバー関数が利用出来ます。
+<ul>
+<li>
+new( int unit = 1 )</li>
+
+<br>
+コンストラクタ関数。
+あたえられたユニットを持つ、セマフォのインスタンスを生成します。
+ユニットのデフォルトは１です。
+<br>&nbsp;
+<li>
+int get( int unit = 1 )</li>
+
+<br>
+この関数は、指定されたユニットをセマフォから取り出そうと試みます。
+もし、十分なユニットがセマフォ内に存在すれば、指定されたユニットをそれから
+差引き、関数は直ちに１を返します。もし、十分なユニットがない場合、呼び出した
+スレッドは、セマフォのFIFOキューに入れられ、必要なユニットが利用可能に
+なるまで、待ち状態となります。タイムアウトが検出されると、関数は０を返して
+呼び出しスレッドに戻ります。
+<br>&nbsp;
+<li>
+int check( int unit = 1 )</li>
+
+<br>
+この関数は、指定されたユニットがセマフォに存在するかをチェックします。
+もし、十分なユニットがある場合、していされたユニットを差引き、
+１を返します。もし、ユニットが不十分のばあい、直ちに０を返します。
+<br>&nbsp;
+<li>
+void put( int unit = 1 )</li>
+
+<br>
+この関数は、与えられたユニットをセマフォに与えます。もし、そのセマフォで
+待ち状態のスレッドがあり、与えたユニットにより、FIFOキュー先頭のスレッドが
+十分なユニットを得た場合、そのユニットを差し引いて、スレッドは実行可能に
+戻ります。
+<br>&nbsp;
+<li>
+void timeout( int cycle )</li>
+
+<br>
+この関数は、CLOCK信号のサイクル数でタイムアウト値の設定を行います。
+０(ゼロ)が設定された場合は、タイムアウトは検出されません。
+</ul>
+</blockquote>
+
+<h2>
+<a NAME="14.4 File Class"></a>
+14.4 file クラス
+</h2>
+
+<blockquote>
+このクラスは、外部ファイルを取り扱います。
+<br>
+以下のメンバー関数が利用可能です。
+<ul>
+<li>
+new()</li>
+
+<br>コンストラクタ関数
+<li>
+int open( string file_name, string mode )</li>
+
+<br>
+この関数は、与えられたモードでファイルをオープンします。もし、オープンに
+成功した場合１、そうで無いとき０が返されます。
+<br>
+特別なファイル名、"stderr"、"stdin"、"stdout"が使用されると、それぞれ対応するスタンダード入出力ファイルへのアクセスが可能になります。この場合アクセスモードは無視され、各ファイルのモードが使用されます。
+<br>
+"|" で始まる、または、終わるファイル名が使用されると、コマンドパイプとしてファイルをオープンします。
+<br>
+以下のモードがサポートされます。(Cライブラリのfopenのモードと同じ)
+<ul>
+<ul>
+<li>
+r&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --
+読みだし専用のファイルオープン</li>
+</ul>
+
+<ul>
+<ul>
+<ul>
+<ul>ストリームは、ファイルの先頭に設定されます。</ul>
+</ul>
+</ul>
+</ul>
+
+<ul>
+<li>
+r+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- 
+読みだし、書き込みのファイルオープン</li>
+
+<ul>
+<ul>
+<ul>ストリームは、ファイルの先頭に設定されます。</ul>
+</ul>
+</ul>
+</ul>
+
+<ul>
+<li>
+w&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- 
+書き込みのため、ファイルの長さを0にするか、あるいは新しいファイルを作成する。
+</li>
+
+<ul>
+<ul>
+<ul>ストリームは、ファイルの先頭に設定されます。</ul>
+</ul>
+</ul>
+</ul>
+
+<ul>
+<li>
+w+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- 
+読みだし、書き込みのためのファイルオープン
+</li>
+
+<ul>
+<ul>
+<ul>ストリームは、ファイルの先頭に設定されます。</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+
+<ul>
+<ul>
+<li>
+a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --
+書き込みのためのファイルオープン</li>
+
+<ul>
+<ul>ファイルが存在しない場合、新しいファイルが作られます。ストリームは、ファイルの最後尾に設定されます。
+</ul>
+</ul>
+</ul>
+
+<ul>
+<li>
+a+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- 
+読みだし、書き込みのためのファイルオープン
+</li>
+
+<ul>
+<ul>ファイルが存在しない場合、新しいファイルが作られます。ストリームは、ファイルの最後尾に設定されます。
+</ul>
+</ul>
+</ul>
+</ul>
+
+<li>
+void close()</li>
+
+<br>この関数は、ファイルをクローズします。
+<li>
+void rewind()</li>
+
+<br>この関数は、ストリームポインタをファイルの先頭に移動します。
+<li>
+void fprintf()</li>
+
+<br>この関数は、printfフォームの文字列をファイルに出力します。
+<li>
+string readline()</li>
+
+<br>この関数は、一行分を読み込み、その文字列を返します。
+</ul>
+例:</blockquote>
+
+<blockquote>
+<ul><font face="Courier New,Courier"><font size=-1>file rd_file, wr_file
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>string s ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>rd_file = new ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>wr_file = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( !rd_file.open( "input.data",
+"r" ) )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; error( "Can't
+open input.data file\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( !wr_file.open( "output.data",
+"w" ) )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; error( "Can't
+open output.data file\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>s = rd_file.readline()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>while( s != null ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; wr_file.fprintf(
+s ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; s = rd_file.readline()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+</blockquote>
+
+<h2>
+<a NAME="14.5 Regular Expression Engine Class"></a>
+14.5 正規表現エンジン クラス
+</h2>
+
+<blockquote>
+regexpクラスは、正規表現のパターンマッチをおこなうエンジンです。
+このクラスは、Toronto大学で開発され、Henry Spencer氏によって書かれた、
+正規表現エンジンをベースに、いくつかのPerl5(Larry Wall氏による)の拡張
+機能を取り込んで作られています。
+<br>
+全てのPerl5機能が使えるわけではないことに注意してください。
+<p>
+以下のメンバー関数が利用可能です。
+<ul>
+<li>
+int match( string source, string regexp )</li>
+
+<br>
+この関数は、正規表現のマッチを試み、成功時に１、失敗時に０を返します。
+<br>&nbsp;
+<li>
+string prematch()</li>
+
+<br>
+この関数は、前回のmatch()呼び出し時のprematch(マッチした部分の前の)文字列
+を返します。
+<br>&nbsp;
+<li>
+string postmatch() ;</li>
+
+<br>
+この関数は、前回のmatch()呼び出し時のpostmatch(マッチした部分の後の)文字列
+を返します。
+<br>&nbsp;
+<li>
+&nbsp;string thismatch() ;</li>
+
+<br>
+この関数は、前回のmatch()呼び出し時にマッチ文字列を返します。
+</ul>
+
+<ul>
+<li>
+string backref( int num )</li>
+
+<br>
+この関数は、前回のmatch()呼び出しで、括弧()内にマッチした文字列を返します。
+numは、括弧のインデックスです。
+</ul>
+この正規表現エンジンは、いくつかのPerl5の正規表現機能を取り込んでいます。
+<br>
+以下の特別文字の機能がサポートされています。
+<blockquote>Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Matches
+<br>.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Any character (include '/n')
+<br>\a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Alarm (beep)
+<br>\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+New line
+<br>\r&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Carriage return
+<br>\t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Tab
+<br>\f&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Form feed
+<br>\e&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Escape
+<br>\d&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A digit, same as [0-9]
+<br>\D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A non digit
+<br>\w&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A word character(alphanumeric), same as [a-zA-Z_0-9]
+<br>\W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A nonword character
+<br>\s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A whitespace character, same as [ \t\n\r\f]
+<br>\S&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A non-whitespace character
+<br>\0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+null character
+<br>\&lt;single digit> corresponding parentheses actually matched
+<br>\&lt;two or three octal digit> character with the octal value
+<br>\x&lt;one or two hex digit> character with the hex value
+<br>\c&lt;Single Character> Corresponding control character
+<p>Supported Assertions
+<p>Assertion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Meaning
+<br>&nbsp;&nbsp;&nbsp; ^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Matches at the beginning of the string
+<br>&nbsp;&nbsp;&nbsp; $&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Matches at the end of the string
+<br>&nbsp;&nbsp;&nbsp; \b&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Matches at word boundary (between \w and \w)
+<br>&nbsp;&nbsp;&nbsp; \B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Matches except at word boundary
+<p>Supported Quantifiers
+<p>Quantifier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Range
+<br>&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0 or more times
+<br>&nbsp;&nbsp;&nbsp;&nbsp; +&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1 or more times
+<br>&nbsp;&nbsp;&nbsp;&nbsp; ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0 or 1 time
+<p>
+例:
+<blockquote><font face="Courier New,Courier"><font size=-1>regexp&nbsp;
+rg ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>string s, id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>file f ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int rd_data[*] ; //
+string indexed array of int</font></font>
+<p><font face="Courier New,Courier"><font size=-1>rg = new ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>f = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( !f.fopen( "input.data",
+"r" ) ; )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; error( "Can't
+open input.data file\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>s = f.readline() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>while( s != null ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // check if the
+line has "name value" format</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( rg.match(
+s, "^\s*(\w+)\s+(\d+)" ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; id
+= backref(0) ;&nbsp; // (\w+) part</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; x
+= atoi( backref(1) ) ; // (\d+) part</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rd_data[id]
+= x ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //store to string indexed
+array</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; s = f.readline()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="14.6 Internet Domain Socket Class"></a>
+14.6 インターネット ドメイン ソケット クラス
+</h2>
+
+<blockquote>
+ip_classクラスは、インターネット ドメイン (コネクション オリエンテッド)の
+ソケットを生成します。
+<br>
+以下のメンバー関数が利用できます。
+<ul>
+<li>
+new()</li>
+
+<br>コンストラクタ関数
+<li>
+int server_bind( int port_no )</li>
+
+<br>
+この関数は、ポートをオープンするために、システムのbind()を呼び出します。
+成功すると１、失敗すると０を返します。
+<li>
+int server_accept()</li>
+
+<br>
+この関数は、server_bind()でオープンされたポートを介して、クライアントとの
+コネクションを確立するために、システムのlisten()とaccept()を呼び出します。
+成功すると１、失敗すると０を返します。
+<li>
+int client_open_port( string machine, int port_no )</li>
+
+<br>
+この関数は、gethostbyname()を呼び出して、与えられたマシン名からIPアドレス
+を求め、その後、与えられたポートにクライアントとしてのコネクションを確立する
+ために、システムのconnect()を呼び出します。
+成功すると１、失敗すると０を返します。
+<li>
+string read()</li>
+
+<br>
+この関数は、ソケットストリームから一行分を読みだし、その文字列を返します。
+<li>
+void write( string out_string )</li>
+
+<br>
+この関数は、ソケットストリームに、out_stringの文字列を書き込みます。
+関数は、out_stringの後ろに '\n'を出力します。
+<br>&nbsp;</ul>
+例:
+<p>- tcl/tkのコマンドを起動し、ソケットコネクションを生成するJedaコード
+
+<blockquote><font face="Courier New,Courier">main() {</font>
+<br><font face="Courier New,Courier">&nbsp; int port_no ;</font>
+<br><font face="Courier New,Courier">&nbsp; int i ;</font>
+<br><font face="Courier New,Courier">&nbsp; string s ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; ip_socket tcl_soc ;</font>
+<br><font face="Courier New,Courier">&nbsp; string command ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; tcl_soc = new ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; port_no = 7000 ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; while( !tcl_soc.server_bind(
+port_no ) ) {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; port_no++ ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; if( port_no > 8000
+) break ;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; printf( "Binded %d\n", port_no
+) ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; command = sprintf( "wish tclcomm.tcl
+%d ", port_no ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; system_exec( command ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; printf( "Accepted %d\n", port_no
+) ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; tcl_soc.server_accept() ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; printf( "Accepted %d\n", port_no
+) ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; for( i = 0 ; i &lt; 10 ; i++
+) {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; s = sprintf( "Are
+you there? %d", i ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; tcl_soc.write(
+s ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; s = tcl_soc.read();</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; printf( "jeda:
+got %s", s ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+
+<p><br>- クライアントとしてコネクションを生成し、押しボタンを使ってコミュニケートするtcl/tkコード
+
+<blockquote><font face="Courier New,Courier">proc read_command { } {</font>
+<br><font face="Courier New,Courier">&nbsp; global ip_socket</font>
+<br><font face="Courier New,Courier">&nbsp; global received_line</font>
+<br><font face="Courier New,Courier">&nbsp; global first</font>
+<br><font face="Courier New,Courier">&nbsp; gets $ip_socket line</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; if { $line != "" } {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; #puts $line</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; set first 1</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; set received_line
+$line</font>
+<br><font face="Courier New,Courier">&nbsp; } else {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; if { $first ==
+1 } {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #puts
+"Got garbage"</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set
+first 0</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; } else {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exit
+0</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br><font face="Courier New,Courier">}</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">set first 1</font>
+<br><font face="Courier New,Courier"></font>&nbsp;<font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">set port_no [lindex $argv 0]</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">set ip_socket [socket localhost $port_no
+]</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">fconfigure $ip_socket -buffering line</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">puts "We are here\n"</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">frame .frame_in</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">label .frame_in.label -text "Received:"</font>
+<br><font face="Courier New,Courier">entry .frame_in.entry -textvariable
+received_line -width 80 -back white -foreground black</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">button .frame_in.button -text "What?"
+-command { puts $ip_socket "what" }</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">pack .frame_in.label .frame_in.entry
+.frame_in.button -side left</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">pack .frame_in -side top</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">puts "We are here now\n"</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">fileevent $ip_socket readable read_command</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">puts "We are even here now\n"</font>
+<br><font face="Courier New,Courier"></font>&nbsp;</blockquote>
+</blockquote>
+
+<blockquote>
+<ul><font face="Courier New,Courier"></font>&nbsp;</ul>
+</blockquote>
+
+</body>
+</html>
+

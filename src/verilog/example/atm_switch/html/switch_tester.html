@@ -1,0 +1,575 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="cell_gen_checker.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="direct_tests.html">next</a>
+<h1>
+<font size=+1>10. Switch Tester Class</font></h1>
+
+<ul>This switch tester class connects all the components together and forms
+the test structure. (The source <a href="../utils/switch_tester_2.j">switch_tester.j</a>
+This class contains all the drivers and various other variables, initialize
+the DUT with meaningful values, and also models the expected behavior of
+forward lookup, and sends cells to the proper checker.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class switch_tester
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; mif_driver mif
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; cell_driver drv[4]
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; cell_receiver
+rcv[4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; cell_checker
+chkr[4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; cell_queue_array
+chk_que[4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; random_distribution
+drv_rand[4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; random_distribution
+rcv_rand[4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // keep the config
+reg value</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bit [15:0] config_reg
+[256] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int cell_count[4]
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int total_count
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; semaphore done_sem
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font></ul>
+
+<p><br>The constructor function new() binds all the signal variables of
+the driver to the proper ports on the instance of the drivers.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void new()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //instantiate
+drivers</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; mif
+=</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+new(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.BusMode,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Addr,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Sel,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Data,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Rd_DS,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Wr_RW,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Rdy_Dtack,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.rst,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.clk</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; drv[0]
+=</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+new(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0, // id</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Rx_clk_0,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Rx_data_0,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Rx_soc_0,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Rx_en_0,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+squat.Rx_clav_0</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; drv[1]
+=</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.</font></font></ul>
+
+<p><br>The bit array config_reg[256] holds the same contents as the DUT's
+config_reg.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void read_config_reg()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[15:0] pattern ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[11:0] addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 256 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr[8:1] = i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pattern[7:0] = mif.read( addr ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr[0] = 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pattern[15:8] = mif.read( addr ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( config_reg[i] != pattern ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+error(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"config reg read error [%d] read %h expect %h\n",</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+i, pattern, config_reg[i]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+<a NAME="check_config_reg"></a>The function read_config_reg() check that
+the DUT's contents are correctly programed.
+<br>The function check_config_reg() is by itself a completed test to write
+various patterns to the config registers and check that the programming
+is properly done. This test checks walking 1, walking 0, and random pattern
+checking. In order to make sure that every entry does not mapped on the
+same address, it writes all the pattern to the register first, then reads
+out for checking. It is important to test RAM structure in this way, as
+testing with a write followed by a read on an address won't detect the
+address decoding problem.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void check_config_reg()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[15:0] pattern ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[11:0] addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+marching 1 test</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; pattern
+= 16'h0001 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 256 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr[8:1] = i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mif.write( addr, pattern[7:0] ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr[0] = 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mif.write( addr, pattern[15:8] ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+config_reg[i] = pattern ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pattern = {pattern[14:0],pattern[15]} ; // rotate</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; read_config_reg()
+; // check contents with config_reg</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+marching 0 test</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; pattern
+= 16'hfffe ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 256 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr[8:1] = i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mif.write( addr, pattern[7:0] ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr[0] = 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mif.write( addr, pattern[15:8] ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+config_reg[i] = pattern ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pattern = {pattern[14:0],pattern[15]} ; // rotate</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; read_config_reg()
+; // check contents with config_reg</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+random test</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 256 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pattern = random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr[8:1] = i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mif.write( addr, pattern[7:0] ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr[0] = 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mif.write( addr, pattern[15:8] ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+config_reg[i] = pattern ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; read_config_reg()
+; // check contents with config_reg</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>The function start_receiver_checker() and start_receiver_checker_rnd()
+calls the receiver and checker loop functions. Those loop function create
+the threads for checking. As explained in Chapter 9, there's two different
+mechanisms to implement the flow control. These functions are used to start
+different mechanism.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; start_receiver_checker(
+int rcv_dly_c, int rcv_dly_r ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 4 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+rcv[i].receive_loop() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+rcv[i].receive_enable_loop( rcv_dly_c, rcv_dly_r ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+chkr[i].check_loop() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; start_receiver_checker_rnd()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 4 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+rcv[i].receive_loop() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+rcv[i].receive_enable_loop_rnd( rcv_rand[i] ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+chkr[i].check_loop() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>The function set_config_reg() sets the config register values for
+transfer testing. A fixed pattern is used on the bottom part of the register
+to test a specific condition. With those pattern, we can pick any forwarding
+condition of a cell. In this example, we only use this fixed pattern for
+all the tests, but it is a good idea to run random tests with completely
+random register values.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; // setup config
+reg with default value</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void set_config_reg()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[15:0] pattern ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[11:0] addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+marching 1 test</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; pattern
+= 16'h0001 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 256 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+case( i ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0: pattern[15:12] = 4'b0000 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1: pattern[15:12] = 4'b0001 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2: pattern[15:12] = 4'b0010 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3: pattern[15:12] = 4'b0100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4: pattern[15:12] = 4'b1000 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+5: pattern[15:12] = 4'b0011 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6: pattern[15:12] = 4'b0110 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+7: pattern[15:12] = 4'b1100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+8: pattern[15:12] = 4'b0101 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+9: pattern[15:12] = 4'b1010 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10: pattern[15:12] = 4'b1001 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+11: pattern[15:12] = 4'b0111 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+12: pattern[15:12] = 4'b1011 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+13: pattern[15:12] = 4'b1101 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+14: pattern[15:12] = 4'b1110 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+15: pattern[15:12] = 4'b1111 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+default: pattern[15:12] = random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pattern[11:0] = random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr[8:1] = i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mif.write( addr, pattern[7:0] ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addr[0] = 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mif.write( addr, pattern[15:8] ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+config_reg[i] = pattern ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// printf( "reg[%d]: %b %b\n", i, pattern[15:12], pattern[11:0] ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>The function set_rand_config() initialize the random variables within
+various parts. This function checks the plus arguments set by user to configure
+the random. It uses regular expression engine 'regexp' class to parse the
+user's plus argument pattern. (As you are usually do in perl.) The random
+variable used here will be explained in chapter 12. Random Distribution
+Classes.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void set_rand_config()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i, p, q, r, s ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; uniform_distribution
+ur ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; constant_distribution
+cr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; constant_loop_distribution
+clr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; geometric_distribution
+gr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; expornential_distribution
+er ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; pdf_distribution
+pr[4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; string
+conf ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; regexp
+reg ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; reg
+= new ; // regular expression engine</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+read plus argument and define the random</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //&nbsp;&nbsp;&nbsp;
+distribution for drive/receive</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+drive random config</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; conf
+= get_plusarg( "drive_uniform=" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+conf != null ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+reg.match( conf, "\d+,\d+" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+p = atoi( reg.backref(0) ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font></ul>
+
+<p><br>The plus arguments that can be used for the driver cell delay are:
+<br>&nbsp;
+<ul>
+<li>
++drive_uniform=&lt;min>,&lt;max></li>
+
+<br>Use uniform random variable with &lt;min> and &lt;max> value for cell
+driver delay
+<li>
++drive_const=&lt;const></li>
+
+<br>Use constant &lt;const> for the cell driver delay
+<li>
++drive_const_loop=&lt;loop>,&lt;const>[,&lt;loop>,&lt;const>..]</li>
+
+<br>Use constant loop (generate &lt;const> for &lt;loop> times, and then
+go to next &lt;const>,&lt;loop> pair, and loop this pattern) for the cell
+driver delay.
+<li>
++drive_geometric=&lt;p>,&lt;q></li>
+
+<br>Use geometric random distribution with P = &lt;p>/&lt;q> for the cell
+driver delay.
+<li>
++drive_expornential=&lt;mean></li>
+
+<br>Use expornential distribution with mean = &lt;mean> for the cell driver
+delay
+<li>
++drive_pdf=&lt;w>,&lt;v>[,&lt;w>,&lt;v>..]</li>
+
+<br>Use Probability Distribution Function with weight &lt;w> for value
+&lt;v>(and following pairs) for the cell driver delay</ul>
+The same set of random distribution function can be selected for the cell
+receiver side. This selection is only valid when the enable loop function
+cell_enable_loop_rnd() is used.
+<br>&nbsp;
+<ul>
+<li>
++receive_uniform=&lt;min>,&lt;max></li>
+
+<br>Use uniform random variable with &lt;min> and &lt;max> value for cell
+receiver delay.
+<li>
++receive_const=&lt;const></li>
+
+<br>Use constant &lt;const> for the cell receiver delay
+<li>
++receive_const_loop=&lt;loop>,&lt;const>[,&lt;loop>,&lt;const>..]</li>
+
+<br>Use constant loop (generate &lt;const> for &lt;loop> times, and then
+go to next &lt;const>,&lt;loop> pair, and loop this pattern) for the cell
+receiver delay.
+<li>
++receive_geometric=&lt;p>,&lt;q></li>
+
+<br>Use geometric random distribution with P = &lt;p>/&lt;q> for the cell
+receiver delay.
+<li>
++receive_expornential=&lt;mean></li>
+
+<br>Use expornential distribution with mean = &lt;mean> for the cell receiver
+delay
+<li>
++receive_pdf=&lt;w>,&lt;v>[,&lt;w>,&lt;v>..]</li>
+
+<br>Use Probability Distribution Function with weight &lt;w> for value
+&lt;v> (and following pairs) for the cell receiver delay</ul>
+The function send_cell models the core activity of the switch. it create
+a random cell, sends the cell to DUT, does the lookup with the contents
+of config_reg array, update the cell data with the expected pattern on
+the tx port, and send the cell to proper queue for checking.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; send_cell( int
+dly, int inport, int vpi, int err = 0 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cell_class
+cell ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[15:0] pattern ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[3:0] oport ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+inport > 3 ) error( "inport %d too large\n", inport ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+vpi > 255 ) error( "vpi %d too large\n", vpi ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cell
+= new ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cell.rand_cell(
+vpi, inport ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+err ) cell.set_hec_err() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; drv[inport].drive_cell(
+dly, cell ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"cell %h %h %h %h %h sent from %d %d\n",</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell.data[0], cell.data[1], cell.data[2],</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell.data[3], cell.data[4],</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+inport, get_cycle()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; )
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+send the expected cell to the checker</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; pattern
+= config_reg[vpi] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; oport
+= pattern[15:12] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cell.data[0]
+= pattern[12:4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cell.data[1][7:4]
+= pattern[3:0] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cell.set_hec()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"cell %h %h %h %h sent to checker %b\n",</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell.data[0], cell.data[1], cell.data[2],</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell.data[3], cell.data[4],</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+oport</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; )
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+!err ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for( i = 0 ; i &lt; 4 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( oport[i] ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+chk_que[i].send( inport, cell ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+rcv[i].receive_num++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+total_count++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>The function send_rand_cells() drives the given number of cells
+to the given rx port with the driver's delay distribution.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; send_rnd_cells(
+int inport, int num ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+dly, vpi, err ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; repeat(
+num ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dly = drv_rand[inport].gen_random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+vpi = random() % 256 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+err = (random() % 100 ) > 20?1:0 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// breakpoint ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+send_cell( dly, inport, vpi, err ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>And finally the function wait_done() wait for the completion of
+the check by getting total number of valid cells from the completion semaphore.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; wait_done() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+total_count ) done_sem.get( total_count ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+</ul>
+<a href="cell_gen_checker.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="direct_tests.html">next</a>
+</body>
+</html>

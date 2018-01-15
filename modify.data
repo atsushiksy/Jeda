@@ -1,0 +1,1 @@
+not JEDA_SELF_THREAD_CONTROL  include/runtime.h runtime/jeda_pli.c runtime/pci.c runtime/thread.c runtime/top_loop.c runtime/vpi.c

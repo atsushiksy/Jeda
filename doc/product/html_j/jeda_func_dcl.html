@@ -1,0 +1,240 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_data_dcl.html">Prev</a>
+| <a href="jeda_expression.html">Next</a>
+<h1>
+6. 関数宣言
+</h1>
+
+<h2>
+<a NAME="6.1 Function Declaration"></a>
+6.1 関数宣言
+</h2>
+
+<blockquote>
+関数(および クラス内のメンバー関数/メソッド)は、Jedaプログラムの実行の
+主体となるものです。Jedaの全ての関数は、データ型を持ち、void型でない
+限り、与えられたデータ型の値を返します。
+<p>
+全てのJedaプログラムは、main()関数から実行を開始します。このmain関数は、
+void型で、なにも引数を取らないように記述する必要があります。
+<blockquote><font face="Courier New,Courier">void main() {</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+main()以外の関数は、どんなデータ型でもよく、特定の数の引数をとることが
+出来ます。関数の宣言で、データ型が省略された場合、その関数はvoid型と
+見なされます。また、関数の引数リスト内の各引数は、引数のデータ型をもつ
+ことに注意してください。
+<blockquote><font face="Courier New,Courier">int foo( int x ) {</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+</blockquote>
+
+<blockquote>
+<blockquote>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="6.2 Function Attribute"></a>
+6.2 関数属性
+</h2>
+
+<blockquote>
+関数は、属性と共に宣言することができます。以下の属性が関数に使用できます。
+<ul>
+<li>
+local&nbsp;&nbsp; 
+-- この関数名は、そのファイル内でのローカルなもので、他のソースファイル
+と共有することは出来ません。
+</li>
+
+<li>
+extern -- 
+この関数の本体は別のファイルで宣言されています。この属性は、本体のない
+関数を宣言するのに用いられます。
+</li>
+
+<li>
+export -- 
+この関数は、Verilog側から呼び出すことができます。この関数のタイプは、
+void型でなくてはならず、すべての引数は、bit型でなくてはなりません。
+対応するtaskが、jeda_module内に宣言され、Verilogから呼び出すことが出来ます。
+(6.6 を参照)
+</li>
+
+<ul>&nbsp;
+<br><font face="Courier New,Courier">extern int foo( int x ) ;&nbsp; //
+no body</font></ul>
+</ul>
+</blockquote>
+
+<h2>
+<a NAME="Function Argument"></a>
+6.3 関数の引数
+</h2>
+
+<blockquote>
+関数の引数には、単独値または配列を使用できます。配列が引数として
+渡される場合、データ型と配列のタイプ/サイズは、同一のものでなくてはなりません。
+
+<br>&nbsp;
+<blockquote>// function with array arguments
+<br>int foo( int x, int y[10], int z[] ) {
+<br>&nbsp; ..
+<br>}
+<br>&nbsp;
+<p>// calling foo
+<br>{
+<br>&nbsp; int xx ;
+<br>&nbsp; int yy[10] ;
+<br>&nbsp; int zz[] ;
+<br>&nbsp; int t ;
+<br>&nbsp; ..
+<br>&nbsp; t = foo( xx, yy, zz ) ;
+<br>&nbsp; ..
+<br>}</blockquote>
+引数値は、通常、ローカルな記憶領域にコピーされて、関数に渡されます。
+このことは、配列の引数にも当てはまります。これによって、関数内で
+値を書き換えることによって発生しうるサイドエフェクトを避けることが出来ます。
+'var'属性が引数に使用されると、引数はポインタとして関数に渡され、引数の
+変数領域は、呼び出し側と共有されます。これにより、引数を介して関数から
+複数の値を返すことができます。また、大きな配列を渡すのに'var'属性を使用すると
+性能が向上します。
+<blockquote><font face="Courier New,Courier">// function with var argument</font>
+<br><font face="Courier New,Courier">int foo( var bit [5:0] x, var bit
+[7:0] y[10], var int z[] ) {</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">}</font><font face="Courier New,Courier"></font>
+<p>// calling foo
+<br>{
+<br>&nbsp; bit [5:0] xx ;
+<br>&nbsp; bit [7:0] yy[10] ;
+<br>&nbsp; int zz[] ;
+<br>&nbsp; int t ;
+<br>&nbsp; ..
+<br>&nbsp; t = foo( xx, yy, zz ) ;&nbsp; // arguments must be exact the
+same
+<br>&nbsp; ..
+<br>}</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="6.4 Default Argument"></a>
+6.4 デフォルト引数
+</h2>
+
+<blockquote>
+関数の引数は、例6.4aに示すように、代入値を用いることによって、デフォルト
+値を定義することができます。
+例6.4bのように、呼び出し時の引数に * (アスタリスク)を用いることで、
+デフォルト値を使用することが出来ます。
+もし、関数の引数にデフォルト値がセットしてあると、関数の呼び出し時に、引数
+が与えられない場合、デフォルト値を使用します。
+呼び出し時の引数が実際の引数より少ない場合、呼び出し時の引数は、先頭から
+順次引数として使用され、全ての呼び出し引数が使用されると、残りの引数には
+デフォルト値が使用されます。
+<blockquote><font face="Courier New,Courier">example 6.4a</font>
+<br><font face="Courier New,Courier">int bar( int x = 0, int y = 0, int
+z = 0 ) {</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp; .</font>
+<br><font face="Courier New,Courier">}</font>
+<p><font face="Courier New,Courier">example 6.4b</font>
+<br><font face="Courier New,Courier">void main() {</font>
+<br><font face="Courier New,Courier">&nbsp; bar();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// same as bar( 0, 0, 0 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; bar(*,*,5); // same as bar(
+0, 0, 5 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; bar(1);&nbsp;&nbsp;&nbsp;&nbsp;
+// same as bar( 1, 0, 0 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; bar(1,2);&nbsp;&nbsp;&nbsp;
+// same as bar( 1, 2, 0 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; bar(1, 2, 3) ;</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+
+ヒント：既に書かれて使用されている関数に引数を加えて機能拡張を行う場合に
+この機能は非常に有効です。既存の機能を保つようなデフォルト値を与えれば、
+その関数を呼び出している既存のコードは書き換えなくても済みます。
+</blockquote>
+
+<h2>
+<a NAME="6.5 Returning a value from a function"></a>
+6.5 関数の戻り値
+</h2>
+
+<blockquote>
+値を伴うreturnステートメントが、呼び出し側に戻り値を返します。
+コンパイラは、戻り値のデータ型が正しいものかをチェックします。
+もし、returnステートメントが関数に正しく記述されていない場合、
+関数は終了時に不定値を返します。関数のタイプがvoid型でない限り、
+Jedaはこの状態を検出し、実行時エラーを発生します。(最適化により
+チェックを省略することもできます。)
+<blockquote><font face="Courier New,Courier">int bar( int x ) {</font>
+<br><font face="Courier New,Courier">&nbsp; return x ;</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+</blockquote>
+
+<h2>
+6.6 エクスポート関数</h2>
+
+<blockquote>
+export属性をもつ、void型の関数は、Verilogから呼び出すことができます。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">export void export_func( var
+bit [31:0] x, bit [127:0] y ) {</font>
+<br><font face="Courier New,Courier">&nbsp; printf( "expport_func( %h,
+%h&nbsp;) is called\n", x, y ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;</font>
+<br><font face="Courier New,Courier">&nbsp; x = y + 5 ;</font>
+<br><font face="Courier New,Courier">}</font></blockquote>
+エクスポート関数の引数は、bit型でなくてはなりません。var属性が、引数に使用されると、jeda_module内の対応するタスクの引数は、inoutとして宣言され、値を返すことができます。
+<p>
+エクスポート関数と同じ名前のタスクが、jeda_module内で宣言され、Verilog側から呼び出すことができます。以下は、上記のエクスポート関数がコンパイルされた結果生成されたものです。
+
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; task export_func
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; inout
+[31:0] arg_x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; input
+[127:0] arg_y ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; reg
+export_func_done ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; begin</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+export_func_done = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// $display( "&nbsp; Verilog is calling jeda function export_func" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+$JEDA_task( 7, "export_func", 0, export_func_done, 2, arg_x, arg_y ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@(export_func_done) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// $display( "&nbsp; Verilog calling jeda function export_func completed"
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; end</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; endtask</font></font>
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+

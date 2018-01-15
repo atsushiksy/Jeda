@@ -1,0 +1,66 @@
+#!/bin/csh -f
+
+set patch = patch
+
+set script = $0
+set script = $script:t
+
+set makefile_diff = "Makefile.diff"
+if (! -f $makefile_diff) then
+    echo "Cannot find diff file $makefile_diff"
+    exit 2
+endif
+set jedacp_diff = "jedacp.diff"
+if (! -f $jedacp_diff) then
+    echo "Cannot find diff file $jedacp_diff"
+    exit 2
+endif
+set jedaexp_diff = "jedaexp.diff"
+if (! -f $jedaexp_diff) then
+    echo "Cannot find diff file $jedaexp_diff"
+    exit 2
+endif
+
+set current_dir = `pwd`
+set gcc_dir	= gcc-2.95.2/gcc
+
+if (! -d $gcc_dir) then
+    echo "Cannot find gcc directory $gcc_dir"
+    exit 2
+endif
+
+cd $gcc_dir
+
+if (! -f Makefile.in) then
+    echo "Cannot find input file Makefile.in"
+    exit 2
+endif
+$patch -b .org Makefile.in $current_dir/$makefile_diff
+if ($status != 0) then
+    echo "Failed to patch Makefile.in"
+    exit 1
+endif
+
+if (! -f cccp.c) then
+    echo "Cannot find input file cccp.c"
+    exit 2
+endif
+cp cccp.c jedacp.c
+$patch -b .org jedacp.c $current_dir/$jedacp_diff
+if ($status != 0) then
+    echo "Failed to patch jedacp.c"
+    exit 1
+endif
+
+if (! -f cexp.y) then
+    echo "Cannot find input file cexp.y"
+    exit 2
+endif
+cp cexp.y jedaexp.y
+$patch -b .org jedaexp.y $current_dir/$jedaexp_diff
+if ($status != 0) then
+    echo "Failed to patch jedaexp.c"
+    exit 1
+endif
+
+echo "Makefile.in, jedacp.c, and jedaexp.y are successfully patched"

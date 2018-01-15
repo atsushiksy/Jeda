@@ -1,0 +1,79 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_compile_link.html">Prev</a>
+| <a href="jeda_example.html">Next</a>
+<h1>
+16. Verilog Testbench Generation</h1>
+
+<blockquote>User Jeda code is represented as a module (Jeda Module) in
+the Verilog environment. In order to run Verilog simulation, we need to
+construct a Verilog testbench that contains one instance of Jeda Module,
+instance(s) of DUT(s), with proper connection. Jeda provides two mechanisms
+to simplify this process: the template generator and testbench generation
+option (-JL_V) in Jeda linker.</blockquote>
+
+<h2>
+16.1 Template Generator</h2>
+
+<blockquote>Jeda comes with a simple template generater (jedatemp). This
+program parse the verilog code and create a Jeda testbench template files(Verilog
+top file with instances of dut and jeda_module, Jeda program top template).
+This is usefull if the testbench needs only one module instance as DUT,
+and all the ports are connected to Jeda ports.
+<p>The command syntax of jedatemp is:
+<br>&nbsp;
+<blockquote>jedatemp&nbsp; [options] &lt;verilog_file>
+<p>where options:
+<ul>
+<li>
+-m &lt;module_name></li>
+
+<br>specifiy the module name under test. If ommitted the first module in
+the verilog file will become dut.
+<li>
+-c &lt;clock_name></li>
+
+<br>specify the clock port name on the module. If omitted, CLOCK is used
+as the reference clock.
+<li>
+-i &lt;include_file></li>
+
+<br>specify the include file, that will be included at the end of the verilog
+top file, just before 'endmodule'
+<li>
+-h</li>
+
+<br>just print out usage.</ul>
+</blockquote>
+Note: This jedatemp does not have complete Verilog parser, and sometimes
+it can't parse the correct syntax Verilog file. In such case, try with
+a fake Verilog file which only has port and io (input, output, inout) definitions.
+(Unless you want to fix the jedatemp parser code.)</blockquote>
+
+<h2>
+<a NAME="15.2 Testbench generation option"></a>16.2 Testbench generation
+option in Jeda Linker</h2>
+
+<blockquote>Jeda linker (jedalnk) has the option to create the testbench
+template when it links all the jeda object files. This option is enabled
+with -JL_V flag. The user can give -JL_V flag to 'jeda' script to enable
+this option. For example:
+<p>&nbsp;&nbsp;&nbsp; jeda -dl -JL_V foo.j
+<p>The testbench file will become &lt;outname>.jeda_top.v. (foo.jeda_top.v
+in the above case) It contains the instance of Jeda Module, and all the
+wire connection to the jeda_module, with CLOCK generation code.
+<br>If the final testbench needs multiple modules with various portset
+connections to the Jeda Module, then the user can start from Jeda code
+with all the necessary ports (or portsets). Once the testbench toplevel
+is created, the user can add instances of the DUTs to construct the simulation
+testbench.
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

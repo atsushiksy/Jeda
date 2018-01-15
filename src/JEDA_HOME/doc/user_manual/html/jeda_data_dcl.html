@@ -1,0 +1,155 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (X11; U; SunOS 5.7 sun4u) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_basic_data.html">Prev
+</a>|
+<a href="jeda_func_dcl.html">Next</a>
+<h1>
+5. Variable Declaration</h1>
+
+<blockquote>A variable has a storage location for the associated type.&nbsp;
+In Jeda, a variable has a different scope depending on where it is declared
+and what kind of attribute it has.</blockquote>
+
+<h2>
+<a NAME="5.1 Local Variables"></a>5.1 Local Variables</h2>
+
+<blockquote>Local variables are shared inside functions and or classes&nbsp;
+within a given source file. Such variables can be declared outside of any
+block using the attribute "local". The scope of the variable is only within
+the source file.
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; local bit [7:0]
+foo ;</font></blockquote>
+
+<h2>
+<a NAME="5.2 Global Variables"></a>5.2 Global Variables</h2>
+
+<blockquote>Global variables are shared by&nbsp; amongst&nbsp; Jeda code
+that are linked together as one complete program, therefore the scope of
+these variables types is the entire program. There are two mechanism for
+declaring and sharing global variable:
+<p>First mechanism is for the declare the variable without any attribute
+simply like any regular declaration.&nbsp; Alternatively, share the variable
+from another file using the attribute&nbsp; "extern" on the variable declaration.
+With this mechanism, there should only be one variable declaration without
+"extern" attribute.
+<br>&nbsp;
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp; int new_flag
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // the vanilla mode without
+"local"</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp; extern int
+new_flag ; // using the "extern" attribute</font>
+<br>&nbsp;
+<p>Second mechanism is to use "global" attribute. The variable with global
+attribute can be declared in multiple files.
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; global int gflag
+= 0 ;</font>
+<p>This mechanism is useful when the global variable declarations are done
+in an include file, and included in multiple files. The declaration of
+a variable must be exactly the same including the initialization.
+<p>It is not allowed to mix&nbsp; the two mechanisms. For example, using
+"global" and "extern" attributes on the same variable will cause an error at link time.
+<br>&nbsp;</blockquote>
+
+<h2>
+<a NAME="5.3 Initializing Local and Global Variable"></a>5.3 Initializing
+Local and Global Variable</h2>
+
+<blockquote>Initializing local and global variables for a non array variables
+is done using constant assignments during declaration as follows:
+<br><font face="Courier New,Courier">&nbsp; local int foo = 0 ;</font>
+<br><font face="Courier New,Courier">&nbsp; global int zoo = 100 ;</font>
+<p>If the variable is&nbsp; an array and needs to be initialized before
+its first use then the <i>initial </i>statement<i> </i>is<i> </i>used to
+set the values to some value before main() function starts to execute.
+<p><font face="Courier New,Courier">&nbsp; local int foo[100] ;</font>
+<br><font face="Courier New,Courier">&nbsp; initial {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; int i ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; for( i = 0 ; i
+&lt; 100 ; i++ ) foo[i] = i*10 ;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<p><i>Initial</i> statement are executed at time zero.&nbsp; Jeda does
+not have any limitation on the number of initial statements&nbsp; a user
+specified.&nbsp; The order of execution among initial statements is unknown
+so one cannot assume sequential execution. <i>Initial </i>statement can
+also be used in class declaration. In this case, the statement can only
+access static member variables.
+<br>&nbsp;</blockquote>
+
+<h2>
+<a NAME="5.4 Temporary and Static Variables"></a>5.4 Temporary and Static
+Variables</h2>
+
+<blockquote>A temporary variable is declared at the beginning of a block.
+A temporary variable is allocated as the execution enters into the block
+and deallocated at the end of block. The scope for this type of variable
+is only within the block.
+<br><font face="Courier New,Courier">&nbsp; int foo() {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; int i, j, k ;&nbsp;
+// temp variables</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int
+x, y, z ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<p>A static variable is declared at the beginning of the top block using
+"static" attribute. A static variable is allocated in a static space and&nbsp;
+retains&nbsp; every time the function is called. The initialization to
+the variable is done only once at time zero (before main() is called).
+<p><font face="Courier New,Courier">&nbsp; int foo() {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; static int first
+= 1 ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; if( first ) {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; first
+= 0 ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf(
+"foo() first call detected\n" ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br>&nbsp;</blockquote>
+
+<h2>
+<a NAME="5.5 Enum Variable Declaration"></a>5.5 Enum Variable Declaration</h2>
+
+<blockquote>A user defined enum type is declared with enum declaration.
+<p><font face="Courier New,Courier">&nbsp; enum color = black, white ;</font>
+<p>Then the defined type can be used as the user defined type which can
+only take the defined members as its element.
+<p><font face="Courier New,Courier">&nbsp; color bw_color ;</font>
+<p><font face="Courier New,Courier">&nbsp; bw_color = white ;</font>
+<p>The enum type and its members have&nbsp; a&nbsp; local scope, so it
+can be declared as local type at each block.
+<p><font face="Courier New,Courier">&nbsp; {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; enum color = black,
+white ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; int i ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; color blackorwhite
+;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ..</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enum
+color = red, green, blue ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int
+i, j ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; color
+rgb_color ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+..</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

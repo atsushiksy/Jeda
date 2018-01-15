@@ -1,0 +1,851 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_port.html">Prev</a>
+| <a href="jeda_aspect.html">Next</a>
+<h1>
+11. 並列プログラミング
+</h1>
+
+<blockquote>
+この章では、スレッドの実行メカニズムと、スレッドの制御に関連したシステム 
+クラス オブジェクトについて説明します。
+<h2>
+<a NAME="11.1 Fork mechanism"></a>
+11.1 fork メカニズム
+</h2>
+
+<blockquote>
+Verilogと異なり、Jeda内の全ての実行は、main()関数からトレース出来ます。
+システム内に存在し、並列的に処理を行うスレッドは、main()関数からたどれる
+コード位置からforkされたものです。
+<br>
+Verilogと同様に、fork/joinペアは、全ての子スレッドが実行を終了するのを
+待ちます。
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 100 )
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread1\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 100 )
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread2\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>join</font></font></blockquote>
+(Verilogに比べての)大きな違いは、Jedaコードが子スレッドをknifeすることで、
+実行の終了を待たずに先に進めるということです。
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // thread 1</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+if( (i&amp;1) == 0 ) i++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // thread 2</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+if( (i&amp;1) == 1 ) i++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife // move
+forward without child</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+もう一つ、fork/spoonのペアは、forkされた子スレッドのどれか一つが終了するのを
+待ちます。(スプーンひとすくい)
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( n ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread1\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( m ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread2\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>spoon</font></font>
+<br>&nbsp;</blockquote>
+親スレッドは、子スレッドのいずれか一つが終了した時点で前に進み、残りの
+子スレッドは実行を継続します。
+<br>
+上記の例に示したように、もし、残った子スレッドが実行を続ける必要がないなら、
+terminateステートメントを使用して実行を中断することもできます。
+
+</blockquote>
+
+<h2>
+<a NAME="11.2 Terminate"></a>
+11.2 terminateステートメント
+</h2>
+
+<blockquote>
+terminateステートメントは、実行されたスレッドから生成された全ての子孫スレッド
+の実行を中断します。子孫スレッドには、関数コール中に生成されたものも含まれ
+ます。ネストされた子スレッド、孫スレッドはすべて中断の対象となります。
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( n ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread1\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( m ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread2\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>spoon</font></font>
+<p><font face="Courier New,Courier"><font size=-1>terminate ; // terminate
+the one that remains</font></font></blockquote>
+terminateステートメントは、全ての子孫スレッドの実行を中断してしまうことに
+注意してください。実行中断のレベルをコントロールしたい場合、terminate
+ステートメントを実行する部分をネストしたスレッドとすることが必要です。
+<blockquote><font face="Courier New,Courier"><font size=-1>void main()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bit x = 0 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // we fork a thread
+that we don't want to terminate.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+sig.0 = x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; x
+= ~x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; receive_loop()
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork&nbsp;
+// fork to create thread to limit the termination</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( @1,100(busy_1.0 == 1) ) printf( "busy_1 detected\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( @1,100(busy_2.0 == 1) ) printf( "busy_2 detected\n") ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+spoon</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+terminate ;&nbsp; // terminate the remained checker</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+関数呼び出しは、新しいスレッドを作らないため、terminateを実行している関数の
+呼び出し側が生成したスレッドを含み、全ての子スレッドの実行が中断します。
+(<a href="jeda_statement.html#8.16 Terminate statement">
+8.16 terminateステートメント</a>
+を参照してください). 
+terminateステートメントを実行するときには、常にfork { } join ブロックと共に
+使用することを推奨します。
+</blockquote>
+
+<h2>
+<a NAME="11.3 Thread Execution"></a>
+11.3 スレッドの実行
+</h2>
+
+<blockquote>
+スレッドの実行は、疑似的な並列処理で行われ、実際にはある時点で、ただ１つの
+スレッドのみが実行状態にあります。また、スレッドの実行は、非プリエンプティブ
+に行われ、実行中のスレッドは、自分自身をサスペンドするコードを実行しない
+限り中断されることなく、実行を続けます。
+<br>
+この実行メカニズムは、データに対するアクセスがつねにアトミックであることが
+保証され、共有される変数に対して特別な保護メカニズムを必要としません。
+これは、アクティブなスレッドが実行を完了するまで、他のスレッドによって
+データを変更されることがないからです。
+<p>
+しかし、この非プリエンプティブ実行メカニズムは、子スレッドがループ変数を
+引数に生成されるような場合に問題を生じます。
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+forkステートメントは、child_thread()関数をforkします。しかし、これは単に
+この１００個の子スレッドが実行されるべくスケジュールされたことに過ぎません。
+親スレッドは、実行を止めることなく、ループ変数 i は 100になります。
+従って、すべての子スレッドのchild_thread(i)は、その引数に i = 100を受けとって
+しまいます。
+<p>
+このような状況を避けるために、以下の２種類のメカニズムが利用できます。
+<br>&nbsp;</blockquote>
+
+<h2>
+<a NAME="11.4 Clone Variable"></a>
+11.4 クローン変数
+</h2>
+
+<blockquote>
+上記の問題に対する一つの解決方法は、ループ変数 i をクローン変数として宣言
+することです。
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; clone int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+通常、forkされた全てのスレッドは、一時変数の空間を共有します。しかし、クローン
+変数は、スレッドが生成される時点でクローン化されます。その変数の内容は、別の
+空間にコピーされ、共有されません。従って、各々のforkがループ内で実行された
+時点で、変数 i の値は、スレッドの生成時の値を子スレッドのローカルスタック内に
+保持されます。
+<br>
+このメカニズムは、複数のスレッドがその一時変数を独自に変更する必要がある
+場合などにも使用出来ます。(あるいは、たまたまそのような '誤った' コード
+を書いてしまい、最小の変更で間違いを修正したい場合など)
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; i = 100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; while(
+i ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@1 if( signal1.0 == 1 ) i-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; while(
+i ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@1 if( signal2.0 == 1 ) i-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; spoon</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="11.5 thread_pause()"></a>
+11.5 thread_pause()関数
+</h2>
+
+<blockquote>
+第二の解決法は、thread_pause()関数を用いることです。
+<br>
+システム関数thread_pause()は、一時的に実行中のスレッドを中断し、そのスレッドを
+実行スケジューラのReadyキューの最後尾に置きます。したがって、その段階で
+readyキューで待ち状態であった全ての実行可能なスレッドが実行されてから、もとの
+スレッドに実行が返ってきます。
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; thread_pause()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+上記の例で、thread_pause()の呼び出しによって、ループ変数 i が増加する前に、
+forkされたthread_child()関数が開始されることを保証します。
+</blockquote>
+
+<h2>
+<a NAME="11.6 thread_join()"></a>
+11.6 thread_join()関数
+</h2>
+
+<blockquote>
+システム関数 thread_join()は、そのスレッドから生成されたすべての子孫スレッド
+の実行完了を待ちます。
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<p><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clone
+int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; thread_join()
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>join</font></font></blockquote>
+この関数は、オプションでタイムリミットを引数として受け付けます。(CLOCK信号のサイクル数で指定します。)タイムアウトが発生した場合、この関数は、０を戻り値として返します。(正常に終了した場合は、１を返します。) 以下のコードは、タイムリミットを使用し、正常に終了したかのチェックを行っています。
+
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<p><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clone
+int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; if( !thread_join(
+5000 ) ) error( "thread_join() failed\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>join</font></font></blockquote>
+
+
+この関数は、呼び出すスレッドから生成された、全ての子孫スレッドの終了を
+待つため、ネストしたスレッドを生成することで終了を待つ子スレッドの対象を
+制限することができます。以下の例では、最期の10個のchild_threadの実行終了
+を待ちます。
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; clone int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;&nbsp; // don't join with them</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; thread_pause()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // only wait for
+the child thread below</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 10 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ; // join only with them</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; thread_join()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+11.2 terminateステートメントの章で説明したように、関数呼び出しは新しいスレッド
+を生成しないので、fork { } join ブロック無しのthread_join()呼び出しは、
+関数の呼び出し側が生成した全てのスレッドについても、終了待ちの対象になります。
+このような混乱した状況を避けるために、fork { } join ブロックと併用して
+thread_join()関数を使用することを推奨します。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>void main()
+{</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; checker()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; driver()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; tester() ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void tester() {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; foo()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bar()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; @300( posedge
+CLOCK ) ; // some delay</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; thread_join()
+;&nbsp; // this will wait for checker() and driver() called by main() as
+well.</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+</blockquote>
+以下の章では、スレッドの実行制御に用いられる色々なシステム クラス オブジェクト
+について説明します。
+<h2>
+<a NAME="11.7 Event"></a>
+11.7 event
+</h2>
+
+<blockquote>
+eventは、システム クラス オブジェクトで、スレッド間の同期に使用されます。
+以下のメンバー関数がサポートされています。
+<ul>
+<li>
+void trigger()</li>
+
+<br>
+トリガーを生成します。このトリガーは、現在のシミュレーション タイムスロット
+内でアクティブ状態を保持します。(クリアされない限り)
+このことは、スレッドの実行順序に無関係に、(もし存在すれば)受け取り側スレッドに
+そのタイムスロット内でトリガーが受け渡されることを保証します。
+<li>
+void trigger_on()</li>
+
+<br>
+トリガーを生成し、それをONの状態に維持します。このトリガーは、クリアされる
+までアクティブ状態を保ちます。
+<li>
+void trigger_off()</li>
+
+<br>
+trigger() または trigger_on() によってセットされた、
+トリガー状態をクリアします。
+<li>
+void trigger_pulse()</li>
+
+<br>
+インパルス トリガーを生成します。このトリガーは、もしそのevent変数にすでに
+トリガーを待っているスレッドが存在した場合のみ、トリガーが受け渡されます。
+もし、スレッドが待っていない場合、トリガーは直ちに消滅します。
+<li>
+int sync()</li>
+
+<br>
+トリガーを待ちます。トリガが送られた時点で、スレッドは実行可能状態に
+戻ります。関数は、トリガーを受け取った場合には１を返し、タイムアウトで
+中断された場合には０を返します。
+<li>
+int sync_clear()</li>
+
+<br>
+トリガーを待ちます。トリガが送られた時点で、スレッドは実行可能状態に
+戻り、そのトリガーはクリアされてただ一つのスレッドのみがトリガーを受信する
+ようにします(ハンドシェーク機能)。
+関数は、トリガーを受け取った場合には１を返し、タイムアウトで中断された場合
+には０を返します。
+<li>
+int check()</li>
+
+<br>
+この関数は、event変数のトリガーがアクティブのとき１を返し、そうでないとき
+０を返します。
+<li>
+int check_clear()</li>
+
+<br>
+この関数は、event変数のトリガーがアクティブのとき、その状態をクリアしてから
+１を返します。アクティブでないときは、０を返します。
+<li>
+void timeout( int cycle_count )</li>
+
+<br>
+この関数は、CLOCK信号のサイクル数でタイムアウト値の設定を行います。
+０(ゼロ)が設定された場合は、タイムアウトは検出されません。
+<p><font face="Courier New,Courier"><font size=-1>event done ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>done = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>done.timeout( 1000 )
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1 if( done_sig.0
+== 1 ) done.trigger() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>forever{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; done.sync_clear()
+; // make sure only receive the same trigger once</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "Done
+triggered at cycle %d\n", get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>.</font></font>
+<br>&nbsp;</ul>
+(エラーが発生する)他のオブジェクトと異なり、event変数が空の場合
+(インスタンスがアロケートされてない場合)、全てのメンバー関数は無視されます。
+trigger()関数は何もせず、sync()、sync_clear()、check()関数は、直ちに１を
+返します。従って、event変数にnullを代入することで、同期メカニズムを
+回避することが出来ます。
+<br>
+以下は、オプションのタイミング制御を持つドライバーの例を示しています。
+もし、このevent引数が未使用であれば、ドライバーのコードは、eventに同期する
+ことなく、単にシーケンスを実行します。
+<blockquote><font face="Courier New,Courier"><font size=-1>void drive_data(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bit [7:0] data,
+event go = null, event done = null</font></font>
+<br><font face="Courier New,Courier"><font size=-1>) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; go.sync() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1 bus_data.0
+= data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; done.trigger()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="11.8 Semaphore"></a>
+11.8 semaphore
+</h2>
+
+<blockquote>
+semaphore クラス オブジェクトは、スレッド間の排他制御と同期の手段を提供します。
+以下のメンバー関数がサポートされます。
+<ul>
+<li>
+void new( int unit = 1 )</li>
+
+<br>
+あたえられたユニットを持つ、セマフォのインスタンスを生成します。
+ユニットのデフォルトは１です。
+<li>
+int get( int unit = 1 )</li>
+
+<br>
+この関数は、指定されたユニットをセマフォから取り出そうと試みます。
+もし、十分なユニットがセマフォ内に存在すれば、指定されたユニットをそれから
+差引き、関数は直ちに１を返します。もし、十分なユニットがない場合、呼び出した
+スレッドは、セマフォのFIFOキューに入れられ、必要なユニットが利用可能に
+なるまで、待ち状態となります。タイムアウトが検出されると、関数は０を返して
+呼び出しスレッドに戻ります。
+<li>
+int check( int unit = 1 )</li>
+
+<br>
+この関数は、指定されたユニットがセマフォに存在するかをチェックします。
+もし、十分なユニットがある場合、していされたユニットを差引き、
+１を返します。もし、ユニットが不十分のばあい、直ちに０を返します。
+<li>
+void put( int unit = 1 )</li>
+
+<br>
+この関数は、与えられたユニットをセマフォに与えます。もし、そのセマフォで
+待ち状態のスレッドがあり、与えたユニットにより、FIFOキュー先頭のスレッドが
+十分なユニットを得た場合、そのユニットを差し引いて、スレッドは実行可能に
+戻ります。
+<li>
+void timeout( int cycle )</li>
+
+<br>
+この関数は、CLOCK信号のサイクル数でタイムアウト値の設定を行います。
+０(ゼロ)が設定された場合は、タイムアウトは検出されません。
+</ul>
+セマフォの最も一般的な使い方は、排他制御です。以下の関数は、複数のスレッドから
+同時に呼び出されることができ、ただひとつの呼び出しのみが一時期に
+危険領域でアクティブになるため、うまく動作します。
+<blockquote><font face="Courier New,Courier"><font size=-1>semaphore drv_sem
+= new ; // initial unit = 1</font></font>
+<br><font face="Courier New,Courier"><font size=-1>.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>void safe_drive( bit
+[7:0] data ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; drv_sem.get(
+1 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // entering critical
+section</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1 data_bus.0
+= data ; // driving the bus with data</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; drv_sem.put(
+1 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+１よりも大きい初期ユニットを用いると、セマフォを使って、同時にアクティブとなる
+スレッド(あるいは処理)の上限を制御することが出来ます。これによって、多重
+サービス システムをモデル化することが出来ます。
+<blockquote><font face="Courier New,Courier"><font size=-1>semaphore limit_sem
+= new( 8 ) ; // max 8 can go concurrently</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int queue&lt;> ;&nbsp;
+// list of int, a service queue</font></font>
+<p><font face="Courier New,Courier"><font size=-1>// This function send
+a value to queue in random interval u[0,99]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>void random_send_loop()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int dly ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int n = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; dly
+= randmt() % 100 ; // randmt is the Mersenne Twister Random</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @dly
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; queue.send(
+n++ ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>// This function mimic
+the process by random delay of u[0,9]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>void service_proc()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int dly ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; dly = randmt()
+% 10 ; // service rate is u[0,9]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @dly ; // just
+wait</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; limit_sem.put(
+1 ) ; // tell it's done</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void process_loop() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int n ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; n
+= queue.receive() ; // wait until something is sent</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; limit_sem.get(1)
+;&nbsp;&nbsp;&nbsp; // make sure only 8 active service</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; service_proc()
+;&nbsp; // start the process</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+もう一つのセマフォのアプリケーションは、与えられた数ののスレッドの完了を
+待つものです。
+<blockquote><font face="Courier New,Courier"><font size=-1>semaphore finish_sem
+= new( 0 ) ; // initial unit = 0</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void child_thread() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; /* do something
+useful */</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; finish_sem.put(1)
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void main() {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 1000 )
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; finish_sem.get(1000)
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "All done!\n"
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="11.9 List as Mailbox"></a>
+11.9 メールボックスとしてのリスト
+</h2>
+
+<blockquote>
+リスト変数は、スレッド間でデーターを送受するのに使用出来ます。
+以下の、メンバー関数がこの目的で使用できます。
+<ul>
+<li>
+receive()</li>
+
+<br>
+もし、リストが空でない場合、リストの最後尾の要素を取り出して返します。
+もし、リストが空の場合、呼び出しスレッドの実行は中断され、FIFOキュー
+で待ち状態となります。タイムアウトが検出されると、数値データの場合
+０(ゼロ)、それ以外の場合 null が返されます。
+<li>
+send( data )</li>
+
+<br>
+この関数は、リストの先頭にデータを付加します。もし、データを待っている
+スレッドがいた場合、データはキューの先頭のスレッドに渡され、そのスレッド
+は実行可能となります。
+<li>
+num_element()</li>
+
+<br>
+この関数は、リスト内にいくつの要素が存在するかを返します。この関数を
+用いれば、リストが空の場合に待つことを避けるようなコードを書くことが
+容易に出来ます。
+<li>
+timeout( int cycle )</li>
+
+<br>この関数は、タイムアウトの指定を行います。ゼロを設定した場合タイムアウト
+は検出されません。
+</ul>
+例:
+<ul><font face="Courier New,Courier"><font size=-1>int in_queue&lt;> ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int out_queue&lt;> ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int max_in = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int max_out = 0 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>..</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void process_loop() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int dly ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; id
+= in_queue.receive() ; // assume someone is sending</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"Got task id %d at %d\n", id, get_cycle() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; dly
+= randmt() % 10 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @dly
+; // random delay of u[0:9]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; out_queue.send(
+id ) ;&nbsp; // this job is done,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// also assume someone is receiving</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>// this loop record the
+max queue size</font></font>
+<br><font face="Courier New,Courier"><font size=-1>void check_max_loop()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int n ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+; //delay one cycle</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; n
+= in_queue.num_element() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+n > max_in ) max_in = n ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; n
+= out_queue.num_element() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+n > max_out ) max_out = n ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>..</font></font>
+<br>&nbsp;</ul>
+</blockquote>
+
+<h2>
+<a NAME="11.10 List as Region"></a>
+11.10 リージョンとしてのリスト
+</h2>
+
+<blockquote>
+リスト変数は、多値排他制御機構であるリージョンとして使用することが出来ます。
+以下のメンバー関数がこの目的のために使用できます。
+<ul>
+<li>
+enter( data [, data .. ] )</li>
+
+<br>
+この関数は、対象となるリストのデータタイプと同じ引数を一つ以上受けます。
+関数は、引数のデータのいずれかが、すでにリスト内に存在するかをチェック
+します。もし、全ての引数がリストに存在しない場合、関数は、引数を
+リストに付加し、１を返します。
+もし、引数と同じデータがリスト内に存在した場合、呼び出したスレッドは
+FIFOキューで、上記の条件が真となるまで、待ち状態となります。
+もし、タイムアウトが検出されると、引数をリストに付加することなく、
+０が呼び出し側に返されます。
+<li>
+check_enter( data [, data .. ] )</li>
+
+<br>
+この関数は、待ちを行わないenter()関数です。もし、引数がすべてリスト内に
+存在しない場合、引数をリストに付加し、１を返します。
+もし、引数が存在する場合、なにもせず直ちに０を返します。
+<li>
+exit( data, [, data ..] )</li>
+
+<br>
+この関数は、対象となるりすとのデータタイプの引数を一つ以上受け取り、
+それらの引数をリストから除去します。もし、スレッドがキュー内で待ち状態
+の場合、これらのスレッドのenter条件を、順次FIFOキューの先頭からチェックし
+条件が満たされたスレッドでは、引数をリストに付加して、enter()関数が１を
+返します。
+ここで、スレッドのキューはFIFOベースですが、スレッドの開放は、条件が
+整ったものから順次行われますので、実際の開放はFIFOの順序とはことなる
+場合があります。
+<li>
+timeout( int cycle )</li>
+
+<br>
+この関数は、タイムアウト値を設定します。ゼロが指定されると、タイムアウトは
+検出されません。
+</ul>
+例:
+<blockquote><font face="Courier New,Courier"><font size=-1>// Random memory
+write read test with a bunch of threads</font></font>
+<br><font face="Courier New,Courier"><font size=-1>bit [31:0] addr_region&lt;>
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>semaphore bus_sem =
+new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void mem_test( bit [31:0]
+addr, bit [31:0] data ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int dly ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; dly = ( randmt
+% 500 ) + 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @dly ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; addr_region.enter(
+addr ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // make sure
+no one is using this address</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // first writing
+data to memory</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_sem.get()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_addr.0 =
+addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_data.0 =
+data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_rd.0 = 1'b0
+; // wr</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_strb.0 =
+1'b1 ; //</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1 bus_strb.0
+= 1'b0 ; // negate strb next cycle</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_sem.put()
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; dly = (randmt()
+% 500) + 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @dly ;&nbsp;
+// random delay of u[1,500]</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; bus_sem.get()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_addr.0 =
+addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_rd.0 = 1'b1
+; // rd</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_strb.0 =
+1'b1 ; //</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1 bus_strb.0
+= 1'b0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( bus_data.0
+!= data ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; error(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Mem error at %h (%h != %h) , wr at&nbsp; %d, rd at %d\n",</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+address, data, bus_data.0, get_cycle() - dly, get_cycle()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; )
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_sem.put()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; add_region.exit(
+addr ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>main() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; repeat(1000)
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; memtest(
+urandmt(), urandmt() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; thread_join()
+; // wait all the thread are completed.</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+<blockquote>
+<blockquote>&nbsp;</blockquote>
+</blockquote>
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+  
+function_call_expression:
+  varport_expression '(' opt_actual_arguments ')'  
+  ;
+
+opt_actual_arguments:
+  /* empty */
+  |
+  actual_arguments
+  ;
+  
+actual_arguments:
+  actual_argument 
+  |
+  actual_arguments ',' actual_argument
+  ;
+  
+actual_argument:
+  expression 
+  |
+  '*'
+  ;
+
+/***********************************
+ *  new
+ ***********************************/

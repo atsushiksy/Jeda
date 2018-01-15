@@ -1,0 +1,19 @@
+	../../../gcc-2.95.2/texinfo/info/echo-area.c \
+	../../../gcc-2.95.2/texinfo/info/footnotes.c \
+	../../../gcc-2.95.2/texinfo/info/footnotes.h \
+	../../../gcc-2.95.2/texinfo/info/indices.c \
+	../../../gcc-2.95.2/texinfo/info/info.c \
+	../../../gcc-2.95.2/texinfo/info/info.h \
+	../../../gcc-2.95.2/texinfo/info/infodoc.c \
+	../../../gcc-2.95.2/texinfo/info/m-x.c \
+	../../../gcc-2.95.2/texinfo/info/makedoc.c \
+	../../../gcc-2.95.2/texinfo/info/nodemenu.c \
+	../../../gcc-2.95.2/texinfo/info/session.c \
+	../../../gcc-2.95.2/texinfo/info/tilde.c \
+	../../../gcc-2.95.2/texinfo/info/variables.c \
+	../../../gcc-2.95.2/texinfo/info/window.c \
+	../../../gcc-2.95.2/texinfo/lib/getopt.c \
+	../../../gcc-2.95.2/texinfo/makeinfo/makeinfo.c \
+	../../../gcc-2.95.2/texinfo/makeinfo/multi.c \
+	../../../gcc-2.95.2/texinfo/util/install-info.c \
+	../../../gcc-2.95.2/texinfo/util/texindex.c

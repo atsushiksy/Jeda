@@ -1,0 +1,131 @@
+<html>
+<head>
+</head>
+<body>
+<a href="portset.html">prev</a> : <a href="index.html">index</a> : <a href="manage_if_driver.html">next</a>
+<p><font size=+1>6. セルとセルキューのクラス
+</font>
+<ul>
+この章では、基本的なデータ構造の構成と、そのデータをキュー(FIFO)に
+する方法を示します。
+<p>セルのデータ構造はATMスイッチの設計検証においての重要な要素です。
+DUTに送られたセルは、正当な転送が行なわれているかを検証するために、
+キューの内部に保持する必要があります。
+設計検証での必要性から考えて、キューをインデックスで指定できるような
+配列とすることができると、非常に便利です。
+こうした、基本的なデータ構造をもつクラスは、
+<a href="../utils/cell_classes_0.j">cell_classes_0.j</a>
+で、宣言されています。
+<br>&nbsp;
+<p>
+セルのクラスは、ATMセルの５３バイトのデータ、HECエラーを示す'err'フラグ
+(このセルは、破棄される)を、メンバー変数としてもちます。
+<br>
+このクラスには、スタティック変数 'syndrom[256]'があり、HECの計算に使用
+されます。このスタティック変数は、イニシャルブロック内で、シミュレーション
+の開始時に初期化されます。
+このHEC計算関数 'hec()'は、Verilogモデルが実行していることと同じものを、
+単に記述したものです。(このインプリメンテーションが正しいものか
+を検証することは、ここではあまり重要ではないと考えました。)
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class cell_class {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bit [7:0] data[53]
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int err ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; static bit [7:0]
+syndrom[256] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; initial {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[7:0] sndrm ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 256 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+sndrm = i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+repeat(8) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( sndrm[7] === 1'b1 )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+sndrm = (sndrm&lt;&lt;1) ^ 8'h07 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+else</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+sndrm = sndrm &lt;&lt; 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+syndrom[i] = sndrm ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// printf( "j syndrom[%d] = %h\n", i, sndrm ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>..</font></font>
+<br>&nbsp;</ul>
+
+<p><br>
+セルクラスのメンバー関数 set_hec() が HEC値を計算して、セル内の適切な
+位置に代入します。
+<br>メンバー関数 set_hec_err() は、その値を壊し、エラーセルであることを
+しめす err フラグをセットします。
+<p>
+このセルの基本クラスを元に、セルキューの配列を保持できるクラスを構成
+することが出来ます。これは、２レベルのクラスを用いて、構成されます。
+<p>
+まず、single_cell_queueクラスで、セルクラスのリストである変数 que が
+宣言されます。リストデータは、メールボックスとして利用することができます。
+メールボックスは、Jedaに組み込まれたFIFOとして動作する基本機能です。
+もし、単に一つのキューが必要な場合には、このようなクラスを作成する必要は
+ありません。(直接、リストを宣言すれば良い。) ここでは、次のレベルで
+配列として用いることが出来るように、宣言されています。
+<ul>&nbsp;
+<br><font face="Courier New,Courier"><font size=-1>class single_cell_queue
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; cell_class que&lt;>
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;
+<br>&nbsp;</ul>
+次のレベルで、cell_queue_arrayクラスは、single_cell_queueクラスの
+アソシエイテブ配列をメンバーに持ち、num_arrayが配列のサイズを示します。
+コンストラクタ関数 new() は、配列のサイズを指定する引数 num を受け取り
+必要なサイズの配列を設定します。
+<ul>&nbsp;
+<br><font face="Courier New,Courier"><font size=-1>class cell_queue_array
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; single_cell_queue
+que[] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int num_array
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void new( int
+num ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; num_array
+= num ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; num ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+que[i] = new ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>..</font></font>
+<br>&nbsp;</ul>
+
+<p><br>
+このクラスのメンバー関数 'send()'、'receive()'、'num_element()'は、
+Jedaが提供するリストデータのメンバー関数と同様のものです。
+クラスのレベルでは、単に配列の要素を取り出すことのみを行なっています。
+</ul>
+<a href="portset.html">prev</a> : <a href="index.html">index</a> : <a href="manage_if_driver.html">next</a>
+</body>
+</html>
+
+
+
+

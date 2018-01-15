@@ -1,0 +1,339 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_func_dcl.html">Prev</a>
+| <a href="jeda_statement.html">Next</a>
+<h1>
+7. Expression</h1>
+
+<blockquote>Expression is the mechanism to express the data value in Jeda
+program.</blockquote>
+
+<h2>
+<a NAME="7.1 Operators"></a>7.1 Operators</h2>
+
+<blockquote>Jeda's operators are similar to C, Verilog, and Java, but it
+has some unique operators such as ?==.
+<p>Here's the Jeda operators in order of precedence:
+<br>&nbsp;
+<blockquote><b>level&nbsp;&nbsp; operators&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+operation</b>
+<br>1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+member selection
+<br>2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ++&nbsp;&nbsp;
+--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+post increment/decrement
+<br>3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ++&nbsp;&nbsp;
+--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pre increment/decrement
+<br>4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~&amp;&nbsp;
+&amp;~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary nand
+<br>4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~|&nbsp;&nbsp;&nbsp;
+|~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary nor
+<br>4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~^&nbsp;&nbsp;
+^~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary neor
+<br>5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~&amp;&nbsp;
+&amp;~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary nand
+<br>5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~|&nbsp;&nbsp;&nbsp;
+|~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary nor
+<br>5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~^&nbsp;&nbsp;
+^~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary neor
+<br>6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+logical not
+<br>6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+bitwise not
+<br>7L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; /&nbsp;
+%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary multiply, divide, modulo
+<br>8L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +&nbsp;&nbsp; -&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary add, substruct
+<br>9L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;&lt;&nbsp; >>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+left shift, signed right shift,
+<br>9L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; >>>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unsigned right shift
+<br>10L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; >&nbsp; >=&nbsp;&nbsp; &lt;&nbsp;&nbsp;
+&lt;=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+comparators
+<br>11L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =:=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mask compare
+<br>12L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary and
+<br>13L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary and
+<br>14L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary eor
+<br>15L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary eor
+<br>16L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary or
+<br>17L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary or
+<br>18L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;&amp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+logical and
+<br>19L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ||&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+logical or
+<br>20R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ? :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+conditional
+<br>21R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =&nbsp; +=&nbsp; -=&nbsp; /=&nbsp;
+%=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; assignment
+<br>22R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; >>= >>>= &lt;&lt;=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+shift assignment
+<br>22R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;=&nbsp; |=&nbsp; ^=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+and, or, eor assignment
+<br>22R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~&amp;=&nbsp; &amp;~=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+nand assignment
+<br>22R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~|=&nbsp;&nbsp;&nbsp; ~|=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+nor assignment
+<br>22R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~^=&nbsp;&nbsp; ^~=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+neor assignment</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="7.2 Special compare operators"></a>7.2 Special compare operators</h2>
+
+<blockquote>Special comparators are used to compare bit value with mask
+conditions.
+<p>There are three types of comparison that ignore the fields with <b>x</b>
+or <b>z</b> values.
+<ul>
+<li>
+&lt;left_expression> =?= &lt;right_expression></li>
+
+<br>'=?=' operator comares left and right expression, but masks any bit
+ield that contains x or z on both side.</ul>
+
+<ul>
+<li>
+&lt;left_expression> ?== &lt;right_expression></li>
+
+<br>'?==' only masks x and z on left hand side. It returns false if x or
+z is found on those masked bit field on right hand side.
+<br>&nbsp;
+<li>
+&lt;left_expression> ==? &lt;right_expression></li>
+
+<br>'==?' only masks x and z on right hand side.</ul>
+Also note how x's and z's are treated for the above comparision types
+<blockquote>=?=&nbsp;&nbsp; --&nbsp; x and z on either side will be ignored
+<br>?==&nbsp;&nbsp; --&nbsp; x and z on left side will be ignored
+<br>==?&nbsp;&nbsp; --&nbsp; x and z on right side will be ignored</blockquote>
+
+<p><br>Masked comparison takes the following form:
+<ul>
+<li>
+&lt;left_expression> =:= &lt;right_expression> : &lt;mask_expression></li>
+
+<br>This expression can be used to specify the masked comparison without
+using x or z value. (This will be useful to write code that works on 2-value
+mode.)</ul>
+</blockquote>
+
+<h2>
+<a NAME="7.3 Timed Expression"></a>7.3 Timed Expression</h2>
+
+<blockquote>Any Jeda expression evaluation can be associated with a cycle
+element which we will call <i>timed expression</i>. Timed expression has
+the following format, and return 1 (for true) or 0 (for false) value. Also
+note that expressions can be chained, i.e. multiple expressions can be
+evaluated using the same time_element.
+<blockquote>&lt;time_element> '(' &lt;expression> ( ',' &lt;expression>
+)*&nbsp; ')'</blockquote>
+&lt;time_element> is defined as follows
+<blockquote>@delay [ , window ] [ &lt;clock_edge_spec> ]
+<blockquote>wait for delay cycle, then seek for the expression becomes
+true within given window cycle. When window is ommitted, window = 0 is
+used.</blockquote>
+
+<p><br>@@delay[ , window ] [ &lt;clock_edge_spec> ]
+<blockquote>wait for delay cycle, then check that the expression is true
+throughout&nbsp; the window cycle. When window is ommitted, window = 0
+is used.</blockquote>
+</blockquote>
+&lt;clock_edge_spec> is the option to specify which clock edge to use.
+Its defined as follows:
+<blockquote>'(' &lt;edge_spec> &lt;port or signal variable expresion> ')'
+<blockquote>&lt;edge_spec> can be '<i>posedge</i>', '<i>negedge</i>', or
+'<i>bothedge</i>'. If omitted, the clock edge used to count the number
+of cycles is determined by the left most expression starting from the &lt;time_element>.
+<br>The expression is checked from left to right, and if <i>signal</i>
+(or <i>port</i>) value access ( signal with depth, e.g. sig.0 ) is found,
+it uses the sampling clock of the <i>signal</i> (or <i>port</i>). When
+no such expression is detected, CLOCK signal is used.</blockquote>
+&nbsp; Example:
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp; if( @0,100(
+sigs.a.0 == 2'b00 ) )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "zee!\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp; if( !@0,100(
+sigs.a.0 == 2'b01 ) )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;
+error( "sig.a.0 != 2'b01\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1></font></font>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="Pallarel Timed Expression"></a>7.4 Pallarel Timed Expression</h2>
+
+<blockquote>The timed expressions can be evaluated concurrently with the
+parallel timed primitives p_and and p_or.
+<br>&nbsp;
+<h3>
+<a NAME="p_and Expression"></a>7.4.1 p_and Expression</h3>
+
+<blockquote>&nbsp;p_and takes one or more timed expressions and evaluate
+them parallelly, and return a int value, 1 or 0 corresponds to true or
+faulse of the evaluation.&nbsp; p_and returns 1 when all the listimed expressions
+are true. Otherwise, it returns 0. It returns 0 immediately when one of
+the timed expressions becomes 0(faulse), without waiting for the result
+of other expressions.
+<blockquote>if( p_and( @0,5( p.vld == 1'b1), @0,5( p.a == 4'b1110) ) )
+..</blockquote>
+Note that the evaluation of each timed expression is done individually.
+Thus, return value of 1 from the p_and primitive means that all the timed
+expressions are observed to be true in the given (individual) evaluation
+period. It does not guarantee that those true observations happen at the
+same cycle.</blockquote>
+
+<h3>
+<a NAME="p_or Expression"></a>7.4.2 p_or Expression</h3>
+
+<blockquote>p_or takes one or more timed expression and evaluate them parallelly.
+It returns a int value, 1 or 0 corresponds to true or faulse of the evaluation.
+p_or returns 1 when one of the listed expression is true. Otherwise, it
+returns 0. It returns 1 immediately when one of the timed expressions becomes
+1, without waiting for the result of other expressions.
+<blockquote>if( p_or( @0,5( p.a == 4'b0110), @0,5( p.a == 4'b1110) ) )
+..</blockquote>
+</blockquote>
+This anding and oring operation are logical operation that the evaluation
+complete when the result is deterministic. For example, any one of the
+p_and term becomes 0, it immediately finish the evaluation and returns
+0. The similar case in p_or, that one of the evaluation becomes 1, it immediately
+returns 1. Uncompleted evaluation stays in the system, and discarded when
+it finished.</blockquote>
+
+<h2>
+<a NAME="7.3 Other expressions"></a>7.5 Other expressions</h2>
+
+<blockquote>The following expressions are supported in Jeda. Expression
+related to class and port are explained in the later chapters.
+<h3>
+<a NAME="7.3.1 Null Expression"></a>7.5.1 Null Expression</h3>
+
+<blockquote>Null expression represents the empty status of non-number expression.
+<blockquote><font face="Courier New,Courier">string s ;</font>
+<p><font face="Courier New,Courier">if ( s == null ) ..</font></blockquote>
+Note that Jeda handles null string and "" (empty-string) different objects
+(not-equal), though both returns 'false' when it is referenced directly
+in if statement. See the following example code. All the if statement expressions
+must become 'false'.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">string s ;</font>
+<p><font face="Courier New,Courier">s = null ;</font>
+<p><font face="Courier New,Courier">if( s ) error( "null becomes true\n"
+) ;</font>
+<br><font face="Courier New,Courier">if( s == "" ) error( "null matches
+empty string\n" ) ;</font>
+<p><font face="Courier New,Courier">s = "" ;</font>
+<p><font face="Courier New,Courier">if( s ) error( "empty string becomes
+true\n" ) ;</font>
+<br><font face="Courier New,Courier">if( s == null ) error( "empty string
+matches null\n" ) ;</font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<h3>
+<a NAME="7.3.2 Increment and Decrement Expression"></a>7.5.2 Increment
+and Decrement Expression</h3>
+
+<blockquote>As C, post and pre increment/decrement can be used in Jeda.
+<blockquote><font face="Courier New,Courier">int i</font>
+<p><font face="Courier New,Courier">if ( ++i ) ..</font>
+<br><font face="Courier New,Courier">if ( --i ) ..</font>
+<br><font face="Courier New,Courier">if ( i++ ) ..</font>
+<br><font face="Courier New,Courier">if ( i-- ) ..</font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<h3>
+<a NAME="7.3.3 Concatenation Expression"></a>7.5.3 Concatenation Expression</h3>
+
+<blockquote>Verilog style concatination can be used to merge bit or string
+values.
+<blockquote><font face="Courier New,Courier">a = {3'b001, b[3:1], 1'b0,
+b[0] } ;</font>
+<p><font face="Courier New,Courier">str = {"bill","sux"} ;</font></blockquote>
+The following form repeats the pattern with given number of times.
+<blockquote><font face="Courier New,Courier">&nbsp; { &lt;num> { &lt;pattern>
+}}</font>
+<p><font face="Courier New,Courier">a = {10{3'b010}} ;</font>
+<p><font face="Courier New,Courier">str = {5{"woops!"}} ;</font></blockquote>
+</blockquote>
+
+<h3>
+<a NAME="7.3.3 List Expression"></a>7.5.3 List Expression</h3>
+
+<blockquote>A list of various data type can be created with '{ } (quoted
+bracket).
+<blockquote><font face="Courier New,Courier">int ilist&lt;> ;</font>
+<p><font face="Courier New,Courier">ilist = '{ 0, 1, 2, 3, 4, 5, 6, 7 }
+;</font></blockquote>
+All the enumerated members within '{ } must be the same type.</blockquote>
+
+<h3>
+<a NAME="7.3.3 Variable Expression"></a>7.5.3 Variable Expression</h3>
+
+<blockquote>Access to a variable is done by name. An element of the array
+is accessed with index. If array data is referenced without index, entire
+array is accessed.
+<blockquote><font face="Courier New,Courier">int i ;</font>
+<br><font face="Courier New,Courier">int ia[5], ib[5] ;</font>
+<p><font face="Courier New,Courier">i = 0 ;</font>
+<p><font face="Courier New,Courier">ia[0] = 2 ;</font>
+<br><font face="Courier New,Courier">ib = ia ;&nbsp; // entire array copy</font></blockquote>
+Sub bit field of bit data can be accessed with bit index. Unlike Verilog,
+sub bit of bit array can be accessed directly.
+<blockquote><font face="Courier New,Courier">bit [7:0] vec_a ;</font>
+<br><font face="Courier New,Courier">bit [7:0] vec_ary[] ;</font>
+<p><font face="Courier New,Courier">vec_a[6] = 1'b0 ; // single sub bit</font>
+<br><font face="Courier New,Courier">vec_a[2:0] = 3'b000 ; // multi bit</font>
+<p><font face="Courier New,Courier">vec_ary[4][0] = 1'b0 ; // index 4,
+bit 0</font>
+<br><font face="Courier New,Courier">vec_ary[2][7:6] = 2'b11 ; //index
+2,but[7:6]</font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<h3>
+<a NAME="7.3.3 Function Call Expression"></a>7.5.3 Function Call Expression</h3>
+
+<blockquote>Function call with non-void type can be an expression.
+<blockquote><font face="Courier New,Courier">int foo( int x ) {</font>
+<br><font face="Courier New,Courier">&nbsp; return x ;</font>
+<br><font face="Courier New,Courier">}</font>
+<p><font face="Courier New,Courier">main() {</font>
+<br><font face="Courier New,Courier">&nbsp; int y ;</font>
+<p><font face="Courier New,Courier">&nbsp; y = foo(0) ;&nbsp; // expression
+foo()</font>
+<p><font face="Courier New,Courier">&nbsp; if( foo(3) ) ..</font>
+<p><font face="Courier New,Courier">}</font></blockquote>
+See <a href="jeda_func_dcl.html#6.3 Default Argument">6.3 Default Argument</a>
+for handling default value on the function call.</blockquote>
+</blockquote>
+
+</body>
+</html>

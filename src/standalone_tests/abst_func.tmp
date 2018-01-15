@@ -1,0 +1,12 @@
+calling foox.call_bar
+my_call_bar
+calling foox.bar
+class foo1.bar( 1 )
+calling foo1x.call_bar
+my_call_bar
+calling foo1x.bar
+class foo1.bar( 1 )
+calling foo2x.call_bar
+my_call_bar
+calling foo2x.bar
+class foo2.bar( 1 )

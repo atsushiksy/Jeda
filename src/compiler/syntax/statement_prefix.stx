@@ -1,0 +1,39 @@
+
+opt_statement_prefix:
+  /* empty */
+  |
+  cycle_element
+  |
+  label
+  |
+  label cycle_element
+  ;
+
+label:
+  Identifier ':'
+  ;
+  
+cycle_element:
+  '@' opt_expression opt_clock_definition 
+  ;
+  
+opt_clock_definition:
+  /* empty */
+  |
+  '(' edge_specification  port_expression ')'
+  ;
+  
+edge_specification:
+  'posedge' 
+  |
+  'negedge' 
+  |
+  'bothedge' 
+  |
+  /* empty */
+  ;
+
+port_expression:
+  varport_expression 
+  ;
+

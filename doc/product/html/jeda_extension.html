@@ -1,0 +1,173 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+
+<h1>
+<a href="index.html">Contents</a> | <a href="jeda_example.html">Prev</a></h1>
+
+<h1>
+18. Language Extension</h1>
+
+<blockquote>The user can extend the Jeda language by defining system functions
+or system class. The system function and system class are declared in $JEDA_HOME/include/jeda_utils.jh.
+This file is always parsed before the user's source is compiled by jedacmp.
+<br>The compiled version of the system function/class definition (usually
+$JEDA_HOME/include/jeda_utils.jo) is used by jedalnk as well.
+<p>Additional util files can be addes with "<font face="Courier New,Courier">-U
+&lt;util></font>" option to jeda script. With this option, jeda runs jedacmp
+with the option -U &lt;util>.jh, and jedalnk with the option -JL_U &lt;util>.jo.
+User can specify -U option multiple times.
+<p>In order to create the user defined util functions and/or classes, the
+user should:
+<ul>
+<li>
+Write the definition file (&lt;util>.jh) as the Jeda source. The formal
+argumjent (explained below) can be used to specify the function arguments
+in a flexible way.</li>
+
+<li>
+Run jedacmp to compile the definition file (&lt;util>.jh) with -X option.
+This will produce the compiled version of the definition file (&lt;util>.jo).W</li>
+
+<li>
+Write C code (.c) that contains the body of the user defined functions
+and/or classes. See 17.2 for the name relation between function/class and
+C function.</li>
+
+<li>
+Specify the source or compiled object of the C code explained above when
+running jeda script for linking.</li>
+</ul>
+Note: This mechanism is actually used to implement all the system class
+and function described above. The C code that implements those functions
+are found in core_sys_funcs.c, random.c, string.c and regexp_exec.c. Those
+files are good example of how things can be done.</blockquote>
+
+<h2>
+18.1 Formal function argument</h2>
+
+<blockquote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For the user defined functions
+(which body is implemented with C), the regular expression mechanism can
+be used to specify the argument list.
+<br>The following structures are supported:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-- matches any type of one argument
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( &lt;arg_list> )*&nbsp;&nbsp;
+-- matches zero or more of given argument list
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( &lt;arg_list> )+&nbsp;&nbsp;
+-- matches one or more of given argument list
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( &lt;arg_list> )|&nbsp;&nbsp;
+-- matches one of the argument in the given list
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ &lt;arg_list> ]&nbsp;&nbsp;&nbsp;
+-- matches zero or one of given argument list
+<p>For example, printf argument can be specified as:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+printf( string format ( , ? )* ) ;</font>
+<p>Note that the compiler only checks the formal correctness of the the
+argument at the compile time. The user function need to implement the detailed
+check mechanism.
+<br>&nbsp;</blockquote>
+
+<h2>
+18.2 Name relation between Jeda definition and C function</h2>
+
+<blockquote>When a system function "<font face="Courier New,Courier">foo()</font>"
+is created in Jeda, the linker assumes that there's the corresponding C
+function <font face="Courier New,Courier">JD_sf_foo()</font>.
+<p>When a system class <font face="Courier New,Courier">bar</font>, and
+class function <font face="Courier New,Courier">boo</font> is declared,
+the linker assumes:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+*JD_sa_bar()</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- allocate the class
+(called before new is called)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+JD_sd_bar()</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- deallocate the
+class (called at garbage collection)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+*JD_dup_bar( void *dt )</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- create the duplication
+of the class, called when clone flag is set
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+and thread if being forked.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+JD_sc_bar_mf_new( void *dt )</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- new function, called
+after the allocation
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+JD_sc_bar_mf_boo( void *dt )</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- the user defined
+function
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char *<font face="Courier New,Courier">JD_disp_bar(
+char *indent, void *dt, char eol )</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- display function
+that returns the allocated string that shows the contents of the data.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+'indent' is used for indentation that should be at the beginning of the
+string
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+'eol' should be used as the newline
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The data will be freed by the caller.</blockquote>
+
+<h2>
+18.3 Argument, returning value</h2>
+
+<blockquote>In order to write C code that talks to the Jeda code (Compiled
+user Jeda code), the macro definition file "exec_macro.h" contains some
+useful macro definitions. This file can be found in &lt;jeda source release>/src/include
+directory.
+<br>Arguments are passed via Jeda execution stack. To access it, use macro
+<font face="Courier New,Courier">GET_STACK(n)</font>
+where n is the offset from the top.
+<br>Number of argument is given to the variable <font face="Courier New,Courier">NUM_ARG</font>,
+so to get the access to the i-th argument (start from 0), use <font face="Courier New,Courier">NUM_ARG-i-1</font>,
+as:
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>JD_data *dt
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>dt = GET_STACK( NUM_ARG-i-1
+) ;</font></font></blockquote>
+Note that this 'dt' can't be simply used as a pointer to the data. Jeda
+core sometimes optimize it to represent a small integer by setting bit
+0 of the pointer (odd address). Accessing such a small integer form as
+a pointer will cause bus error. (It can't even be debugged on SPARC system)
+To handle the small integer, macro IS_SMLINT(x), SMLINT2INT(x) can be used:
+<blockquote><font face="Courier New,Courier"><font size=-1>JD_data *dt
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int value ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( IS_SMLINT( dt ) )
+value = SMLINT2INT(dt) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>else {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; switch( dt->type
+) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+
+<p><br>Returning values are done via ACC. To return an integer value 100
+can be done as:
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>ACC_TYPE = JD_D_int
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>ACC_INT = 100 ;</font></font></blockquote>
+
+<p><br>To return a string "foo":
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>ACC_TYPE =&nbsp;
+JD_D_string ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>ACC_STRING = (char *)sturdup("foo")
+;</font></font></blockquote>
+
+<p><br>Accessing more complicated data structure, returning non-integer
+value can be done. But doing such requires the enough knowledge of internal
+Jeda execution structure.
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

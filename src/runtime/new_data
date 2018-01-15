@@ -1,0 +1,1051 @@
+#ifdef JD_REFCOUNT_GC
+#define JD_REFCOUNT_MASK       0x0000ffff
+#define REFCNT(d)  (d->flags_life & JD_REFCOUNT_MASK)
+#define REFCNTFULL(d) ((d->flags_life & JD_REFCOUNT_MASK)==JD_REFCOUNT_MASK)
+#define REFCNTNOTFULL(d) ((d->flags_life & JD_REFCOUNT_MASK)<JD_REFCOUNT_MASK)
+#define REFCNTINC(d) \
+  d->flags_life = (d->flags_life & ~JD_REFCOUNT_MASK) |  \
+  (((d->flags_life & JD_REFCOUNT_MASK)+1)&JD_REFCOUNT_MASK)
+#define REFCNTDEC(d) \
+  d->flags_life = (d->flags_life & ~JD_REFCOUNT_MASK) |  \
+  (((d->flags_life & JD_REFCOUNT_MASK)-1)&JD_REFCOUNT_MASK)
+#endif
+
+
+Use 16bit reference counter
+count how many full reference objects
+Run mark sweep when no data is available
+Increase the space as the mark sweep result
+Forget about life count and generation
+
+
+JD_data *JD_pop_stack() {
+  JD_data *ret ;
+  
+  if( VSP ) {
+    if( VS_TOP ) VS_TOP-- ;
+    else VS_TOP = VSP_LIMIT-1 ;
+    VSP-- ;
+    ret = JD_alloc_data_entry() ;
+    JD_copy_dt( ret, VSTACK[VS_TOP] ) ;
+    VSTACK[VS_TOP]->sub_type = JD_SD_single ;
+#ifdef NOTIFY_GC_STATUS
+    if( ret->type == JD_D_int )
+      JD_pop_stack_int_num++ ;
+#endif
+#ifdef VSTACK_PROFILE
+    VSTACK_HIT++ ;
+#endif
+  }
+  else {
+    ret = STACK[--SP] ;
+    if( IS_SMLINT(ret) ) {
+      int i ;
+      i = SMLINT2INT(ret) ;
+      ret = JD_alloc_data_entry() ;
+      ret->type = JD_D_int ;
+      ret->data.int_value = i ;
+      ret->sub_type = JD_SD_single ;
+    }
+#ifdef VSTACK_PROFILE
+    VSTACK_MISS++ ;
+#endif
+  }
+  return ret ;
+}
+
+void JD_up_stack() {
+  
+  if( VSP ) {
+    if( VS_TOP ) VS_TOP-- ;
+    else VS_TOP = VSP_LIMIT-1 ;
+    VSP-- ;
+    VSTACK[VS_TOP]->sub_type = JD_SD_single ;
+#ifdef VSTACK_PROFILE
+    VSTACK_HIT++ ;
+#endif
+  }
+  else {
+    SP-- ;
+#ifdef VSTACK_PROFILE
+    VSTACK_MISS++ ;
+#endif
+  }
+}
+
+int JD_pop_stack_int() {
+  int ret ;
+  JD_data *dt ;
+  
+  if( VSP ) {
+#ifdef VSTACK_PROFILE
+    VSTACK_HIT++ ;
+#endif
+    if( VS_TOP ) VS_TOP-- ;
+    else VS_TOP = VSP_LIMIT-1 ;
+    VSP-- ;
+    return VSTACK[VS_TOP]->data.int_value ;
+  }
+  else {
+    dt = STACK[--SP] ;
+    if( IS_SMLINT(dt) ) 
+      ret = SMLINT2INT(dt) ;
+    else
+      ret = dt->data.int_value ;
+#ifdef ENABLE_JEDA_DATA_CACHE
+    JD_dealloc_data_on_cache(dt, STACK[SP-1]) ;
+#endif
+#ifdef VSTACK_PROFILE
+    VSTACK_MISS++ ;
+#endif
+  }
+  return ret ;
+}
+
+void JD_pop_bit_to_accb() {
+  int size, i, n ;
+  JD_data *dt ;
+  
+  if( VSP ) {
+#ifdef VSTACK_PROFILE
+    VSTACK_HIT++ ;
+#endif
+    if( VS_TOP ) VS_TOP-- ;
+    else VS_TOP = VSP_LIMIT-1 ;
+    VSP-- ;
+    if( VSTACK[VS_TOP]->type == JD_D_sbit ) {
+      ACCB_A[0] =  VSTACK[VS_TOP]->data.sbit.a ;
+      ACCB_B[0] =  VSTACK[VS_TOP]->data.sbit.b ;
+      ACCB_SIZE = VSTACK[VS_TOP]->data.sbit.size ;
+    }
+    else {
+      ACCB_SIZE =  VSTACK[VS_TOP]->data.bit.size ; ;
+      n = LASTWORD(ACCB_SIZE) ;
+      if( ACCB_WD < n ) { 
+        ACCB_A = (unsigned int *)realloc( ACCB_A, NBYTE(ACCB_SIZE) ) ; 
+        ACCB_B = (unsigned int *)realloc( ACCB_B, NBYTE(ACCB_SIZE) ) ; 
+        ACCB_WD = n ;
+      } 
+      for( i = 0 ; i <= n ; i++ ) {
+        ACCB_A[i] = VSTACK[VS_TOP]->data.bit.a[i] ;
+        ACCB_B[i] = VSTACK[VS_TOP]->data.bit.b[i] ;
+      }
+    }
+  }
+  else {
+    dt = STACK[--SP] ;
+    if( dt->type == JD_D_sbit ) {
+      ACCB_A[0] =  dt->data.sbit.a ;
+      ACCB_B[0] =  dt->data.sbit.b ;
+      ACCB_SIZE = dt->data.sbit.size ;
+#ifdef ENABLE_JEDA_DATA_CACHE
+      JD_dealloc_data_on_cache(dt, STACK[SP-1]) ;
+#endif
+    }
+    else {
+      ACCB_SIZE =  dt->data.bit.size ; ;
+      n = LASTWORD(ACCB_SIZE) ;
+      if( ACCB_WD < n ) { 
+        ACCB_A = (unsigned int *)realloc( ACCB_A, NBYTE(ACCB_SIZE) ) ; 
+        ACCB_B = (unsigned int *)realloc( ACCB_B, NBYTE(ACCB_SIZE) ) ; 
+        ACCB_WD = n ;
+      } 
+      for( i = 0 ; i <= n ; i++ ) {
+        ACCB_A[i] = dt->data.bit.a[i] ;
+        ACCB_B[i] = dt->data.bit.b[i] ;
+      }
+    }
+#ifdef VSTACK_PROFILE
+    VSTACK_MISS++ ;
+#endif
+  }
+}
+
+
+JD_data *JD_get_stack(int x) {
+  JD_data *ret ;
+  
+  if( VSP >= x ) {
+    if( VS_TOP >= x ) ret = VSTACK[VS_TOP - x] ; 
+    else ret = VSTACK[VSP_LIMIT + VS_TOP - x] ;
+  }
+  else {
+    ret = STACK[SP-(x-VSP)] ;
+  }
+  return ret ;
+}
+
+void JD_push_vstack( JD_data *data ) {
+  /**MACRO EXEC_PUSH_VSTACK**/
+  {
+    if(VSP==VSP_LIMIT) {  /* vstack full, flush one entry */
+      JD_data *dt ;
+      if( FITSMLINT(VSTACK[VS_TOP]) ) {
+        dt = GENSMLINT(VSTACK[VS_TOP]) ;
+#ifdef NOTIFY_GC_STATUS
+          JD_vstack_ovflw_smlint_num++ ;
+#endif
+      }
+      else {
+        dt = JD_alloc_data_entry() ;
+        JD_copy_dt( dt, VSTACK[VS_TOP] ) ;
+#ifdef NOTIFY_GC_STATUS
+        if( dt->type == JD_D_int )
+          JD_vstack_ovflw_int_num++ ;
+        else 
+          JD_vstack_ovflw_nonint_num++ ;
+#endif
+#ifdef JEDA_DATA_TRACE
+        dt->file_name = VSTACK[VS_TOP]->file_name  ;
+        dt->location = VSTACK[VS_TOP]->location  ;
+#endif
+      }
+      PUSH_TO_STACK(dt) ;
+      VSP-- ;
+#ifdef VSTACK_PROFILE
+      VSTACK_FULL++ ;
+#endif
+    }
+#ifdef JEDA_DATA_TRACE
+    VSTACK[VS_TOP]->file_name = JD_code_file_index ;
+    VSTACK[VS_TOP]->location = JD_code_line_num ;
+#endif
+    VSTACK[VS_TOP] = data ;
+    VS_TOP = (VS_TOP+1) % VSP_LIMIT ;
+    VSP++ ;
+  }
+  /**END MACRO EXEC_PUSH_VSTACK**/  
+}
+
+void JD_push_acc() {
+  /**MACRO EXEC_PUSH_ACC**/
+  {
+    JD_data *dt ;
+    if(VSP==VSP_LIMIT) {  /* vstack full, flush one entry */
+      if( FITSMLINT(VSTACK[VS_TOP]) ) {
+        dt = GENSMLINT(VSTACK[VS_TOP]) ;
+#ifdef NOTIFY_GC_STATUS
+          JD_vstack_ovflw_smlint_num++ ;
+#endif
+      }
+      else {
+        dt = JD_alloc_data_entry() ;
+        JD_copy_dt( dt, VSTACK[VS_TOP] ) ;
+#ifdef NOTIFY_GC_STATUS
+        if( dt->type == JD_D_int )
+          JD_vstack_ovflw_int_num++ ;
+        else 
+          JD_vstack_ovflw_nonint_num++ ;
+#endif
+#ifdef JEDA_DATA_TRACE
+        dt->file_name = VSTACK[VS_TOP]->file_name  ;
+        dt->location = VSTACK[VS_TOP]->location  ;
+#endif
+      }
+      PUSH_TO_STACK(dt) ;
+      VSP-- ;
+    }
+    dt = VSTACK[VS_TOP] ;
+#ifdef JEDA_DATA_TRACE
+    dt->file_name = JD_code_file_index ;
+    dt->location = JD_code_line_num ;
+#endif
+    switch(ACC_TYPE) {
+      case JD_D_sbit:
+      case JD_D_vbit:
+      case JD_D_bit:
+        dt->sub_type = JD_SD_single ;
+        if( ACC_SIZE <= 32 ) {
+          dt->type = JD_D_sbit ;
+          dt->data.sbit.a = ACC_A[0] ;
+          dt->data.sbit.b = ACC_B[0] ;
+          dt->data.sbit.size = ACC_SIZE ;
+        }
+        else {
+          int i, n ;
+          unsigned int *taba, *tabb ;
+          dt->type = JD_D_vbit ;
+          n = NWORD(ACC_SIZE) ;
+          if( n > VS_WD[VS_TOP] ) {
+            VS_A[VS_TOP] = 
+              (unsigned int *)realloc( VS_A[VS_TOP], NBYTE(ACC_SIZE) ) ;
+            VS_B[VS_TOP] = 
+              (unsigned int *)realloc( VS_B[VS_TOP], NBYTE(ACC_SIZE) ) ;
+            VS_WD[VS_TOP] = n ;
+          }
+          taba = VS_A[VS_TOP] ;
+          tabb = VS_B[VS_TOP] ;
+          for( i = 0 ; i < n ; i++ ) {
+            taba[i] = ACC_A[i] ;
+            tabb[i] = ACC_B[i] ;
+          }
+          dt->data.bit.a = (int *)VS_A[VS_TOP] ;
+          dt->data.bit.b = (int *)VS_B[VS_TOP] ;
+          dt->data.bit.size = ACC_SIZE ;
+        }
+        break ;
+      case JD_D_int:
+        dt->sub_type = JD_SD_single ;
+        dt->type = JD_D_int ;
+        dt->data.int_value = ACC_INT ;
+        break ;
+      case JD_D_float:
+        dt->sub_type = JD_SD_single ;
+        dt->type = JD_D_float ;
+        dt->data.float_value = ACC_FLOAT ;
+        break ;
+      case JD_D_double:
+        dt->sub_type = JD_SD_single ;
+        dt->type = JD_D_double ;
+        dt->data.double_value = ACC_FLOAT ;
+        break ;
+      case JD_D_string:
+        dt->sub_type = JD_SD_single ;
+        dt->type = JD_D_string ;
+        dt->data.string = ACC_STRING ;
+        ACC_STRING = NULL ;
+        ACC_TYPE = JD_D_void ;
+        break ;
+      case JD_D_dt:
+        if( ACC_DT ) {
+          JD_set_dt( dt, ACC_DT ) ;
+          ACC_DT = NULL ;
+          ACC_TYPE = JD_D_null ;
+        }
+        else {
+          dt->type = JD_D_null ;
+          dt->sub_type = JD_SD_single ;
+          ACC_TYPE = JD_D_null ;
+        }
+        break ;
+      case JD_D_null:
+        dt->type = JD_D_null ;
+        dt->sub_type = JD_SD_single ;
+        break ;
+      default:
+        dt->type = JD_D_null ;
+        dt->sub_type = JD_SD_single ;
+        break ;
+    }
+    
+    VS_TOP = (VS_TOP+1) % VSP_LIMIT ;
+    VSP++ ;
+  }
+  /**END MACRO EXEC_PUSH_ACC**/  
+}
+
+
+void flush_vstack() {
+  /**MACRO EXEC_FLUSH_VSTACK**/
+  {
+    JD_data *dt, *st ;
+    while(VSP) {
+      if( VS_TOP < VSP ) {
+        st = VSTACK[VSP_LIMIT+VS_TOP-VSP] ;
+      }
+      else {
+        st = VSTACK[VS_TOP-VSP] ;
+      }
+      if( FITSMLINT(st) ) {
+        dt = GENSMLINT(st) ;
+#ifdef NOTIFY_GC_STATUS
+        JD_flush_vstack_smlint_num++ ;
+#endif
+      }
+      else {
+        dt = JD_alloc_data_entry() ;
+        JD_copy_dt( dt, st ) ;
+        st->sub_type = JD_SD_single ;
+#ifdef NOTIFY_GC_STATUS
+        if( dt->type == JD_D_int )
+          JD_flush_vstack_int_num++ ;
+        else
+          JD_flush_vstack_nonint_num++ ;
+#endif
+      }
+      PUSH_TO_STACK(dt) ;
+      VSP-- ;
+    }
+  }
+  /**END MACRO EXEC_FLUSH_VSTACK**/  
+}
+
+void JD_set_acc( JD_data *x ) {
+  /**MACRO EXEC_SET_ACC(x)**/
+  {
+    if( ACC_TYPE == JD_D_string && ACC_STRING != NULL ) {
+      DEALLOC_STRING(ACC_STRING) ;
+      ACC_STRING = NULL ;
+    }
+    if( x->sub_type != JD_SD_single ) {
+      ACC_DT = x ;
+      ACC_TYPE = JD_D_dt ;
+    }
+    else {
+      ACC_TYPE = x->type ;
+      switch(ACC_TYPE) {
+      case JD_D_sbit:
+        ACC_SIZE = x->data.sbit.size ;
+        ACC_A[0] = x->data.sbit.a ;
+        ACC_B[0] = x->data.sbit.b ;
+        break ;
+      case JD_D_vbit:
+      case JD_D_bit:
+        {
+          int i, n ;
+          n = LASTWORD(x->data.bit.size) ;
+          if( ACC_WD <= n ) {  /* extending ACC bit space */
+            ACC_A = 
+              (unsigned int *)realloc( ACC_A, NBYTE(x->data.bit.size) ) ;
+            ACC_B = 
+              (unsigned int *)realloc( ACC_B, NBYTE(x->data.bit.size) ) ;
+            ACC_WD = n+1 ;
+          }
+          for( i = 0 ; i <= n ; i++ ) {
+            ACC_A[i] = x->data.bit.a[i] ;
+            ACC_B[i] = x->data.bit.b[i] ;
+          }
+          ACC_SIZE = x->data.bit.size ;
+        }
+        break ;
+      case JD_D_int:
+        ACC_INT = x->data.int_value ;
+        break ;
+      case JD_D_float:
+        ACC_FLOAT = x->data.float_value ;
+        break ;
+      case JD_D_double:
+        ACC_FLOAT = x->data.double_value ;
+        break ;
+      case JD_D_string:
+        if( x->data.string ) 
+          ACC_STRING = (char *)strdup(x->data.string) ;
+        break ;
+      case JD_D_null:
+        break ;
+      default:
+        ACC_DT = x ;
+        ACC_TYPE = JD_D_dt ;
+        break ;
+      }
+    } 
+  }
+  /**END MACRO EXEC_SET_ACC**/  
+}
+
+void JD_copy_acc( JD_data *x ) {
+  /**MACRO EXEC_COPY_ACC(x)**/
+  {
+    if( ACC_TYPE == JD_D_string && ACC_STRING != NULL ) {
+      DEALLOC_STRING(ACC_STRING) ;
+      ACC_STRING = NULL ;
+    }
+    if( x->sub_type != JD_SD_single ) {
+      ACC_DT = x ;
+      ACC_TYPE = JD_D_dt ;
+    }
+    else {
+      ACC_TYPE = x->type ;
+      switch(ACC_TYPE) {
+      case JD_D_sbit:
+        ACC_SIZE = x->data.sbit.size ;
+        ACC_A[0] = x->data.sbit.a ;
+        ACC_B[0] = x->data.sbit.b ;
+        break ;
+      case JD_D_vbit:
+      case JD_D_bit:
+        {
+          int i, n ;
+          n = LASTWORD(x->data.bit.size) ;
+          if( ACC_WD <= n ) {  /* extending ACC bit space */
+            ACC_A = 
+              (unsigned int *)realloc( ACC_A, NBYTE(x->data.bit.size) ) ;
+            ACC_B = 
+              (unsigned int *)realloc( ACC_B, NBYTE(x->data.bit.size) ) ;
+            ACC_WD = n+1 ;
+          }
+          for( i = 0 ; i <= n ; i++ ) {
+            ACC_A[i] = x->data.bit.a[i] ;
+            ACC_B[i] = x->data.bit.b[i] ;
+          }
+          ACC_SIZE = x->data.bit.size ;
+        }
+        break ;
+      case JD_D_int:
+        ACC_INT = x->data.int_value ;
+        break ;
+      case JD_D_float:
+        ACC_FLOAT = x->data.float_value ;
+        break ;
+      case JD_D_double:
+        ACC_FLOAT = x->data.double_value ;
+        break ;
+      case JD_D_string:
+        if( x->data.string )
+          ACC_STRING = (char *)strdup(x->data.string) ;
+        else
+          ACC_STRING = NULL ;
+        break ;
+      case JD_D_null:
+        break ;
+      default:
+        ACC_DT = x ;
+        ACC_TYPE = JD_D_dt ;
+        break ;
+      }
+    }  
+  }
+  /**END MACRO EXEC_COPY_ACC**/  
+}
+
+void JD_acc_to_dt(JD_data *x) {
+  /**MACRO EXEC_ACC_TO_DT(x)**/
+  {
+    int mask ;
+    /* at this moment, basic type of data (x) and ACC is the same,
+       but bit size is not the same
+    */
+    switch(ACC_TYPE) {
+      case JD_D_sbit:
+      case JD_D_vbit:
+      case JD_D_bit:
+        switch(x->type) {
+          case JD_D_sbit:
+            mask = BITMASK(x->data.sbit.size) ;
+            STORE_SIZE = x->data.sbit.size ;
+            x->data.sbit.a = mask & ACC_A[0] ;
+            x->data.sbit.b = mask & ACC_B[0] ;
+#ifdef JEDA_VERILOG_VAR_UPDATE
+            if( IS_STATICDATA(x) ) 
+              JD_update_static_var(x) ;
+#endif
+            break ;
+          case JD_D_bit:
+            {
+              int i, n, nn ;
+              mask = BITMASK(x->data.bit.size) ;
+              STORE_SIZE = x->data.bit.size ;
+              n = NWORD(ACC_SIZE) ;
+              nn = NWORD(STORE_SIZE) ;
+              for( i = 0 ; i < nn ; i++ ) {
+                if( i == n-1 ) {
+                  x->data.bit.a[i] = mask & ACC_A[i] ;
+                  x->data.bit.b[i] = mask & ACC_B[i] ;
+                }
+                else if( i < n-1 ) {
+                  x->data.bit.a[i] = ACC_A[i] ;
+                  x->data.bit.b[i] = ACC_B[i] ;
+                }
+                else {
+                  x->data.bit.a[i] = 0 ;
+                  x->data.bit.b[i] = 0 ;
+                }
+              }
+#ifdef JEDA_VERILOG_VAR_UPDATE
+              if( IS_STATICDATA(x) ) 
+                JD_update_static_var(x) ;
+#endif
+            }
+            break ;
+        }
+        break ;
+      case JD_D_int:
+        STORE_SIZE = 32 ;
+        x->data.int_value = ACC_INT;
+        break ;
+      case JD_D_float:
+      case JD_D_double:
+        if( x->type == JD_D_float )
+          x->data.float_value = ACC_FLOAT ;
+        else
+          x->data.double_value = ACC_FLOAT ;
+        break ;
+      case JD_D_string:
+        switch( x->type ) {
+          case JD_D_string:
+            if( x->data.string ) 
+              DEALLOC_STRING(x->data.string) ;
+            x->data.string = ACC_STRING ;
+            ACC_STRING = NULL ;
+            break ;
+          case JD_D_sbit:
+            {
+              int nb, j ;
+              nb = (x->data.sbit.size)/8 ;
+              j = 0 ;
+              x->data.sbit.a = x->data.sbit.b = 0 ;
+              for(  ; nb > 0 ; nb-- ) {
+                x->data.sbit.a = 
+                  (x->data.sbit.a << 8) | 
+                  ( ( ACC_STRING[j] != '\0')?ACC_STRING[j++]:0 ) ;
+              }
+            }
+            break ;
+          case JD_D_bit:
+            {
+              int nw, nb, size, j ;
+              size = x->data.bit.size/8 ;
+              size *= 8 ; /* round to 8 */
+              nw = LASTWORD(size) ;
+              j = 0 ;
+              nb = (size%32)/8 ;
+              if( nb == 0 ) nb = 4 ;
+              for(  ; nw >= 0 ; nw-- ) {
+                x->data.bit.a[nw] = x->data.bit.b[nw] = 0 ;
+                for(  ; nb > 0 ; nb-- ) {
+                  x->data.bit.a[nw] = 
+                    (x->data.bit.a[nw] << 8) | 
+                    ( ( ACC_STRING[j] != '\0')?ACC_STRING[j++]:0 ) ;
+                }
+                nb = 4 ;
+              }
+            }
+            break ;
+        }
+        break ;
+      case JD_D_null:
+        switch( x->type ) {
+          case JD_D_string:
+            x->data.string = NULL ;
+            break ;
+          case JD_D_signal:
+            x->data.signal.port = NULL ;
+            break ;
+          case JD_D_object:
+            if( x->data.obj.ect && (-- x->data.obj.ect->ref_count) == 0 ) {
+              (x->data.obj.ect->dealloc)( 
+                (void *)x->data.obj.ect->table,
+                x->data.obj.ect->num_entry,
+                x->data.obj.ect->tbl_size
+              ) ;
+              DEALLOC_OBJ_TABLE(x->data.obj.ect) ;
+            }
+            x->data.obj.ect = NULL ;
+        }
+        break ;
+      default:
+        if( ACC_DT->type == JD_D_object ) {
+          if( ACC_DT->data.obj.ect ) ACC_DT->data.obj.ect->ref_count++ ;
+          if( x->data.obj.ect && (-- x->data.obj.ect->ref_count) == 0 ) {
+            (x->data.obj.ect->dealloc)( 
+              (void *)x->data.obj.ect->table,
+              x->data.obj.ect->num_entry,
+              x->data.obj.ect->tbl_size
+            ) ;
+            DEALLOC_OBJ_TABLE(x->data.obj.ect) ;
+          }
+#ifndef  NO_OBJ_TYPE_CHECK
+          if( x->data.obj.alloc && 
+              x->data.obj.alloc != ACC_DT->data.obj.alloc ) 
+          {
+            ERROR_ILLEGAL_CAST_ASSIGNMENT_DETECTED ;
+          }
+#endif
+          x->data.obj.ect = ACC_DT->data.obj.ect ;
+          x->data.obj.alloc = ACC_DT->data.obj.alloc ;
+        }
+        else JD_copy_data(x, ACC_DT) ;
+        break ;
+    }
+    
+  }
+  /**END MACRO EXEC_ACC_TO_DT**/  
+}
+
+void JD_set_acc_to_dt(JD_data *x) {
+  /**MACRO EXEC_SET_ACC_TO_DT(x)**/
+  {
+    switch(ACC_TYPE) {
+      case JD_D_sbit:
+      case JD_D_vbit:
+      case JD_D_bit:
+        x->type = ACC_TYPE ;
+        if( ACC_SIZE <= 32 ) {
+          x->data.sbit.size = ACC_SIZE ;
+          x->data.sbit.a = ACC_A[0] ;
+          x->data.sbit.b = ACC_B[0] ;
+          break ;
+        }
+        else {
+          int i, n ;
+          x->type = JD_D_bit ;
+          x->data.bit.size = ACC_SIZE ;
+          n = ((ACC_SIZE-1)/32)+1 ;
+          x->data.bit.a = ALLOC_BIT( n ) ;
+          x->data.bit.b = ALLOC_BIT( n ) ;
+          for( i = 0 ; i < n ; i++ ) { 
+            x->data.bit.a[i] = ACC_A[i] ;
+            x->data.bit.a[i] = ACC_B[i] ;
+          }
+          x->data.bit.size = ACC_SIZE;
+        }
+#ifdef JEDA_VERILOG_VAR_UPDATE
+        if( IS_STATICDATA(x) ) 
+          JD_update_static_var(x) ;
+#endif
+        break ;
+      case JD_D_int:
+        x->type = ACC_TYPE ;
+        x->data.int_value = ACC_INT;
+#ifdef JEDA_VERILOG_VAR_UPDATE
+        if( IS_STATICDATA(x) ) 
+          JD_update_static_var(x) ;
+#endif
+        break ;
+      case JD_D_float:
+        x->type = ACC_TYPE ;
+        x->data.float_value = ACC_FLOAT ;
+        break ;
+      case JD_D_double:
+        x->type = ACC_TYPE ;
+        x->data.double_value = ACC_FLOAT ;
+        break ;
+      case JD_D_string:
+        x->type = ACC_TYPE ;
+        x->data.string = ACC_STRING ;
+        ACC_STRING = NULL ;
+        break ;
+      case JD_D_null:
+        switch( x->type ) {
+          case JD_D_string:
+            x->data.string = NULL ;
+            break ;
+          case JD_D_signal:
+            x->data.signal.port = NULL ;
+            break ;
+          case JD_D_object:
+            if( x->data.obj.ect && (-- x->data.obj.ect->ref_count) == 0 ) {
+              (x->data.obj.ect->dealloc)( 
+                (void *)x->data.obj.ect->table,
+                x->data.obj.ect->num_entry,
+                x->data.obj.ect->tbl_size
+              ) ;
+              DEALLOC_OBJ_TABLE(x->data.obj.ect) ;
+            }
+            x->data.obj.ect = NULL ;
+        }
+        break ;
+      default:
+        if( ACC_DT->type == JD_D_object ) {
+          if( x->data.obj.ect && (-- x->data.obj.ect->ref_count) == 0 ) {
+            (x->data.obj.ect->dealloc)( 
+              (void *)x->data.obj.ect->table,
+              x->data.obj.ect->num_entry,
+              x->data.obj.ect->tbl_size
+            ) ;
+            DEALLOC_OBJ_TABLE(x->data.obj.ect) ;
+          }
+#ifndef  NO_OBJ_TYPE_CHECK
+          if( x->data.obj.alloc && 
+              x->data.obj.alloc != ACC_DT->data.obj.alloc ) 
+          {
+            ERROR_ILLEGAL_CAST_ASSIGNMENT_DETECTED ;
+          }
+#endif
+          x->data.obj.ect = ACC_DT->data.obj.ect ;
+          x->data.obj.alloc = ACC_DT->data.obj.alloc ;
+          if( x->data.obj.ect ) x->data.obj.ect->ref_count++ ;
+        }
+        else JD_copy_data(x, ACC_DT) ;
+        break ;
+    }
+    
+  }
+  /**END MACRO EXEC_SET_ACC_TO_DT**/  
+}
+
+static void null_acc( JD_data *dt ) {
+  /**MACRO EXEC_NULL_ACC**/
+  {
+    int i, n ;
+    if( ACC_TYPE == JD_D_string && ACC_STRING != NULL ) {
+      DEALLOC_STRING(ACC_STRING) ;
+      ACC_STRING = NULL ;
+    }
+    ACC_TYPE = dt->type ;
+    switch(ACC_TYPE) {
+      case JD_D_sbit:
+        ACC_TYPE = JD_D_bit ;
+        ACC_SIZE = (int)dt->base ;
+        ACC_A[0] = ACC_B[0] = (ACC_SIZE==32)?0xffffffff:(1<<ACC_SIZE)-1 ;
+        break ;
+      case JD_D_vbit:
+      case JD_D_bit:
+        ACC_SIZE = (int)dt->base ;
+        n = LASTWORD(ACC_SIZE) ;
+        if( ACC_WD <= n ) {  /* extending ACC bit space */
+          ACC_A = 
+            (unsigned int *)realloc( ACC_A, NBYTE(dt->data.bit.size) ) ;
+          ACC_B = 
+            (unsigned int *)realloc( ACC_B, NBYTE(dt->data.bit.size) ) ;
+          ACC_WD = n+1 ;
+        }
+        for( i = 0 ; i < n ; i++ ) {
+          ACC_A[i] = ACC_B[i] = 0xffffffff ;
+        }
+        ACC_A[n] = ACC_B[n] = (ACC_SIZE%32)?((1<<(ACC_SIZE%32))-1):0xffffffff ;
+        break ;
+      case JD_D_int:
+        ACC_INT = 0 ;
+        break ;
+      case JD_D_float:
+        ACC_FLOAT = 0.0 ;
+        break ;
+      case JD_D_double:
+        ACC_FLOAT = 0.0 ;
+        break ;
+      case JD_D_string:
+        ACC_STRING = NULL ;
+        break ;
+      default:
+        ACC_TYPE = JD_D_null ;
+        ACC_DT = NULL ;
+        break ;
+    }
+    
+  }
+  /**END MACRO EXEC_NULL_ACC**/  
+}
+
+void JD_pop_acc() {
+  /**MACRO EXEC_POP_ACC**/
+  {  
+    JD_data *dt ;
+    if( VSP ) {
+      if( VS_TOP ) VS_TOP-- ;
+      else VS_TOP = VSP_LIMIT-1 ;
+      VSP-- ;
+      dt = VSTACK[VS_TOP] ;
+#ifdef VSTACK_PROFILE
+      VSTACK_HIT++ ;
+#endif
+      if( ACC_TYPE == JD_D_string && ACC_STRING != NULL ) {
+        DEALLOC_STRING(ACC_STRING) ;
+        ACC_STRING = NULL ;
+      }
+      if( dt->sub_type == JD_SD_single ) {
+        ACC_TYPE = dt->type ;
+        switch(ACC_TYPE) {
+          case JD_D_sbit:
+            ACC_SIZE = dt->data.sbit.size ;
+            ACC_A[0] = dt->data.sbit.a ;
+            ACC_B[0] = dt->data.sbit.b ;
+            ACC_TYPE = JD_D_bit ;
+            break ;
+          case JD_D_vbit:
+          case JD_D_bit:
+            {
+              int tmp ;
+              unsigned int *tab ;
+              dt->type = JD_D_vbit ;
+              tab = VS_A[VS_TOP] ;
+              VS_A[VS_TOP] = ACC_A ;
+              ACC_A = tab ;
+              tab = VS_B[VS_TOP] ;
+              VS_B[VS_TOP] = ACC_B ;
+              ACC_B = tab ;
+              tmp = VS_WD[VS_TOP] ;
+              VS_WD[VS_TOP] = ACC_WD ;
+              ACC_WD = tmp ;
+              dt->data.bit.size = ACC_SIZE ;
+              ACC_TYPE = JD_D_bit ;
+            }
+            break ;
+          case JD_D_int:
+            ACC_INT = dt->data.int_value ;
+            break ;
+          case JD_D_float:
+            ACC_FLOAT = dt->data.float_value ;
+            break ;
+          case JD_D_double:
+            ACC_FLOAT = dt->data.double_value ;
+            break ;
+          case JD_D_string:
+            ACC_STRING = (char *)strdup(dt->data.string) ;
+            break ;
+          case JD_D_null:
+            break ;
+          default:
+            ACC_TYPE = JD_D_dt ;
+            ACC_DT = dt ;
+#ifdef NOTIFY_GC_STATUS
+            JD_pop_acc_dt_num++ ;
+#endif
+            VSTACK[VS_TOP] = JD_alloc_data_entry() ;
+            break ;
+        }
+      }
+      else {
+        ACC_TYPE = JD_D_dt ;
+        ACC_DT = dt ;
+        VSTACK[VS_TOP] = JD_alloc_data_entry() ;
+#ifdef NOTIFY_GC_STATUS
+        JD_pop_acc_non_single_num++ ;
+#endif
+      }
+    }
+    else {
+      dt = STACK[--SP] ;
+#ifdef VSTACK_PROFILE
+      VSTACK_MISS++ ;
+#endif
+      if( IS_SMLINT(dt) ) {
+        ACC_INT = SMLINT2INT(dt) ;
+        ACC_TYPE = JD_D_int ;
+      }
+      else {
+        if( dt->sub_type == JD_SD_single ) {
+          ACC_TYPE = dt->type ;
+          switch(ACC_TYPE) {
+            case JD_D_sbit:
+              ACC_SIZE = dt->data.sbit.size ;
+              ACC_A[0] = dt->data.sbit.a ;
+              ACC_B[0] = dt->data.sbit.b ;
+#ifdef ENABLE_JEDA_DATA_CACHE
+              JD_dealloc_data_on_cache(dt, STACK[SP-1]) ;
+#endif
+              break ;
+            case JD_D_vbit:
+            case JD_D_bit:
+              {
+                int i, n ;
+                n = LASTWORD(dt->data.bit.size) ;
+                if( ACC_WD <= n ) {  /* extending ACC bit space */
+                  ACC_A = 
+                    (unsigned int *)realloc( ACC_A, NBYTE(dt->data.bit.size) ) ;
+                  ACC_B = 
+                    (unsigned int *)realloc( ACC_B, NBYTE(dt->data.bit.size) ) ;
+                  ACC_WD = n+1 ;
+                }
+                for( i = 0 ; i <= n ; i++ ) {
+                  ACC_A[i] = dt->data.bit.a[i] ;
+                  ACC_B[i] = dt->data.bit.b[i] ;
+                }
+                ACC_SIZE = dt->data.bit.size ;
+              }
+              break ;
+            case JD_D_int:
+              ACC_INT = dt->data.int_value ;
+#ifdef ENABLE_JEDA_DATA_CACHE
+              if( SP ) JD_dealloc_data_on_cache(dt, STACK[SP-1]) ;
+#endif
+              break ;
+            case JD_D_float:
+              ACC_FLOAT = dt->data.float_value ;
+              break ;
+            case JD_D_double:
+              ACC_FLOAT = dt->data.double_value ;
+              break ;
+            case JD_D_string:
+              ACC_STRING = (char *)strdup(dt->data.string) ;
+              break ;
+            case JD_D_null:
+              break ;
+            default:
+              ACC_TYPE = JD_D_dt ;
+              ACC_DT = dt ;
+              break ;
+          }
+        }
+        else {
+          ACC_TYPE = JD_D_dt ;
+          ACC_DT = dt ;
+        }
+      } /* else of IS_SMLINT(dt) */
+    }
+  }
+  /**END MACRO EXEC_POP_ACC**/  
+}
+
+/*****************************************************************************/
+/* stack handling operations                                                 */
+/*****************************************************************************/
+/*
+ 4. Stack Operation
+  pop <n>               : pop n-enties from stack and discard
+  push alu              :  stac[sp++] <- ACC
+  pop alu               :  ACC <- stac[--sp]
+  copy alu <n>          :  ACC <- stack[sp-n-1] 
+*/
+
+/*
+  'copy' 'alu' Decimal_num EOL
+  <<op_subop_index>>
+*/
+void JD_exec_copy_alu() { /* ACC_INT holds the index value */
+  /**MACRO EXEC_COPY_ALU**/
+  {
+    JD_data *dt ;
+    if( VSP >= ACC_INT ) {
+      if( VS_TOP < ACC_INT ) dt = VSTACK[VSP_LIMIT+VS_TOP-ACC_INT] ;
+      else dt = VSTACK[VS_TOP-ACC_INT] ;
+      CALL_EXEC_COPY_ACC(dt) ;
+    }
+    else {
+      dt = STACK[SP-VSP-ACC_INT] ;
+      if( IS_SMLINT(dt) ) {
+        ACC_INT = SMLINT2INT(dt) ;
+        ACC_TYPE = JD_D_int ;
+      }
+      else CALL_EXEC_COPY_ACC(dt) ;
+    }
+  }
+  /**END MACRO EXEC_COPY_ALU**/  
+}
+
+void JD_exec_pop_alu() { /* ACC_INT holds the index value */
+  /**MACRO EXEC_POP_ALU**/
+  {
+    JD_data *dt ;
+  
+    if( VSP ) {
+      if( VS_TOP ) VS_TOP-- ;
+      else VS_TOP = VSP_LIMIT-1 ;
+      VSP-- ;
+      CALL_EXEC_SET_ACC( VSTACK[VS_TOP] ) ;
+#ifdef VSTACK_PROFILE
+      VSTACK_HIT++ ;
+#endif
+    }
+    else {
+      dt = STACK[--SP] ;
+      if( IS_SMLINT(dt) ) {
+        ACC_INT = SMLINT2INT(dt) ;
+        ACC_TYPE = JD_D_int ;
+      }
+      else CALL_EXEC_SET_ACC(dt) ;
+#ifdef ENABLE_JEDA_DATA_CACHE
+      if( SP ) JD_dealloc_data_on_cache(dt, STACK[SP-1]) ;
+#endif
+#ifdef VSTACK_PROFILE
+      VSTACK_MISS++ ;
+#endif
+    }
+  }
+  /**END MACRO EXEC_POP_ALU**/  
+}
+
+void JD_exec_pop_n() { /* TMP_INT holds the index value */
+  /**MACRO EXEC_POP_N**/
+  {
+    JD_data *dt ;
+    while( VSP && TMP_INT ) {
+      if( VS_TOP ) VS_TOP-- ;
+      else VS_TOP = VSP_LIMIT-1 ;
+      VSP-- ;
+      TMP_INT-- ;
+    }
+    
+    while( TMP_INT ) {
+#ifdef ENABLE_JEDA_DATA_CACHE
+      dt = STACK[--SP] ;
+      if( SP ) JD_dealloc_data_on_cache( dt, STACK[SP-1] ) ;
+#else
+      SP-- ;
+#endif
+      TMP_INT-- ;
+    }
+  }
+  /**END MACRO EXEC_POP_N**/  
+}
+

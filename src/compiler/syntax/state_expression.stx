@@ -1,0 +1,11 @@
+  
+state_expression:
+  varport_expression '++' 
+  |
+  varport_expression '--' 
+  |
+  '++' varport_expression 
+  |
+  '--' varport_expression  
+  ;
+

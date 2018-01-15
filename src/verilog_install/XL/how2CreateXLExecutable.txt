@@ -1,0 +1,99 @@
+
+
+               How To Create XL executable with Jeda
+
+Copyright (C) 2003, Jeda Technologies, Inc
+
+1. run vconfig, choose  static with PLI, then edit it and create cr_vlog like
+   below:
+
+#!/bin/csh -f
+#
+#
+#
+# Script to create : Stand Alone Verilog-XL
+#
+#        set a=`sh -c "type cc"`
+#        if ( "$a" == "cc is /usr/ucb/cc" ) then
+#	echo "which cc" returned "/usr/ucb/cc"
+#	echo This compiler will not yield a good executable.
+#	echo Please adjust your PATH environment variable to pick up the Sun C Compiler.
+#	exit 1
+#	endif
+set verbose
+#
+#
+# The following line(s) will pre-compile your
+# PLI C source files before the linking step.
+#
+/usr/gnu/bin/sparc-sun-solaris2.4-gcc -c -O \
+    -DJEDA=jeda \ 
+   ../../veriuser/veriuser.c \
+   -I/usr/cadence/LDV3.3/tools/verilog/include
+
+/usr/gnu/bin/sparc-sun-solaris2.4-gcc -c -O \
+   /usr/cadence/LDV3.3/tools/verilog/src/vpi_user.c \
+   -I/usr/cadence/LDV3.3/tools/verilog/include
+# The following is the actual compile/link
+# statement:                              
+#                                         
+/usr/gnu/bin/sparc-sun-solaris2.4-gcc  -o verilog \
+   /usr/cadence/LDV3.3/tools/verilog/lib/vlog.o \
+ /usr/cadence/LDV3.3/tools/verilog/lib/libdlc.a \
+   -L/usr/cadence/LDV3.3/tools/lib \
+   /usr/cadence/LDV3.3/tools/verilog/lib/omnitasks.o \
+   veriuser.o \
+   vpi_user.o \
+   $JEDA_HOME/lib/jeda_pli.o \
+   -lcla_sh \
+   -lcdsCommon_sh \
+   -I/usr/cadence/LDV3.3/tools/verilog/include \
+   -L/usr/cadence/LDV3.3/tools/verilog/lib \
+   -lnewsdfa \
+   -lsdfi \
+   -lvoids \
+-lsocket -lnsl -lm -ldl -lw -lgen -lintl 
+#
+unset verbose
+
+2. Edit veriuser.c like below, see example at ../.
+   if you use VPI, see 
+
+#include "veriuser.h"
+#include "vxl_veriuser.h"
+
+....
+#ifdef JEDA
+#  include "jeda_pli_func_ext.h"
+#endif
+
+...
+
+s_tfcell veriusertfs[] =
+{
+    /*** Template for an entry:
+    { usertask|userfunction, data,
+      checktf(), sizetf(), calltf(), misctf(),
+      "$tfname", forwref?, Vtool?, ErrMsg? },
+    Example:
+    { usertask, 0, my_check, 0, my_func, my_misctf, "$my_task" },
+    ***/
+
+    /*** add user entries here ***/
+
+#ifdef JEDA
+#  include "jeda_pli_func_def.h"
+#endif
+
+   {0} /*** final entry must be 0 ***/
+};
+
+3. run cr_vlog and create executable 'verilog'.
+
+4. how to run simulation with Jeda testbench 'mytest'.
+
+   verilog +jeda_code=mytest.dl ...
+
+   where 'mytest.dl' is the dynamic loadable ibinary image file for a testbench,
+   generated from one or multiple Jeda source file ( *.j) through Jeda compiler
+   and linker. See How to use script 'jeda'.

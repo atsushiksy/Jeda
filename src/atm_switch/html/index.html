@@ -1,0 +1,50 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (X11; U; SunOS 5.7 sun4u) [Netscape]">
+</head>
+<body>
+
+<blockquote><b><font size=+4>Jeda Verification Example: ATM switch</font></b></blockquote>
+
+<blockquote>&nbsp; This example shows step by step process of how to construct
+the testbench with Jeda. The DUT (Device Under Test) used in this example
+is the ATM switch model. The verilog model is taken from Janick Bergeron's
+Verification Guild Project.
+<br><a href="http://www.janick.bergeron.com/guild/project.html">(http://www.janick.bergeron.com/guild/project.html)</a>
+<p>The example shown here is based on my standard procedure for the block
+level verification. I always take the similar procedure with similar directory
+structure, Makefile, etc. on my real verification work for the state of
+art ASIC development.
+<p><a NAME="rx_bug"></a>This Jeda testbench detected a bug in the utopia1_atm_rx.v
+at the first transfer test.
+<br>(The bug was reported to Janick Bergeron (<a href="mail_to_bergeron_1.txt">
+mail1 </a><a href="mail_to_bergeron_2.txt">mail2 </a>) and here's his responce
+on the <a href="responce_from_bergeron_1.txt">Verif Guld - Vol 3, no 04</a>.)
+<p>The entire development of the code and debug (both Jeda &amp; Verilog)
+takes about 2 days. (And many days to write this html document.) This is
+a good demonstration of how we can systematically construct an effective
+testbench with Jeda. (And how bad I am to write documents.)
+<br>&nbsp;
+<p><font size=+1><a href="verilog_model.html">1. Verilog Model and Specification</a></font>
+<p><font size=+1><a href="verif_environment.html">2. Verification Environment</a></font>
+<p><font size=+1><a href="test_plan.html">3. Test Plan</a></font>
+<p><font size=+1><a href="directory.html">4. Directory Structure and Makefile</a></font>
+<p><font size=+1><a href="portset.html">5. Portset Construction</a></font>
+<p><font size=+1><a href="cell_n_queue.html">6. Cell and Cell Queue Classes</a></font>
+<p><font size=+1><a href="manage_if_driver.html">7. Management Interface
+Driver</a></font>
+<p><font size=+1><a href="cell_driver_receiver.html">8. UTOPIA Cell Driver
+and receiver</a></font>
+<p><font size=+1><a href="cell_gen_checker.html">9. Cell Generator and
+Checker</a></font>
+<p><font size=+1><a href="switch_tester.html">10. Switch Tester Class</a></font>
+<p><font size=+1><a href="direct_tests.html">11. Direct Tests</a></font>
+<p><font size=+1><a href="random_distribution.html">12. Random Distribution
+Classes</a></font>
+<p><font size=+1><a href="random_test.html">13. Random Test</a></font>
+<p><font size=+1><a href="run_simulation.html">14. Running Simulation</a></font></blockquote>
+
+</body>
+</html>

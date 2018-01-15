@@ -1,0 +1,25 @@
+
+number:
+  Real_num
+  |
+  Real_or_Depth
+  |
+  Decimal_num
+  |
+  V_decimal_num
+  |
+  C_decimal_num
+  |
+  V_hex_num
+  |
+  C_hex_num
+  |
+  V_octal_num
+  |
+  C_octal_num
+  |
+  V_bin_num
+  |
+  C_bin_num
+  ;
+

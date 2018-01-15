@@ -1,0 +1,114 @@
+#  
+#  Copyright (C) 1999, 2000, 2001 Juniper Networks Inc.
+#  Copyright (C) 2002 Jeda Technologies, Inc.
+#
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 2, or (at your option) any
+#  later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+#   USA.  
+#   
+
+<integer_value>
+  int_value
+  var_attrib
+  func_option
+  opt_var
+  opt_static
+  edge
+  type_code
+  direction
+  class_attrib
+  strength
+
+<string_value>
+  name
+  label
+
+<string>
+  opt_extention
+
+<exp>
+  const_data
+  number
+  
+<inst>
+  object_files
+  verilog_task_info
+  class_attribs
+  opt_class_attribs
+  empty_line
+  debug_information
+  virtual_code
+  inital_header
+  vinst_units
+  vinst_unit
+  port_info
+  opt_port_attrib
+  port_attribs
+  port_attrib
+  portset_info
+  port_infos
+  connection_info
+  variable_dcl
+  data_type
+  array_range
+  range_list
+  opt_var_attribs
+  var_attribs
+  enum_dcl
+  enum_members
+  function_info
+  opt_func_options
+  func_options
+  opt_arguments
+  arguments
+  argument
+  class_info
+  opt_class_members
+  class_members
+  class_member
+  aspect_info
+  advice_info
+  pointcut_name
+  pointcuts
+  pointcut
+  pointcut_names
+  opt_aspect_members
+  aspect_members
+  aspect_member
+  static_var_dcl
+  static_init_code
+  init_code
+  class_init_code
+  class_alloc_code
+  mfunc_code
+  func_code
+  afunc_code
+  advice_code
+  stype
+  dtype
+  ttype
+  opt_flags
+  opt_array_access
+  opt_bit_type
+
+
+<code>
+  opt_vinsts
+  vinsts
+  vinst
+
+<name>
+  pointcut_specs
+  pointcut_spec
+  opt_class_pointcut

@@ -1,0 +1,130 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a><b> | </b><a href="index.html">Prev
+</a><b>|
+</b><a href="jeda_lex_elm.html">Next</a>
+<h1>
+<b>
+1. Jeda紹介
+</b></h1>
+
+<blockquote>
+Jedaは、エレクトロニクス チップやシステム デザインをモデル化したり
+設計検証をおこなうために設計された並列プログラミング言語です。
+この言語は、大きく次のような特徴を持っています。
+<blockquote>
+<ul>
+<li>
+シミュレーション時間、サイクルの概念を含む柔軟でダイナミックな並列プログラミング メカニズム
+</li>
+
+<li>
+オブジェクト指向プログラミング
+</li>
+
+<li>
+効率よく、ダイナミックな並列処理システムを構築するための、セマフォ、イベント
+などのシステムクラス
+</li>
+<li>
+アスペクト指向プログラミング
+</li>
+
+</ul>
+</blockquote>
+言語の文法は、C言語とVerilogを基本とし、C++、Java、Perlからいくつかの
+アイデアを取り込んで、設計されました。
+Jedaのプログラムは、いろいろな関数の集まりとして構成され、"main"という
+名の関数から実行が開始されます。ここに、シンプルなJedaコードの例を
+示します。(本当ですよ！)
+
+<p><font face="Courier New,Courier">&nbsp; void main() {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; printf( "Hello
+world!\n" ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<p>
+Jeda言語がサポートする基本データ要素は、
+<br>&nbsp;&nbsp;&nbsp; int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-- 整数
+<br>&nbsp;&nbsp;&nbsp; bit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-- Verilog式の多値ビット(x, z値を持つことができる)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+bit [5:0]のようにベクター化も可能。
+<br>&nbsp;&nbsp;&nbsp; string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ -- 文字列
+<br>&nbsp;&nbsp;&nbsp; float&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-- 単精度浮動小数点変数
+Single precision floating variable
+<br>&nbsp;&nbsp;&nbsp; double&nbsp;&nbsp;&nbsp;&nbsp; 
+-- 倍精度浮動小数点変数
+<br>&nbsp;&nbsp;&nbsp; signal&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+- ポート(Verilogへのインターフェース)へのポインタを記憶する変数
+<p>&nbsp;&nbsp; 
+ユーザーの定義した構造型データタイプは、クラスとして定義することが出来ます。
+<p>
+各種の配列フォームが、すべてのデータ要素にたいしてサポートされます。
+下記は、Jedaでサポートされている全ての配列フォームをintを例に取って
+示したものです。
+<p>&nbsp;&nbsp;&nbsp; int&nbsp; foo[5] ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// 配列
+<br>&nbsp;&nbsp;&nbsp; int&nbsp; moo[5][4][2]&nbsp; 
+// 多次元配列
+<br>&nbsp;&nbsp;&nbsp; int&nbsp; bar[] ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// アソシエイティブ配列
+<br>&nbsp;&nbsp;&nbsp; int&nbsp; boo[*] ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// 文字列によってインデックスされる配列
+<br>&nbsp;&nbsp;&nbsp; int&nbsp; bee&lt;> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// リスト
+<p>
+Jedaは、ユーザーのプログラミングエラーを最小にするような機構を提供します。
+例えば、Jedaコンパイラは、厳密なタイプチェックをおこないます。CやC++での、
+ポインタやキャストによる代入は、非常にエラーの起こりやすい部分ですが、
+Jedaではこれらはサポートされていません。
+また、(最適化されてない限り)実行時にコンパイル時には検出できないエラーを
+チェックします。
+<p>
+Jedaは、自動的なゴミ集め(未使用となったデータ領域の回収機構)を行います。
+この機能により、ユーザーは、メモリ リークの心配をすることなく、自由に
+データ要素を生成し、使った後には忘れてしまうことができます。
+こうした機構のないプログラム言語では、複雑な論理を記述する際に、このような
+メモリ リークを避けるための構造を保つために、非常に大きなプログラミングの
+努力がはらわれなければならず、問題の本質から遠ざかってしまうという問題が
+常に発生します。(メモリ リークが発生していれば、長期のシミュレーションの
+実行に重大な支障が発生するでしょう。)
+<p>
+Jedaは、実行時にはユーザーのコードがバイナリにコンパイルされているという
+観点でみる限り、"コンパイル"言語です。
+Jedaコンパイラは、Jedaのコードを中間言語のオブジェクトファイルにコンパイル
+します。
+Jedaのリンカーは、複数のオブジェクトファイルをリンクして、一つのC言語の
+コードを生成します。
+このCコードは、Cコンパイラによってコンパイルされ、Jedaの実行ライブラリと
+リンクされて、コンパイルされた実行イメージとしてのダイナミックライブラリの
+形態(.dl)となります。
+<p>
+Jedaは、PLIコードとしてVerilogとともに実行され、Verilog上の信号に一つの
+モジュール(Jedaモジュール)を介してアクセスします。このモジュールは、
+ユーザーがJedaのコードで記述したポートと対応するポートを持ち、この
+ポートを介して、Verilog上の信号にたいするドライブやサンプルが行われます。
+ユーザーは、このモジュールのインスタンスを一つVerilog環境ないに作成し、
+VerilogをJeda PLI コードと共に実行します。
+<p>
+JedaのPLIコードは、二つの部分、静的な部分と動的な部分、から成り立ちます。
+静的な部分は、全てのJedaコードに共通で、Verilogに静的にリンクされます。
+動的な部分は、上記で述べたJedaコードのコンパイル／リンクの結果生成された
+もので、実行時に動的にVerilogにロードされます。
+したがって、ポートの構成 (およびグローバル変数とスタティック変数の構成)
+が同じであれば、単一のコンパイルされたVerilogの実行イメージにたいして、
+異なったテストケースを実行することができます。(実行イメージの指定には、
+plus argument ( +jeda_code=&lt;lib_name> を用います。) .
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

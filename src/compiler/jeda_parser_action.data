@@ -1,0 +1,6771 @@
+#  Jeda Parser Action code
+#   
+#  Author: Atsushi Kasuya
+#
+#
+#   Coding Note:
+#      This file is yet another data file to conform Jeda compiler.
+#      This file defines the parser action in the parse tree.
+#      <<name>> represent the action node to be replaced in the parse file
+#      (jeda.y.pp). 
+#      The parser will be called (at least) three times to construct the tree.
+#      During pass 0, nothing but syntax is checked. 
+#      During pass 1, name table is constructed. 
+#      During pass 2, parse tree is constructed.
+#
+# 
+#  
+#  Copyright (C) 1999, 2000, 2001 Juniper Networks Inc.
+#  Copyright (C) 2002, 2003 Jeda Technologies, Inc.
+#
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 2, or (at your option) any
+#  later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+#   USA.  
+#   
+#
+
+#########################################
+#   commonly used actions
+#########################################
+<<semicolon>>
+{
+  yyerrok ;
+  /*
+  ex_error_flag |= error_flag ;
+  error_flag = 0 ;
+  */
+  $$ = $1 ;
+}
+
+<<DDeq0>>
+{
+  $$ = 0 ;
+}
+
+<<DDeq1>>
+{
+  $$ = 1 ;
+}
+
+<<Statement_D1_NEXTeqD2>>
+{
+  SKIP_ON_ERROR ;
+  PASS2 {
+    statement_node *d1, *d2 ;
+    d1 = $1 ;
+    d2 = $2 ;
+    
+    if(d1) {
+      while(d1->next) d1 = d1->next ;
+      d1->next = d2 ;
+    }
+  }
+  $$ = $1 ;
+}
+
+<<P1_Expression_D1_NEXTeqD2>>
+{
+  SKIP_ON_ERROR ;
+  PASS1 {
+    expression_node *d1, *d2 ;
+    d1 = $1 ;
+    d2 = $2 ;
+    
+    if(d1) {
+      while(d1->next) d1 = d1->next ;
+      d1->next = d2 ;
+    }
+  }
+  $$ = $1 ;
+}
+
+<<Expression_D1_NEXTeqD2>>
+{
+  SKIP_ON_ERROR ;
+  PASS2 {
+    expression_node *d1, *d2 ;
+    d1 = $1 ;
+    d2 = $2 ;
+    
+    if(d1) {
+      while(d1->next) d1 = d1->next ;
+      d1->next = d2 ;
+    }
+  }
+  $$ = $1 ;
+}
+
+<<Block_D1_NEXTeqD2_errok>>
+{
+  SKIP_ON_ERROR ;
+  PASS2 {
+    block_node *d1, *d2 ;
+    d1 = $1 ;
+    d2 = $2 ;
+    
+    if(d1) {
+      while(d1->next) d1 = d1->next ;
+      d1->next = d2 ;
+    }
+  }
+  $$ = $1 ;
+  yyerrok ;
+  error_flag = 0 ;
+}
+
+<<Statement_D1_NEXTeqD2_errok>>
+{
+  SKIP_ON_ERROR ;
+  PASS2 {
+    statement_node *d1, *d2 ;
+    d1 = $1 ;
+    d2 = $2 ;
+    
+    if(d1) {
+      while(d1->next) d1 = d1->next ;
+      d1->next = d2 ;
+    }
+  }
+  $$ = $1 ;
+  yyerrok ;
+  error_flag = 0 ;
+}
+
+<<Connection_D1_NEXTeqD2_errok>>
+{
+  SKIP_ON_ERROR ;
+  PASS2 {
+    connection_node *d1, *d2 ;
+    d1 = $1 ;
+    d2 = $2 ;
+    
+    if(d1) {
+      while(d1->next) d1 = d1->next ;
+      d1->next = d2 ;
+    }
+  }
+  $$ = $1 ;
+  yyerrok ;
+  error_flag = 0 ;
+}
+
+<<Expression_D1_NEXTeqD2_errok>>
+{
+  SKIP_ON_ERROR ;
+  PASS2 {
+    expression_node *d1, *d2 ;
+    d1 = $1 ;
+    d2 = $2 ;
+    
+    if(d1) {
+      while(d1->next) d1 = d1->next ;
+      d1->next = d2 ;
+    }
+  }
+  $$ = $1 ;
+  yyerrok ;
+  error_flag = 0 ;
+}
+
+<<Name_D1_NEXTeqD3>>
+{
+  SKIP_ON_ERROR ;
+  PASS1 {
+    named_node *d1, *d3 ;
+    d1 = $1 ;
+    d3 = $3 ;
+    
+    if(d1) {
+      while(d1->next) d1 = d1->next ;
+      d1->next = d3 ;
+    }
+  }
+  $$ = $1 ;
+}
+
+<<Statement_D1_NEXTeqD3>>
+{
+  SKIP_ON_ERROR ;
+  PASS2 {
+    statement_node *d1, *d3 ;
+    d1 = $1 ;
+    d3 = $3 ;
+    
+    if(d1) {
+      while(d1->next) d1 = d1->next ;
+      d1->next = d3 ;
+    }
+  }
+  $$ = $1 ;
+}
+
+<<Expression_D1_NEXTeqD3>>
+{
+  SKIP_ON_ERROR ;
+  PASS2 {
+    expression_node *d1, *d3 ;
+    d1 = $1 ;
+    d3 = $3 ;
+    
+    if(d1) {
+      while(d1->next) d1 = d1->next ;
+      d1->next = d3 ;
+    }
+  }
+  $$ = $1 ;
+}
+
+<<DDeqD1>>
+{
+  $$ = $1 ; 
+}
+
+<<DDeqD1_errok>>
+{
+  $$ = $1 ;
+  yyerrok; 
+  error_flag = 0 ;
+}
+
+<<DDeqD2>>
+{
+  $$ = $2 ; 
+}
+
+<<DDeqD3>>
+{
+  $$ = $3 ; 
+}
+
+<<DDeqNULL>>
+{
+  $$ = NULL ;
+}
+
+<<DDeqNULL_errok>>
+{
+  $$ = NULL ;
+  yyerrok ;
+  error_flag = 0 ;
+}
+
+<<enter_scope>>
+{
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    enter_scope() ;
+  }
+}
+
+<<exit_scope>>
+{
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    exit_scope() ;
+  }
+}
+
+#########################################
+#   translation_unit
+#########################################
+<<trns_unit>>
+{
+  /* trns_unit */
+
+  SKIP_ON_ERROR ;
+  PASS2 {
+    root_block = $1 ;
+  }
+  $$ = $1 ;
+}
+
+<<type_block>>
+{
+  /* type_block */
+  
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(block_node) ;
+    $$->type = JD_type_definition ;
+    $$->is.local_global_var.dcl = $1 ; /* temporaly store here */
+    /* in the case of class variable definition, this node becomes
+       NULL, and no further action is required. (true?)
+     */
+  }
+}
+
+#########################################
+#   port_definition
+#########################################
+<<port_definition>>
+{
+  /* port_definition */
+  $$ = NULL ;
+  ERROR_CLR_BLOCK {
+    PASS2 {
+      $$ = ALLOC(block_node) ;
+      $$->type = JD_port_block ;
+      $$->is.port = $1 ;
+    }
+  }
+}
+
+<<port_dcl>>
+{
+  /* port_dcl */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    $3->info.port.portset = NULL ;
+    $3->info.port.type = $1 ;
+    if( $2 ) {
+      $3->ub = $2->is.range.int_ub ;
+      $3->lb = $2->is.range.int_lb ;
+      $3->i_endian = $2->is.range.i_endian ;
+    }
+  }
+  PASS2 {
+    named_node *port ;
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_portdef_exp ;
+    $$->filename = $5.filename ;
+    $$->linenum = $5.linenum ;
+    $$->is.port = $3 ;
+    scan_port_attrib( $3, $4, $5.filename, $5.linenum ) ; 
+    /* name, list_atrib */
+  }
+}
+
+
+<<input>>
+{
+  /* input */
+  $$ = JD_port_input ;
+}
+
+<<output>>
+{
+  /* output */
+  $$ = JD_port_output ;
+}
+<<inout>>
+{
+  /* inout */
+  $$ = JD_port_inout ;
+}
+
+<<port_name>>
+{
+  /* port_name */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    if( findname_in_scope( current_scope, $1.name ) ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_DUPLICATED_NAME($1.name) ;
+      $$ = NULL ;
+    }
+    else {
+      $$ = ALLOC(named_node) ;
+      $$->type = JD_port_name ;
+      $$->name = $1.name ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+      addname( $$ ) ;
+    }
+  }
+  PASS2{
+    $$ = findname_in_scope( current_scope, $1.name ) ;
+    if( !$$ || $$->type != JD_port_name ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($1.name) ;
+      $$ = NULL ;
+    }
+  }
+}
+
+#########################################
+#   port attrib
+#########################################
+
+<<clock_attrib>>
+{
+  /* clock_attrib */
+  $$ = NULL ;
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( $2 != NULL ) {
+      $$ = ALLOC(expression_node) ;
+      $$->type = JD_port_attr_exp ;
+      $$->is.port_attr.attr = JD_port_clock ;
+      $$->is.port_attr.port_name = $2 ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+    }
+  }
+}
+
+<<individual_port_name>>
+{
+  /* clock_port_name */
+  $$ = NULL ;
+  SKIP_ON_ERROR ;
+  PASS2{
+    $$ = findname_in_scope( top_scope, $1.name ) ;
+    if( !$$ || $$->type != JD_port_name ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_UNKNOWN_PORT_NAME($1.name) ;
+      $$ = NULL ;
+    }
+  }
+}
+
+<<portset_port>>
+{
+  /* portset_port */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    named_node *port_set ;
+    named_node *name ;
+    
+    $$ = NULL ;
+    
+    port_set = findname( $1.name ) ;
+    if( port_set == NULL || port_set->type != JD_portset_name ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_UNKNOWN_PORT_SET_NAME($1.name) ;
+    }
+    else {
+      name = findname_in_scope(port_set->child_scope, $3.name ) ;
+      if( name == NULL || name->type != JD_port_name ) {
+        ERROR_LOCATION( $3.filename, $3.linenum ) ;
+        ERROR_UNKNOWN_PORT_NAME($3.name) ;
+      }
+      else $$ = name ;
+    }
+  }
+}
+
+<<sample_attrib>>
+{
+  /* sample_attrib */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_port_attr_exp ;
+    $$->is.port_attr.attr = JD_port_sample ;
+    $$->is.port_attr.edge = $2 ;
+    $$->is.port_attr.skew = $3 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<drive_attrib>>
+{
+  /* sample_attrib */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_port_attr_exp ;
+    $$->is.port_attr.attr = JD_port_drive ;
+    $$->is.port_attr.edge = $2 ;
+    $$->is.port_attr.skew = $3 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<skew_attrib>>
+{
+  /* skew_attrib */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ =  $2 ;
+  }
+}
+
+<<depth_attrib>>
+{
+  /* depth_attrib */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_port_attr_exp ;
+    $$->is.port_attr.attr = JD_port_depth ;
+    $$->is.port_attr.depth = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<node_attrib>>
+{
+  /* node_attrib */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_port_attr_exp ;
+    $$->is.port_attr.attr = JD_port_node ;
+    $$->is.port_attr.node = $2.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+
+  }
+}
+
+#########################################
+#   port_set
+#########################################
+<<enter_port_scope>>
+{
+  /* enter_port_scope */
+
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    enter_scope( $2 ) ;
+  }
+}
+
+<<portset_def>>
+{
+  /* portset_def */
+  $$ = NULL ;
+  ERROR_CLR_BLOCK {
+    PASS2 {
+      scan_port_attrib ( $2, $3, $1.filename, $1.linenum ) ;
+        /* port_node *port, expression_node *list_attrib, 
+           char *filename, int linenum                    */
+      $$ = ALLOC(block_node) ;
+      $$->type = JD_portset_block ;
+      $$->name = $2 ;
+      $$->is.portset.port_list = $6 ;
+      {
+        expression_node *port ;
+        port = $6 ;
+        while( port ) {
+          port->is.port->info.port.portset = $2 ;
+          port = port->next ;
+        }
+      }
+    }
+  }
+}
+
+<<portset_name>>
+{
+  /* portset_name */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    if( findname_in_scope( current_scope, $1.name ) ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_DUPLICATED_NAME($1.name) ;
+      $$ = NULL ;
+    }
+    else {
+      $$ = ALLOC(named_node) ;
+      $$->type = JD_portset_name ;
+      $$->name = $1.name ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+      addname( $$ ) ;
+    }
+  }
+  PASS2{
+    $$ = findname_in_scope( current_scope, $1.name ) ;
+    if( !$$ || $$->type != JD_portset_name ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($1.name) ;
+    }
+  }
+}
+
+
+#########################################
+#   connection_set
+#########################################
+<<connectionset_definition>>
+{
+  /* connectionset_definition */
+  $$ = NULL ;
+  ERROR_CLR_BLOCK {
+    PASS2 {
+      $$ = ALLOC(block_node) ;
+      $$->type = JD_connectionset_block ;
+      $$->is.connection.connect_list = $3 ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+    } 
+  } 
+}
+
+<<port_connection>>
+{
+  /* port_connection */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(connection_node) ;
+    $$->port = $1 ;
+    $$->node_string = $2.name ;
+    $$->filename = $3.filename ;
+    $$->linenum = $3.linenum ;
+  }
+}
+
+#########################################
+#   local variable
+#########################################
+<<local_global_var_dcl>>
+{
+  /* local_global_var_dcl */
+  $$ = NULL ;
+  ERROR_CLR_BLOCK {
+    PASS2 {
+    
+      $$ = ALLOC(block_node) ;
+      $$->is.local_global_var.dcl = $1 ;
+      $$->scope = current_scope ;
+      if( $1 ) {
+        $$->type =
+          $1->is.variable.declare->is_local ? 
+            JD_local_var_dcl : JD_global_var_dcl ;
+        if( $1->is.variable.declare->is_static ) {
+          ERROR_LOCATION( $1->filename, $1->linenum ) ;
+          ERROR_ILLEGAL_STATIC_ATTRIBUTE_FOR_LOCAL_GLOBAL_VARIABLE ;
+        }
+        if( $1->is.variable.declare->is_final ) {
+          ERROR_LOCATION( $1->filename, $1->linenum ) ;
+          ERROR_ILLEGAL_FINAL_ATTRIBUTE_FOR_LOCAL_GLOBAL_VARIABLE ;
+        }
+        if( $1->is.variable.declare->is_clone ) {
+          ERROR_LOCATION( $1->filename, $1->linenum ) ;
+          ERROR_ILLEGAL_CLONE_ATTRIB_FOR_VARIABLE_DECLARATION ; 
+        }
+      }
+    }
+  }
+}
+
+<<top_initial_statement_begin>>
+{
+  /* top_initial_statement_begin */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(block_node) ;
+    $$->type = JD_initial_statement_block ;
+    $$->parent = current_block ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    current_block = $$ ; /* set new block since statement will be parsed */
+    in_block++ ;  /* prohibit static usage */
+  }
+}
+
+<<initial_statement>>
+{
+  /* initial_statement */
+  $$ = NULL ;
+  ERROR_CLR_BLOCK {
+    PASS2 {
+      $$ = $2 ;
+      $$->is.initial.statement = $3 ;
+      current_block = $$->parent ;
+      in_block-- ;  /* control static usage */
+    }
+  }
+}
+
+<<initial_statement_begin>>
+{
+  /* initial_statement_begin */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    in_block++ ;  /* prohibit static usage */
+    class_initial_code = 1 ;
+  }
+}
+
+<<initial_statement_end>>
+{
+  /* initial_statement_end */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    in_block-- ;  /* control static usage */
+    class_initial_code = 0 ;
+  }
+  $$ = $3 ;
+}
+
+#########################################
+#   variable_definition
+#########################################
+
+<<var_defs>>
+{
+  /* var_defs */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    named_node *variable = $3 ;
+    while( !error_count && variable ) {
+      variable->data_type = $2 ;
+      if( findname_in_scope( current_scope, variable->name ) ) {
+        ERROR_LOCATION( variable->filename, variable->linenum ) ;
+        ERROR_DUPLICATED_NAME( variable->name ) ;
+      }
+      else {
+        addname( variable ) ;
+        set_var_def_flags( variable, class_parsing, aspect_parsing ) ;
+      }
+      variable = variable->next ; 
+    }
+  }
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_vardeclare_statement ;
+    $$->filename = $4.filename ;
+    $$->linenum = $4.linenum ;
+    $$->is.variable.declare = ALLOC(var_declaration) ;
+    if($2) $$->is.variable.declare->data_type = $2 ;
+    $$->is.variable.declare->var_list = $3 ;
+    {
+      named_node *variable = $3 ;
+      while( variable ) {
+        variable->data_type = $2 ;
+        if( variable->info.var.init ) {
+          if( !check_init_data_type( 
+                 variable->data_type, variable->info.var.init, 1 ) 
+            ) 
+          {
+            ERROR_LOCATION( $$->filename, $$->linenum ) ;
+            ERROR_ILLEGAL_DATA_TYPE_FOR_INITIALIZATION( variable->name ) ; 
+          }
+          if( variable->info.var.init->type == JD_rnd_exp || 
+              variable->info.var.init->type == JD_cyc_exp    )
+          {
+            expression_node *rnd = variable->info.var.init ;
+            switch( variable->data_type->type ) {
+              case JD_int_type:
+                rnd->is.rnd.dst_width = -1 ;
+                break ;
+              case JD_bit_type:
+                if( variable->data_type->i_endian )
+                  rnd->is.rnd.dst_width = 
+                    variable->data_type->lb - variable->data_type->ub + 1 ;
+                else
+                  rnd->is.rnd.dst_width = 
+                    variable->data_type->ub - variable->data_type->lb + 1 ;
+                break ;
+            }
+          }
+        }
+        variable->is_static = is_static_flag ;
+        variable->is_local = 
+          is_local_flag | ( is_static_flag & in_local_function ) ;
+        variable->is_clone = is_clone_flag ;
+        variable = variable->next ; 
+      }
+    }
+    $$->is.variable.declare->is_var = 0 ;
+    $$->is.variable.declare->is_arg = 0 ;
+    $$->is.variable.declare->is_static = is_static_flag ;
+    $$->is.variable.declare->is_local = 
+      is_local_flag | ( is_static_flag & in_local_function ) ;
+    $$->is.variable.declare->is_final = is_final_flag ;
+    $$->is.variable.declare->is_extern = is_extern_flag ;
+    $$->is.variable.declare->is_global = is_global_flag ;
+    $$->is.variable.declare->is_clone = is_clone_flag ;
+    
+    if( is_static_flag && (in_block > 1) ) {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_STATIC_VARIABLE_DECLARATION_WITHIN_LOCAL_BLOCK ;
+    }
+    if( is_abstract_flag ) {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_ABSTRUCT_ATTRIB_FOR_VARIABLE_DECLARATION ;
+    }
+    if( is_export_flag ) {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_EXPORT_ATTRIB_FOR_VARIABLE_DECLARATION ;
+    }
+    if( is_static_flag && no_static_flag ) {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_STATIC_ATTRIB_FOR_VARIABLE_DECLARATION ;
+    }
+    if( is_local_flag && no_local_flag ) {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_LOCAL_ATTRIB_FOR_VARIABLE_DECLARATION ;
+    }
+    if( is_final_flag && no_final_flag ) {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_FINAL_ATTRIB_FOR_VARIABLE_DECLARATION ;        
+    }
+    if( is_extern_flag && no_extern_flag ) {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_EXTERN_ATTRIB_FOR_VARIABLE_DECLARATION ;        
+    }
+    if( is_clone_flag && no_clone_flag ) {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_CLONE_ATTRIB_FOR_VARIABLE_DECLARATION ; 
+    }
+    if( is_global_flag && no_global_flag ) {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_GLOBAL_ATTRIB_FOR_VARIABLE_DECLARATION ; 
+    }
+    if( ( is_global_flag && is_local_flag )  ||
+        ( is_extern_flag && is_global_flag ) ||
+        ( is_extern_flag && is_clone_flag ) ||
+        ( is_local_flag  && is_clone_flag ) ||
+        ( is_global_flag && is_clone_flag ) ||
+        ( is_local_flag && is_extern_flag )     ) {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_COMBINATION_OF_VARIABLE_ATTRIBUTE ;
+    }
+  }  
+  CLEAR_VAR_FUNC_ATTR_FLAGS ;
+}
+
+<<var_name>>
+{
+  /* var_name */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    $$ = ALLOC(named_node) ;
+    if( class_parsing || aspect_parsing )
+      $$->type = JD_mvar_name ;
+    else 
+      $$->type = JD_var_name ;
+    $$->name = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    $$->info.var.range = $2 ;
+    if( $3 ) { /* initialize variable */
+      /* Can't check the type here, since we don't know the type yet */
+      if( $2 != NULL ) {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_ILLEGAL_INITIALIZATION_ON_ARRAY_VARIABLE ;
+      }
+    }
+    if( $2 == NULL ) $$->sub_type = JD_single_sub_type ;
+    else if( $2->type == JD_single_range_exp ) {
+      /* [n]([n]..) */
+      if( $2->is.range.num_index > 1 ) 
+        $$->sub_type = JD_multi_array_sub_type ;
+      else
+        $$->sub_type = JD_array_sub_type ;
+    }
+    else if( $2->type == JD_assoc_array_exp ) /* [] */
+      $$->sub_type = JD_assoc_sub_type ;
+    else if( $2->type == JD_stridx_array_exp ) /* [*] */
+      $$->sub_type = JD_stridx_sub_type ;
+    else if( $2->type == JD_list_array_exp )   /* <> */
+      $$->sub_type = JD_list_sub_type ;
+  }
+  PASS2{
+    $$ = findname_in_scope( current_scope, $1.name ) ;
+    if( !$$ || ( $$->type != JD_mvar_name && $$->type != JD_var_name ) ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($1.name) ;
+    }
+    $$->info.var.init = $3 ;
+  }
+}
+
+<<array_ranges>>
+{
+  /* array_ranges */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = $1 ;
+    if( $$ ) {
+      expression_node *index = $$ ;
+      int i = 0 ;
+    
+      /* setting how many index are used (nulti-dimention) */
+      while( index ) {
+        i++ ;
+        index = index->next ;  
+      }
+      $$->is.range.num_index = i ;
+    }
+  }
+}
+
+<<array_range>>
+{
+  /* array_range */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_single_range_exp ;
+    $$->is.range.ub = $2 ;
+    if( !eval_to_int( $2, &$$->is.range.int_ub ) || $$->is.range.int_ub < 0 ) {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      ERROR_ILLEGAL_ARRAY_INDEX ;
+    }
+    $$->is.range.num_index = 1 ;
+    $$->filename = $3.filename ;
+    $$->linenum = $3.linenum ;
+  }
+}
+  
+<<string_indexed_array_range>>
+{
+  /* string_indexed_array_range */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_stridx_array_exp ;
+    $$->filename = $3.filename ;
+    $$->linenum = $3.linenum ;
+  }
+}
+
+<<assoc_array_range>>
+{
+  /* assoc_array_range */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_assoc_array_exp ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+  }
+}
+
+<<list_range>>
+{
+  /* list_range */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_list_array_exp ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+  }
+}
+
+<<list_assoc_range>>
+{
+  /* list_array_range */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_list_assoc_array_exp ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+  }
+}
+
+#########################################
+#   variable_definition
+#########################################
+<<static>>
+{
+  /* static */
+  PASS1_2 {
+    is_static_flag = 1 ;
+  }
+  $$ = NULL ;
+}
+
+<<extern>>
+{
+  /* extern */
+  PASS1_2 {
+    is_extern_flag = 1 ;
+  }
+  $$ = NULL ;
+}
+
+<<local>>
+{
+  /* local */
+  PASS1_2 {
+    is_local_flag = 1 ;
+  }
+  $$ = NULL ;
+}
+
+<<global>>
+{
+  /* global */
+  PASS1_2 {
+    is_global_flag = 1 ;
+  }
+  $$ = NULL ;
+}
+
+<<protected>>
+{
+  /* protected */
+  PASS1_2 {
+    is_protected_flag = 1 ;
+  }
+  $$ = NULL ;
+}
+
+<<abstract>>
+{
+  /* abstract */
+  PASS1_2 {
+    is_abstract_flag = 1 ;
+  }
+  $$ = NULL ;
+}
+
+<<final>>
+{
+  /* final */
+  PASS1_2 {
+    is_final_flag = 1 ;
+  }
+  $$ = NULL ;
+}
+
+<<export>>
+{
+  /* final */
+  PASS1_2 {
+    is_export_flag = 1 ;
+  }
+  $$ = NULL ;
+}
+
+<<clone>>
+{
+  /* clone */
+  PASS1_2 {
+    is_clone_flag = 1 ;
+  }
+  $$ = NULL ;
+}
+
+<<overwrite>>
+{
+  /* overwrite */
+  PASS1_2 {
+    is_overwrite_flag = 1 ;
+  }
+  $$ = NULL ;
+}
+
+
+#########################################
+#   data_type
+#########################################
+<<evoid>>
+{
+  /* void */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_void_type ;
+  }
+}
+
+<<func_type>>
+{
+  /* func_type */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = $1 ;
+    if( $$ != NULL ) {
+      $$->info.var.range = $2 ;
+      if( $2 ) {
+        switch( $2->type ) {
+          case JD_single_range_exp:
+            if( $2->is.range.num_index > 1 ) 
+              $$->sub_type = JD_multi_array_sub_type ;
+            else
+              $$->sub_type = JD_array_sub_type ;
+            break ;
+          case JD_stridx_array_exp:
+            $$->sub_type = JD_stridx_sub_type ;
+            break ;
+          case JD_assoc_array_exp:
+            $$->sub_type = JD_assoc_sub_type ;
+            break ;
+          case JD_list_array_exp:
+            $$->sub_type = JD_list_sub_type ;
+            break ;
+        }
+      }
+      else {
+        $$->sub_type = JD_single_sub_type ;
+      }
+    }
+  }
+}
+
+<<void>>
+{
+  /* void */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_void_type ;
+    $$->name = "void" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<int>>
+{
+  /* int */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_int_type ;
+    $$->name = "int" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<long>>
+{
+  /* long */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_long_type ;
+    $$->name = "long" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<float>>
+{
+  /* float */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_float_type ;
+    $$->name = "float" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<double>>
+{
+  /* double */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_double_type ;
+    $$->name = "double" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<bit>>
+{
+  /* bit */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_bit_type ;
+    $$->name = "bit" ;
+    if( $2 ) {
+      $$->ub = $2->is.range.int_ub ;
+      $$->lb = $2->is.range.int_lb ;
+      $$->i_endian = $2->is.range.i_endian ;
+      DEALOC($2) ;
+    }
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<bit_name>>
+{
+  /* bit */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_bit_type ;
+    $$->name = "bit" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<string>>
+{
+  /* string */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_string_type ;
+    $$->name = "string" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<signal>>
+{
+  /* signal */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_signal_type ;
+    $$->name = "signal" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<port>>
+{
+  /* signal */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_dport_type ;
+    $$->name = "port" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<class_type>>
+{
+  /* class_type */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->name = "class_type" ;
+    $$->type = JD_class_type ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<user_type>>
+{
+  /* user_type */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    $$ = find_user_type( $1.name ) ;
+  }
+  PASS2 {
+    $$ = find_user_type( $1.name ) ;
+    if($$ == NULL ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_FOR_USER_DATA_TYPE($1.name) ; 
+    }
+  }  
+}
+
+<<bit_range>>
+{
+  /* bit_range */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    int size0, size1  ;
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_bit_range_exp ;
+    $$->is.range.ub = $2 ;
+    $$->is.range.lb = $4 ;
+    if( !eval_to_int( $2, &size1 ) || !eval_to_int( $4, &size0 ) ) {
+      ERROR_LOCATION( $5.filename, $5.linenum ) ;
+      ERROR_ILLEGAL_BIT_RANGE_INDEX ;
+    }
+    else {
+      $$->is.range.int_ub = size1 ; 
+      $$->is.range.int_lb = size0 ;
+      if( $$->is.range.int_ub < 0 ) {
+        ERROR_LOCATION( $5.filename, $5.linenum ) ;
+        ERROR_ILLEGAL_BIT_RANGE_INDEX ;
+      }
+      else {
+        if( $$->is.range.int_lb < 0 ) {
+          ERROR_LOCATION( $5.filename, $5.linenum ) ;
+          ERROR_ILLEGAL_BIT_RANGE_INDEX ;
+        }
+        else {
+          if( size1 < size0 ) {
+            $$->is.range.i_endian = 1 ;
+          }
+          else {
+            $$->is.range.i_endian = 0 ;
+          }
+        }
+      }
+    }
+    $$->filename = $5.filename ;
+    $$->linenum = $5.linenum ;
+  }
+}
+
+<<array>>
+{
+  /* array */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_void_type ;
+    $$->name = "array" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<marray>>
+{
+  /* array */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_void_type ;
+    $$->name = "marray" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<assoc>>
+{
+  /* assoc */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_void_type ;
+    $$->name = "assoc" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<stridx>>
+{
+  /* stridx */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_void_type ;
+    $$->name = "stridx" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<list>>
+{
+  /* list */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_void_type ;
+    $$->name = "list" ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+#########################################
+#   type_definition
+#########################################
+<<enum_type_dec>>
+{
+  /* new_enum_type_dec */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    named_node *enm ;
+    named_node *member ;
+    int n ;
+    if( findname_in_scope( current_scope, $2.name ) ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_DUPLICATED_NAME( $2.name ) ;
+      break ;
+    }
+    else {
+      enm = ALLOC(named_node) ;
+      enm->type = JD_enum_type ;
+      enm->name = $2.name ;
+      enm->filename = $2.filename ;
+      enm->linenum = $2.linenum ;
+      addname( enm ) ;
+      enm->info.enum_members = $4 ;
+      member = $4 ;
+      n = 0 ;
+      while( member ) {
+        if( findname_in_scope( current_scope, member->name ) ) {
+          ERROR_LOCATION( member->filename, member->linenum ) ;
+          ERROR_DUPLICATED_NAME( member->name ) ;
+        }
+        addname( member ) ;
+        member->data_type = enm ;
+        member->info.enum_body = enm ;
+        member->index = n++ ;
+        member = member->next ;
+      }
+    }
+  }
+  PASS2{
+    named_node *enm ;
+    enm = findname_in_scope( current_scope, $2.name ) ;
+    if( !enm || enm->type != JD_enum_type ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($2.name) ;
+    }
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_enum_def_statement ;
+    $$->is.enum_def.edf = enm ;
+    $$->filename = $5.filename ;
+    $$->linenum = $5.linenum ;
+  }  
+}
+
+<<enum_member>>
+{
+  /* enum_member */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    $$ = ALLOC(named_node) ;
+    $$->type = JD_enum_member_name ;
+    $$->name = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<class_name>>
+{
+  /* class_name */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    named_node *cls ;
+    if( cls = findname_in_scope( top_scope, $1.name ) ) {
+      if(cls->type != JD_class_name) {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_ILLEGAL_NAME_USAGE_FOR_CLASS( $1.name ) ;
+      }
+      $$ = cls ;
+    }
+    else {
+      $$ = ALLOC(named_node) ;
+      if( jeda_util_parsing ) $$->type = JD_sys_class_name ;
+      else $$->type = JD_class_name ;
+      $$->name = $1.name ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+      addname( $$ ) ;
+    }
+  }
+  PASS2{
+    named_node *cls ;
+    if( cls = findname_in_scope( top_scope, $1.name ) ) {
+      if(cls->type != JD_class_name && cls->type != JD_sys_class_name) {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_ILLEGAL_NAME_USAGE_FOR_CLASS( $1.name ) ;
+      }
+      $$ = cls ;
+    }
+  }
+}
+
+<<dot_class_name>>
+{
+  /* dot_class_name */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    named_node *cls ;
+    char *dot_name ;
+    dot_name = (char *)calloc( strlen($2->name)+2, sizeof(char) ) ;
+    dot_name[0] = '.' ;
+    strcat( &dot_name[1], $2->name ) ;
+    if( cls = findname_in_scope( top_scope, dot_name ) ) {
+      if(cls->type != JD_sys_class_name) {
+        ERROR_LOCATION( $2->filename, $2->linenum ) ;
+        ERROR_ILLEGAL_NAME_USAGE_FOR_CLASS( dot_name ) ;
+      }
+      $$ = cls ;
+    }
+    else {
+      $$ = ALLOC(named_node) ;
+      $$->type = JD_sys_class_name ;
+      $$->name = dot_name ;
+      $$->filename = $2->filename ;
+      $$->linenum = $2->linenum ;
+      addname( $$ ) ;
+    }
+  }
+  PASS2{
+    named_node *cls ;
+    char *dot_name ;
+    dot_name = (char *)calloc( strlen($2->name)+2, sizeof(char) ) ;
+    dot_name[0] = '.' ;
+    strcat( &dot_name[1], $2->name ) ;
+    if( cls = findname_in_scope( top_scope, dot_name ) ) {
+      if(cls->type != JD_sys_class_name) {
+        ERROR_LOCATION( $2->filename, $2->linenum ) ;
+        ERROR_ILLEGAL_NAME_USAGE_FOR_CLASS( dot_name ) ;
+      }
+      $$ = cls ;
+    }
+  }
+}
+
+<<class_name_ref>>
+{
+  /* class_name_ref */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    named_node *cls ;
+    if( cls = findname_in_scope( top_scope, $1.name ) ) {
+      if(cls->type != JD_class_name) {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_ILLEGAL_NAME_USAGE_FOR_CLASS( $1.name ) ;
+      }
+      $$ = cls ;
+    }
+    else {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_USAGE_FOR_CLASS( $1.name ) ;
+      $$ = NULL ;
+    }
+  }
+}
+
+#########################################
+#   function_definition
+#########################################
+<<func_name_found>>
+{
+  /* func_name_found */
+  SKIP_ON_ERROR ;
+  in_function = 1 ;
+  in_local_function = is_local_flag ;
+  current_func_name = $3 ;
+  PASS1 {
+    if( $3 ) {
+      if( $3->type == JD_unknown_name ) {
+        if( class_parsing || aspect_parsing ) {
+          $3->type = JD_mfunc_name ;
+        }
+        else {
+          $3->type = JD_func_name ;
+        }
+      }
+    }
+    enter_scope( $3 ) ;
+    $3->data_type = $2 ;
+  }
+  PASS2 {
+    $3->data_type = $2 ;
+    enter_scope( $3 ) ;
+    /* save flag value to yacc stack */
+    $<flags>$.is_static_flag = is_static_flag ;
+    $<flags>$.is_extern_flag = is_extern_flag ;
+    $<flags>$.is_local_flag = is_local_flag ;
+    $<flags>$.is_protected_flag = is_protected_flag ;
+    $<flags>$.is_overwrite_flag = is_overwrite_flag ;
+    $<flags>$.is_abstract_flag = is_abstract_flag ;
+    $<flags>$.is_final_flag = is_final_flag ;
+    $<flags>$.is_export_flag = is_export_flag ;
+  }
+  CLEAR_VAR_FUNC_ATTR_FLAGS ;
+}
+
+<<formal_arg_check>>
+{
+  PASS2 {
+    if( !abstract_arg_check( $6, 0 ) ) {
+      ERROR_LOCATION( $7.filename, $7.linenum ) ;
+      ERROR_ILLEGAL_MIXTURE_OF_ABSTRUCT_ARGUMENT ;
+    }
+  }
+}
+
+<<func_define>>
+{
+  /* func_define */
+  if( !in_function ) break ;
+  current_func_name = NULL ;
+  PASS1_2 {
+    exit_scope() ;
+    in_function = 0 ;
+    in_local_function = 0 ;
+  }
+  ERROR_CLR_BLOCK {
+    PASS2 {
+      /* restore flag value from yacc stack */
+      is_static_flag = $<flags>5.is_static_flag  ;
+      is_extern_flag = $<flags>5.is_extern_flag  ;
+      is_local_flag = $<flags>5.is_local_flag  ;
+      is_protected_flag = $<flags>5.is_protected_flag  ;
+      is_overwrite_flag = $<flags>5.is_overwrite_flag  ;
+      is_abstract_flag = $<flags>5.is_abstract_flag  ;
+      is_final_flag = $<flags>5.is_final_flag  ;
+      is_export_flag = $<flags>5.is_export_flag  ;
+      if( $9 == NULL ) { /* $9 = opt_outer_block */
+        if( is_export_flag ) {
+          ERROR_LOCATION( $7.filename, $7.linenum ) ;
+          ERROR_ILLEGAL_EXPORT_ATTRIB_USAGE ;
+        }
+        if( is_abstract_flag && aspect_parsing ) {
+          ERROR_LOCATION( $7.filename, $7.linenum ) ;
+          ERROR_ILLEGAL_ABSTRACT_ATTRIB_USAGE ;
+        }
+        /*
+        if( is_overwrite_flag ) {
+          ERROR_LOCATION( $7.filename, $7.linenum ) ;
+          ERROR_ILLEGAL_OVERWRITE_ATTRIB_USAGE ;
+        }
+        */
+        if( class_parsing || aspect_parsing ) {
+          /* member function declaration */
+          if( $3->info.func.class_block == NULL )
+          {
+            $$ = ALLOC(block_node) ;
+            $$->type = JD_memberfunction_definition ;
+            $$->name = $3 ;
+            $$->name->data_type = $2 ;
+            $$->is.func.args = $6 ;
+            $3->info.func.args = $6 ;
+            $$->linenum = $3->linenum ;
+            $$->filename = $3->filename ;
+            $3->info.func.class_block = current_block ;
+            $3->info.func.func_block = $$ ;
+            set_mfunc_def_flags( $3 ) ;
+          }
+          else check_member_func( $2, $3, $6 ) ;
+        }
+        else { 
+          /* function declaration */
+          if( $3->info.func.func_block == NULL ) {
+            $$ = ALLOC(block_node) ;
+            $$->type = JD_function_definition ;
+            $$->name = $3 ;
+            $$->name->data_type = $2 ;
+            $$->is.func.args = $6 ;
+            $3->info.func.args = $6 ;
+            $$->linenum = $4.linenum ;
+            $$->filename = $4.filename ;
+            $3->info.func.func_block = $$ ;
+            set_func_def_flags( $3 ) ;
+            if( !strcmp( $$->name->name, "main" ) && $6 != NULL ) {
+              ERROR_LOCATION( $7.filename, $7.linenum ) ;
+              ERROR_ILLEGAL_MAIN_DEFINITION_WITH_ARGUMENT ;
+            }
+          }
+          else check_func( $2, $3, $6 ) ;
+        }
+      }
+      else {  /* body block exist */
+        if( is_abstract_arg( $6 ) ) {
+          ERROR_LOCATION( $7.filename, $7.linenum ) ;
+          ERROR_ILLEGAL_USAGE_OF_ABSTRUCT_ARGUMENT ;
+        }
+        if( class_parsing || aspect_parsing ) {
+          /* member function declaration */
+          if( is_abstract_flag ) {
+            ERROR_LOCATION( $7.filename, $7.linenum ) ;
+            ERROR_ILLEGAL_ABSTRUCT_FUNCTION_WITH_ACTUAL_BLOCK ;
+          }
+          if( is_export_flag ) {
+            ERROR_LOCATION( $7.filename, $7.linenum ) ;
+            ERROR_ILLEGAL_EXPORT_ATTRIB_USAGE ;
+          }
+          if( $3->info.func.class_block == NULL )
+          {
+            $$ = ALLOC(block_node) ;
+            $$->type = JD_memberfunction_definition ;
+            $$->name = $3 ;
+            $$->is.func.block = $9 ;
+            $$->is.func.args = $6 ;
+            $3->info.func.args = $6 ;
+            $$->linenum = $4.linenum ;
+            $$->filename = $4.filename ;
+            $3->info.func.class_block = current_block ;
+            $3->info.func.func_block = $$ ;
+            set_mfunc_def_flags( $3 ) ;
+          }
+          else if( $3->info.func.func_block->is.func.block ) {
+            ERROR_LOCATION( $4.filename, $4.linenum ) ;
+            ERROR_MULTIPLE_DECLARATION_OF_FUNCTION_FOUND ;
+          }
+          else {
+            check_member_func( $2, $3, $6 ) ;
+            $$->is.func.block = $9 ;
+            $$->linenum = $4.linenum ;
+            $$->filename = $4.filename ;
+          }
+        }
+        else { 
+          /* function declaration */
+          if( is_export_flag && $2->type != JD_void_type ) {
+            ERROR_LOCATION( $7.filename, $7.linenum ) ;
+            ERROR_EXPORT_FUNCTION_MUST_BE_VOID_TYPE ;
+          }
+          if( $3->info.func.func_block == NULL ) {
+            $$ = ALLOC(block_node) ;
+            $$->type = JD_function_definition ;
+            $$->name = $3 ;
+            $$->is.func.block = $9 ;
+            $$->is.func.args = $6 ;
+            $3->info.func.args = $6 ;
+            $$->linenum = $4.linenum ;
+            $$->filename = $4.filename ;
+            $3->info.func.func_block = $$ ;
+            set_func_def_flags( $3 ) ;
+            if( !strcmp( $$->name->name, "main" ) && $6 != NULL ) {
+              ERROR_LOCATION( $7.filename, $7.linenum ) ;
+              ERROR_ILLEGAL_MAIN_DEFINITION_WITH_ARGUMENT ;
+            }
+            if( is_export_flag ) {
+              int n = 1 ;
+              statement_node *farg =  $6 ;
+              while( farg ) {
+                if( !is_bit_arg(farg) ) {
+                  ERROR_LOCATION( $7.filename, $7.linenum ) ;
+                  ERROR_ILLEGAL_NTH_ARG_TYPE_FOR_EXPORT_FUNCTION(n) ;
+                }
+                n++ ;
+                farg = farg->next ;
+              }
+            }
+          }
+          else if ($3->type != JD_func_name) {
+            ERROR_LOCATION( $4.filename, $4.linenum ) ;
+            ERROR_ILLEGAL_NAME_FOR_FUNCTION( $3->name ) ;
+          }
+          else if( $9 && $3->info.func.func_block->is.func.block ) {
+              ERROR_LOCATION( $4.filename, $4.linenum ) ;
+              ERROR_MULTIPLE_DECLARATION_OF_FUNCTION_FOUND ;
+          }
+          else {
+            check_func( $2, $3, $6 ) ;
+            $3->info.func.func_block->is.func.block = $9 ;
+            $3->info.func.func_block->linenum = $4.linenum ;
+            $3->info.func.func_block->filename = $4.filename ;
+            $$ = NULL ;
+          }
+        }      
+      }
+    }
+  }
+  CLEAR_VAR_FUNC_ATTR_FLAGS ;
+}
+
+<<formal_arg>>
+{
+  /* formal_arg */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    if( $3 ) {
+      $3->info.var.is_var = $1 ;
+      $3->info.var.range = $4 ;
+      $3->data_type = $2 ;
+      if( $4 ) {
+        switch( $4->type ) {
+          case JD_single_range_exp:
+            if( $4->is.range.num_index > 1 ) 
+              $3->sub_type = JD_multi_array_sub_type ;
+            else
+              $3->sub_type = JD_array_sub_type ;
+            break ;
+          case JD_stridx_array_exp:
+            $3->sub_type = JD_stridx_sub_type ;
+            break ;
+          case JD_assoc_array_exp:
+            $3->sub_type = JD_assoc_sub_type ;
+            break ;
+          case JD_list_array_exp:
+            $3->sub_type = JD_list_sub_type ;
+            break ;
+        }
+      }
+      else {
+        $3->sub_type = JD_single_sub_type ;
+      }
+    }
+  }
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_vardeclare_statement ;
+    $$->is.variable.declare = ALLOC(var_declaration) ;
+    $$->is.variable.declare->data_type = $2 ;
+    $$->is.variable.declare->var_list = $3 ;
+    $$->is.variable.declare->is_var = $1 ;
+    $$->is.variable.declare->is_arg = 1 ;
+    if( $3 ) {
+      $3->data_type = $2 ;
+      $3->info.var.init = $5 ;
+      if( $3->info.var.init ) {
+        if( !check_init_data_type( 
+               $3->data_type, $3->info.var.init, 0 ) 
+          ) 
+        {
+          ERROR_LOCATION( $3->filename, $3->linenum ) ;
+          ERROR_ILLEGAL_DATA_TYPE_FOR_INITIALIZATION( $3->name ) ; 
+        }
+      }
+      $3->info.var.is_var = $1 ;
+    }
+  }
+}
+
+<<formal_arg_type>>
+{
+  /* formal_arg_type */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_formal_arg_statement ;
+    $$->is.formal_arg.data_type = $1 ;
+  }
+}
+
+<<wild_card_arg>>
+{
+  /* wild_card_arg */
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_wildcard_arg_statement ;
+  }
+}
+
+<<one_or_more_args>>
+{
+  /* one_or_more_args */
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_one_or_more_arg_statement ;
+    $$->is.formal_arg.child = $2 ;
+  }
+}
+
+<<zero_or_more_args>>
+{
+  /* zero_or_more_args */
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_zero_or_more_arg_statement ;
+    $$->is.formal_arg.child = $2 ;
+  }
+}
+
+<<or_of_formal_args>>
+{
+  /* or_of_formal_args */
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_or_of_args_statement ;
+    $$->is.formal_arg.child = $2 ;
+  }
+}
+
+<<opt_formal_args>>
+{
+  /* opt_formal_args */
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_opt_args_statement ;
+    $$->is.formal_arg.child = $2 ;
+  }
+}
+
+<<arg_name>>
+{
+  /* arg_name */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    if( findname_in_scope( current_scope, $1.name ) ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_DUPLICATED_NAME($1.name) ;
+    }
+    else {
+      $$ = ALLOC(named_node) ;
+      $$->type = JD_arg_name ;
+      $$->name = $1.name ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+      addname( $$ ) ;
+    }
+  }
+  PASS2 {
+    $$ = findname_in_scope( current_scope, $1.name ) ;
+    if( !$$ || $$->type != JD_arg_name ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($1.name) ;
+    }
+  }
+}
+
+<<func_name>>
+{
+  /* func_name */
+  named_node *nm ;
+  named_node *scope ;
+  SKIP_ON_ERROR ;
+  PASS1 {
+    if( nm = findname_in_scope( current_scope, $1.name ) ) {
+      $$ = nm ;
+      if( 
+        ((class_parsing || aspect_parsing) && nm->type != JD_mfunc_name) ||
+        (!class_parsing && !aspect_parsing && nm->type != JD_func_name )   
+        ) 
+      {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_DUPLICATED_NAME($1.name) ;
+      }
+    }
+    else {
+      $$ = ALLOC(named_node) ;
+      /* type can't be defined yet */
+      $$->name = $1.name ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+      /* type can't be defined yet */
+      $$->type = JD_unknown_name ;
+      /* printf( "adding func_name %s\n", $$->name ) ; */
+      addname( $$ ) ;
+    }
+  }
+  PASS2 {
+    nm = findname_in_scope( current_scope, $1.name ) ;
+    $$ = nm ;
+    if (nm == NULL) {
+      printname_in_scope( current_scope ) ;
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($1.name) ;
+    }
+    else {
+      if( 
+        ((class_parsing || aspect_parsing) && nm->type != JD_mfunc_name) ||
+        (!class_parsing && !aspect_parsing && nm->type != JD_func_name )   
+        ) 
+      {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($1.name) ;
+      }
+    }
+  }
+}
+
+
+#########################################
+#   class definition
+#########################################
+
+<<class_def_begin>>
+{
+  /* class_def_begin */
+  SKIP_ON_ERROR ;
+  PASS1_2{
+    enter_class_scope( $3 ) ;
+    class_parsing = 1 ;
+    this_class_name = $3 ;
+  }
+  PASS1{
+    $3->info.class_name.parent = $4 ;
+    $3->is_abstract = is_abstract_flag ;
+    $3->is_extern = is_extern_flag ;
+    $3->is_local = is_local_flag ;
+    $3->is_final = is_final_flag ;
+  }
+  PASS2 {
+    /* at this point, name registration is already done by class_name */
+    $<block>$ = ALLOC(block_node) ;
+    $<block>$->name = $3 ;
+    $3->info.class_name.block = $<block>$ ;
+    $<block>$->filename = $2.filename ;
+    $<block>$->linenum = $2.linenum ;
+    $<block>$->type = JD_class_definition ;
+    $<block>$->parent = current_block ;
+    $<block>$->scope = current_scope ;
+    current_block = $<block>$ ;
+    $<block>$->is.class.is_abstract = is_abstract_flag ;
+    $<block>$->is.class.is_extern = is_extern_flag ;
+    $<block>$->is.class.is_local = is_local_flag ;
+    $<block>$->is.class.is_final = is_final_flag ;
+    $<block>$->linenum = $2.linenum ;
+    $<block>$->filename = $2.filename ;
+    in_file_used = 1 ;
+    if( !check_extention($3, $4) ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_NAME_USAGE_FOR_CLASS_EXTENTION( $4->name ) ;
+    }
+    if( is_static_flag ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_STATIC_ATTRIB_FOR_CLASS_DECLARATION ;
+    }
+    if( is_extern_flag && is_local_flag ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_COMBINATION_OF_EXTERN_AND_LOCAL ;
+    }
+  }
+  CLEAR_VAR_FUNC_ATTR_FLAGS ;
+}
+
+
+<<class_def_end>>
+{
+  /* class_def_end */
+  if( !class_parsing ) break ; /* error before entering class */
+  PASS1_2{
+    exit_scope( ) ;
+    class_parsing = 0 ;
+    this_class_name = NULL ;
+  }
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = $<block>5 ;
+    /* XXX may be this is not a right place to check consistency, as
+      it is possible that its parent is not yet fully parsed in PASS_2
+    check_abstract_members( $$->name, $8.filename, $8.linenum ) ;
+    check_overwrite_members( $$->name, $8.filename, $8.linenum ) ;
+     */
+    current_block = $$->parent ;
+  }
+}
+
+
+<<class_var_definition>>
+{
+  /* class_var_definition */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( current_block ) {
+      if( current_block->is.class.members == NULL ) {
+        current_block->is.class.members = $1 ;
+      }
+      else {
+        statement_node *member = current_block->is.class.members ;
+        while( member->next ) member = member->next ;
+        member->next = $1 ;
+      }
+    }
+    if( $1 )
+    {
+      named_node *pmem ;
+      named_node *variable = $1->is.variable.declare->var_list ;
+      while( variable ) {
+        if( this_class_name ) {
+          pmem = 
+            findname_in_classname( 
+              this_class_name->info.class_name.parent, 
+              variable->name 
+            ) ;
+          if( pmem && pmem->is_final ) {
+            ERROR_LOCATION( variable->filename, variable->linenum ) ;
+            ERROR_ILLEGAL_REDEFINITION_OF_FINAL_MEMBER_NAME(variable->name) ;
+          }
+        }
+        variable->is_member = 1 ;
+        variable = variable->next ; 
+      }
+    }
+  }
+}
+
+<<class_enum_definition>>
+{
+  /* class_enum_definition */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( current_block ) {
+      if( current_block->is.class.edf == NULL ) {
+        current_block->is.class.edf = $1 ;
+      }
+      else {
+        statement_node *edf = current_block->is.class.edf ;
+        while( edf->next ) edf = edf->next ;
+        edf->next = $1 ;
+      }
+    }
+  }
+}
+
+<<class_initial_statement>>
+{
+  /* class_initial_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( current_block ) {
+      if( current_block->is.class.initial == NULL ) {
+        current_block->is.class.initial = $1 ;
+      }
+      else {
+        statement_node *initial = current_block->is.class.initial ;
+        while( initial->next ) initial = initial->next ;
+        initial->next = $1 ;
+      }
+    }
+  }
+}
+
+<<class_function_definition>>
+{
+  /* class_function_definition */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( current_block ) {
+      if( current_block->is.class.member_funcs == NULL ) {
+        current_block->is.class.member_funcs = $1 ;
+      }
+      else {
+        block_node *member_funcs = current_block->is.class.member_funcs ;
+        while( member_funcs->next ) member_funcs = member_funcs->next ;
+        member_funcs->next = $1 ;
+      }
+    }
+    if( $1 ) {
+      named_node *pmem ;
+      if( this_class_name ) {
+        pmem = 
+          findname_in_classname( 
+            this_class_name->info.class_name.parent,
+            $1->name->name 
+          ) ;
+        if( pmem && pmem->is_final ) {
+          ERROR_LOCATION( $1->name->filename, $1->name->linenum ) ;
+          ERROR_ILLEGAL_REDEFINITION_OF_FINAL_MEMBER_NAME($1->name->name) ;
+        }
+      }
+      $1->name->is_member = 1 ;
+    }
+  }
+}
+
+#########################################
+#   new function_definition
+#########################################
+<<new_func_found>>
+{
+  /* new_func_found */
+  named_node *nm ;
+  SKIP_ON_ERROR ;
+  PASS1 {
+    if( !(nm = findname_in_scope( current_scope, "new" ) ) ) {
+      nm = ALLOC(named_node) ;
+      nm->name = (char *)strdup("new") ;
+      nm->filename = $2.filename ;
+      nm->linenum = $2.linenum ;
+      nm->type = JD_unknown_name ;
+      addname( nm ) ;
+      set_new_def_flags( nm ) ;
+    }
+    enter_scope( nm ) ;
+  }
+  PASS2 {
+    nm = findname_in_scope( current_scope, "new" ) ;
+    if (nm == NULL) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2("new") ;
+    }
+    enter_scope( nm ) ;
+  }
+}
+
+<<new_formal_arg_check>>
+{
+  PASS2 {
+    if( !abstract_arg_check( $5, 0 ) ) {
+      ERROR_LOCATION( $6.filename, $6.linenum ) ;
+      ERROR_ILLEGAL_MIXTURE_OF_ABSTRUCT_ARGUMENT ;
+    }
+  }
+}
+
+<<new_func_define>>
+{
+  /* new_func_define */
+  named_node *nm ;
+  PASS1_2 {
+    exit_scope() ;
+  }
+  ERROR_CLR_BLOCK {
+    PASS2 {
+      nm = findname_in_scope( current_scope, "new" ) ;
+      if (nm == NULL) {
+        ERROR_LOCATION( $2.filename, $2.linenum ) ;
+        ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2( "new" ) ;
+      }
+      if( $8 == NULL ) { /* $8 = opt_outer_block */
+        /* member function declaration */
+        if( nm->type == JD_unknown_name ) {
+          $$ = ALLOC(block_node) ;
+          $$->type = JD_memberfunction_definition ;
+          $$->name = nm ;
+          $$->is.func.args = $5 ;
+          $$->filename = $2.filename ;
+          $$->linenum = $2.linenum ;
+          nm->data_type = current_block->name ;
+          nm->type = JD_mfunc_name ;
+          nm->info.func.class_block = current_block ;
+          nm->info.func.func_block = $$ ;
+          nm->info.func.args = $5 ;
+        }
+        else check_member_func( nm->data_type, nm, $5 ) ;
+      }
+      else {  /* body block exist */
+        /* member function declaration */
+        if( is_abstract_arg( $5 ) ) {
+          ERROR_LOCATION( $6.filename, $6.linenum ) ;
+          ERROR_ILLEGAL_USAGE_OF_ABSTRUCT_ARGUMENT ;
+        }
+        if( nm->type == JD_unknown_name ) {
+          $$ = ALLOC(block_node) ;
+          $$->type = JD_memberfunction_definition ;
+          $$->name = nm ;
+          $$->is.func.block = $8 ;
+          $$->is.func.args = $5 ;
+          $$->filename = $2.filename ;
+          $$->linenum = $2.linenum ;
+          nm->data_type = current_block->name ;
+          nm->type = JD_mfunc_name ;
+          nm->info.func.class_block = current_block ;
+          nm->info.func.func_block = $$ ;
+          nm->info.func.args = $5 ;
+        }
+        else if (nm->type != JD_mfunc_name) {
+          ERROR_LOCATION( $2.filename, $2.linenum ) ;
+          ERROR_ILLEGAL_NAME_FOR_MEMBER_FUNCTION( nm->name ) ;
+        }
+        else if( nm->info.func.func_block->is.func.block ) {
+          ERROR_LOCATION( $2.filename, $2.linenum ) ;
+          ERROR_MULTIPLE_DECLARATION_OF_FUNCTION_FOUND ;
+        }
+        else {
+          check_member_func( nm->data_type, nm, $5 ) ;
+          $$->is.func.block = $8 ;
+          $$->filename = $2.filename ;
+          $$->linenum = $2.linenum ;
+        }
+        {
+          expression_node *data ;
+          named_node *super ;
+          named_node *mfunc ;
+          int tmp ;
+          data = $8->is.block.super_new ;
+          super = this_class_name->info.class_name.parent ;
+          if( data != NULL ) {
+            /* explisit super_new call */
+            
+            if( !super ) {
+              ERROR_LOCATION( data->filename, data->linenum ) ;
+              ERROR_ILLEGAL_SUPER_NEW_CALL ;
+            }
+            else {
+              mfunc = findmember_in_class( super, "new", &tmp ) ;
+              if( mfunc ) {
+                /* can't check here, do it expression.c 
+                actual_arg_check(
+                  mfunc, data->is.new.args, NULL, data->filename, data->linenum
+                ) ;
+                */
+              }
+              else {
+                if( data->is.new.args != NULL ) {
+                  ERROR_LOCATION(data->filename, data->linenum) ;
+                  ERROR_NUMBER_OF_ARGUMENT_MISMATCH_ON_NEW_FUNCTION ;
+                }
+              }
+            }
+          }
+          else {
+            /* implicit call, super.new should have default args, or no arg */
+            if( super ) {
+              mfunc = findmember_in_class( super, "new", &tmp ) ;
+              if( mfunc ) {
+                if( !arg_end_check(mfunc->info.func.args) ) {
+                  ERROR_LOCATION( $2.filename, $2.linenum ) ;
+                  ERROR_SUPER_NEW_CALL_REQUIRES_ARGMENTS ;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  CLEAR_VAR_FUNC_ATTR_FLAGS ;
+}
+
+<<new_block_statement>>
+{
+  /* new_block_statement */
+  if( !in_block ) break ;
+  PASS1_2 {
+    exit_scope() ;
+    in_block-- ;
+  }
+  SKIP_ON_ERROR ;
+  PASS2 {
+    statement_node *st ;
+    
+    current_block_level-- ;
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_block ;
+    $$->is.block.level = current_block_level ;
+    $$->is.block.vars = $3 ;
+    $$->is.block.super_new = $4 ;
+    $$->is.block.statements = $5 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<super_new_call>>
+{
+  /* super_new_call */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_new_exp ;
+    $$->data_type = JD_exp_new_type ;
+    $$->is.new.args = $4 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+#########################################
+#   verilog task definition
+#########################################
+
+<<verilog_class_begin>>
+{
+  /* verilog_class_begin */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    named_node *vlog ;
+    class_parsing = 1 ;
+    vlog = findname_in_scope( current_scope, "verilog" ) ;
+    if( vlog == NULL ) {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      ERROR_VERILOG_CLASS_NOT_FOUND ;
+    }
+    enter_class_scope( vlog ) ;
+  }
+  PASS2 {
+    $$ = ALLOC(block_node) ;
+    $$->name = findname_in_scope( current_scope, "verilog" ) ;
+    $$->type = JD_verilog_class ;
+    $$->parent = current_block ;
+    current_block = $$ ;
+    if( is_abstract_flag ) {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      ERROR_ILLEGAL_ABSTRUCT_ATTRIB_FOR_VERILOG_CLASS_DECLARATION ;
+    }
+    if( is_extern_flag ) {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      WARNING_ILLEGAL_EXTERN_ATTRIB_FOR_VERILOG_CLASS_DECLARATION ;
+    }
+    if( is_local_flag ) {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      ERROR_ILLEGAL_LOCAL_ATTRIB_FOR_VERILOG_CLASS_DECLARATION ;
+    }
+    if( is_final_flag ) {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      ERROR_ILLEGAL_FINAL_ATTRIB_FOR_VERILOG_CLASS_DECLARATION ;
+    }
+    if( is_export_flag ) {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      ERROR_ILLEGAL_EXPORT_ATTRIB_FOR_VERILOG_CLASS_DECLARATION ;
+    }
+    if( is_static_flag ) {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      ERROR_ILLEGAL_STATIC_ATTRIB_FOR_VERILOG_CLASS_DECLARATION ;
+    }
+  }
+  CLEAR_VAR_FUNC_ATTR_FLAGS ;
+}
+
+
+<<verilog_class_end>>
+{
+  /* verilog_class_end */
+  class_parsing = 0 ;
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    exit_scope() ;
+  }
+  PASS2 {
+    current_block = $<block>5->parent ;
+    $$ = $5 ;
+  }
+}
+
+<<veri_func_name_found>>
+{
+  /* veri_func_name_found */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    enter_scope( $2 ) ;
+  }
+}
+
+
+<<veri_func_define>>
+{
+  /* veri_func_define */
+  /* note that named_node for verilog function does not have arg names
+     as its child. Assuming that no futher code will be extended so
+     that there's no reason to have name structure
+   */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    exit_scope() ;
+  }
+  PASS1 {
+    $2->data_type = $1 ;
+    $2->type = JD_mfunc_name ;
+  }
+  PASS2 {
+    if( is_abstract_arg( $5 ) ) {
+      ERROR_LOCATION( $8.filename, $8.linenum ) ;
+      ERROR_ILLEGAL_USAGE_OF_ABSTRUCT_ARGUMENT ;
+    }
+    if( $1->type != JD_void_type ) {
+      ERROR_LOCATION( $8.filename, $8.linenum ) ;
+      ERROR_VERILOG_CLASS_FUNCTION_MUST_BE_VOID_TYPE ;
+    }
+    if( $2->info.func.func_block == NULL ) {
+      $$ = ALLOC(block_node) ;
+      $$->type = JD_verilog_function ;
+      $$->name = $2 ;
+      $$->filename = $8.filename ;
+      $$->linenum = $8.linenum ;
+      $$->is.func.args = $5 ;
+      $$->is.func.path = $7.name ;
+      $2->info.func.class_block = current_block ;
+      $2->info.func.func_block = $$ ;
+      $2->info.func.args = $5 ;
+      {
+        int n = 1 ;
+        statement_node *farg =  $5 ;
+        while( farg ) {
+          if( !is_simple_arg(farg) ) {
+            ERROR_LOCATION( $8.filename, $8.linenum ) ;
+            ERROR_ILLEGAL_NTH_ARG_TYPE_FOR_VERILOG_TASK(n) ;
+          }
+          n++ ;
+          farg = farg->next ;
+        }
+      }
+      if( current_block ) {
+        if( current_block->is.user_veri.funcs == NULL )
+          current_block->is.user_veri.funcs = $$ ;
+        else {
+          block_node *last = current_block->is.user_veri.funcs ;
+          while( last->next ) last = last->next ;
+          last->next = $$ ;
+        }
+      }
+    }
+    else {
+      if ($2->type != JD_verilog_function) { 
+        /* can't happen?? */
+        ERROR_LOCATION( $8.filename, $8.linenum ) ;
+        ERROR_ILLEGAL_NAME_FOR_MEMBER_FUNCTION( $2->name ) ;
+      }
+      else check_member_func( $1, $2, $5 ) ; /* may need special check */
+      if( strcmp( $2->info.func.func_block->is.func.path, $7.name ) ) {
+        ERROR_LOCATION( $8.filename, $8.linenum ) ;
+        ERROR_INCONSISTENT_VERILOG_TASK_PATH( $7.name ) ;
+      }
+      $$ = NULL ;
+    }
+  }
+}
+
+###########################################################################
+#                                                                         #
+#  ####    #####    ##     #####  ######  #    #  ######  #    #   #####  #
+# #          #     #  #      #    #       ##  ##  #       ##   #     #    #
+#  ####      #    #    #     #    #####   # ## #  #####   # #  #     #    #
+#      #     #    ######     #    #       #    #  #       #  # #     #    #
+# #    #     #    #    #     #    #       #    #  #       #   ##     #    #
+#  ####      #    #    #     #    ######  #    #  ######  #    #     #    #
+#                                                                         #
+###########################################################################
+
+#########################################
+#   block statement
+#########################################
+<<block_begin>>
+{
+  /* block_begin */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    enter_scope( current_scope ) ;
+    in_block++ ;
+    /* repeat_level = 0 ; */
+  }
+  PASS2 {
+    current_block_level++ ;
+  }
+}
+
+<<block_statement>>
+{
+  /* block_statement */
+  if( !in_block ) break ;
+  PASS1_2 {
+    exit_scope() ;
+    in_block-- ;
+  }
+  SKIP_ON_ERROR ;
+  PASS2 {
+    statement_node *st ;
+    
+    current_block_level-- ;
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_block ;
+    $$->is.block.level = current_block_level ;
+    $$->is.block.vars = $3 ;
+    $$->is.block.statements = $4 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+
+#########################################
+#  statement prefix
+#########################################
+<<label>>
+{
+  /* label */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    if( findname_in_scope( current_scope, $1.name ) ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_DUPLICATED_NAME($1.name) ;
+    }
+    else {
+      named_node *lb ;
+      lb = ALLOC(named_node) ;
+      lb->type = JD_label_name ;
+      lb->name = $1.name ;
+      lb->filename = $1.filename ;
+      lb->linenum = $1.linenum ;
+      addname( lb ) ;
+    }
+  }
+  PASS2 {
+    named_node *lb ;
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_statement_prefix_exp ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    $$->is.smt_prefix.label = $1.name ;
+    $$->is.smt_prefix.continue_num = label_num++ ;
+    $$->is.smt_prefix.break_num = label_num++ ;
+    lb = findname_in_scope( current_scope, $1.name ) ;
+    if( !lb || lb->type != JD_label_name ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($1.name) ;
+    }
+    else lb->info.label = $$ ;
+  }
+}
+
+<<label_cycle>>
+{
+  /* label_cycle */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    if( findname_in_scope( current_scope, $1.name ) ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_DUPLICATED_NAME($1.name) ;
+    }
+    else {
+      named_node *lb ;
+      lb = ALLOC(named_node) ;
+      lb->type = JD_label_name ;
+      lb->name = $1.name ;
+      lb->filename = $1.filename ;
+      lb->linenum = $1.linenum ;
+      addname( lb ) ;
+    }
+  }
+  PASS2 {
+    named_node *lb ;
+    $$ = $2 ;
+    if($$) {
+      $$->is.smt_prefix.label = $1.name ;
+      $$->is.smt_prefix.continue_num = label_num++ ;
+      $$->is.smt_prefix.break_num = label_num++ ;
+      lb = findname_in_scope( current_scope, $1.name ) ;
+      if( !lb || lb->type != JD_label_name ) {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($1.name) ;
+      }
+      else lb->info.label = $$ ;
+    }
+  }
+}
+
+<<cycle_element>>
+{
+  /* cycle_element */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( $3 == NULL ) {
+      $$ = ALLOC(expression_node) ;
+      $$->type = JD_statement_prefix_exp ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+      if( $2 == NULL ) {
+        $$->is.smt_prefix.cycle = ALLOC(expression_node) ;
+        $$->is.smt_prefix.cycle->type = JD_int_num ;
+        $$->is.smt_prefix.cycle->data_type = JD_exp_num_type ;
+        $$->is.smt_prefix.cycle->is.int_value = 1 ;
+        $$->is.smt_prefix.cycle->string = (char *)strdup("1") ;
+        $$->is.smt_prefix.cycle->filename = $1.filename ;
+        $$->is.smt_prefix.cycle->linenum = $1.linenum ;
+      }
+      else $$->is.smt_prefix.cycle = $2 ;
+      $$->is.smt_prefix.clock = NULL ;
+      $$->is.smt_prefix.edge = JD_posedge ;  /* default is posedge */
+    }
+    else {
+      $$ = $3 ;
+      if($$) {
+        $$->filename = $1.filename ;
+        $$->linenum = $1.linenum ;
+        if( $2 == NULL ) {
+          $$->is.smt_prefix.cycle = ALLOC(expression_node) ;
+          $$->is.smt_prefix.cycle->type = JD_int_num ;
+          $$->is.smt_prefix.cycle->data_type = JD_exp_num_type ;
+          $$->is.smt_prefix.cycle->is.int_value = 1 ;
+          $$->is.smt_prefix.cycle->string = (char *)strdup("1") ;
+          $$->is.smt_prefix.cycle->filename = $1.filename ;
+          $$->is.smt_prefix.cycle->linenum = $1.linenum ;
+        }
+        else $$->is.smt_prefix.cycle = $2 ;
+      }
+    }
+  }
+}
+
+
+<<clock_def>>
+{
+  /* clock_def */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_statement_prefix_exp ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    /* clock == NULL and edge != noedge means CLOCK is specified */
+    $$->is.smt_prefix.clock = $3 ;
+    $$->is.smt_prefix.edge = $2 ;
+    if( $3 ) {
+      if( !is_signal_exp($3) ) {
+        ERROR_LOCATION( $4.filename, $4.linenum ) ;
+        ERROR_ILLEGAL_EXPRESSION_FOR_CLOCK_DEFINITION ;
+      }
+    }
+  }
+}
+
+<<posedge>>
+{
+  /* posedge */
+  $$ = JD_posedge ;
+}
+
+<<negedge>>
+{
+  /* negedge */
+  $$ = JD_negedge ;
+}
+
+<<bothedge>>
+{
+  /* bothedge */
+  $$ = JD_bothedge ;
+}
+
+<<noedge>>
+{
+  /* noedge */
+  $$ = JD_noedge ;
+}
+
+#########################################
+#  null statement
+#########################################
+<<null_statement>>
+{
+  /* null_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_null_statement ;
+    $$->prefix = $1 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+  }
+}
+
+
+#########################################
+#  if statement
+#########################################
+<<if_statement>>
+{
+  /* if_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_if_statement ;
+    $$->prefix = $1 ;
+    $$->is.if_.cond = $4 ;
+    $$->is.if_.statement = $6 ;
+    $$->is.if_.elsif_statements = NULL ; /* elsif is ommitted */
+    $$->is.if_.else_statement = $7 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $4->data_type == JD_exp_new_type ||
+         $4->data_type == JD_exp_void_type ||
+         !check_cond_data_type( $4 )
+    ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_IF_CONDITION ;
+    }
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+  }
+}
+
+<<elsifs>>
+{
+  /* elsifs */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = $1 ;
+    if( $$ ) $$->is.elsif.next = $2 ;
+  }
+}
+
+<<elsif>>
+{
+  /* elsif */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_elsif_statement ;
+    $$->is.elsif.cond = $3 ;
+    $$->is.elsif.statement = $5 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<else>>
+{
+  /* else */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_else_statement ;
+    $$->is.else_.statement = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+#########################################
+#  label handling 
+#########################################
+<<loop_statement>>
+{
+  /* loop_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( $1 && $1->is.smt_prefix.label ) {
+      /* current_block_level is used on break/continue
+       * to pull out stack flame to release the local variables
+       */
+      push_label( 
+        $1->is.smt_prefix.label, 
+        $1->is.smt_prefix.continue_num, 
+        $1->is.smt_prefix.break_num, 
+        current_block_level,
+        0
+      ) ;
+    }
+    else {
+      $1 = ALLOC(expression_node) ;
+      $1->type = JD_statement_prefix_exp ;
+      $1->filename = "" ;
+      $1->linenum = 0 ;
+      $1->is.smt_prefix.label = "" ;
+      $1->is.smt_prefix.continue_num = label_num++ ;
+      $1->is.smt_prefix.break_num = label_num++ ;
+
+      push_label( 
+        NULL,  
+        $1->is.smt_prefix.continue_num, 
+        $1->is.smt_prefix.break_num, 
+        current_block_level,
+        0
+      ) ;
+    }
+  }
+}
+
+<<repeat_loop_statement>>
+{
+  /* loop_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    repeat_level++ ;
+    if( $1 && $1->is.smt_prefix.label ) {
+      /* current_block_level is used on break/continue
+       * to pull out stack flame to release the local variables
+       */
+      push_label( 
+        $1->is.smt_prefix.label, 
+        $1->is.smt_prefix.continue_num, 
+        $1->is.smt_prefix.break_num, 
+        current_block_level,
+        repeat_level
+      ) ;
+    }
+    else {
+      $1 = ALLOC(expression_node) ;
+      $1->type = JD_statement_prefix_exp ;
+      $1->filename = "" ;
+      $1->linenum = 0 ;
+      $1->is.smt_prefix.label = "" ;
+      $1->is.smt_prefix.continue_num = label_num++ ;
+      $1->is.smt_prefix.break_num = label_num++ ;
+
+      push_label( 
+        NULL,  
+        $1->is.smt_prefix.continue_num, 
+        $1->is.smt_prefix.break_num, 
+        current_block_level,
+        repeat_level
+      ) ;
+    }
+  }
+}
+
+#########################################
+#  while statement
+#########################################
+<<while_statement>>
+{
+  /* while_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_while_statement ;
+    $$->prefix = $1 ;
+    $$->is.while_.cond = $4 ;
+    $$->is.while_.statement = $7 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( !is_loop_expression($4) ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_WHILE_CONDITION ;
+    }
+    pop_label() ;
+  }
+}
+
+#########################################
+#  for statement
+#########################################
+<<for_statement>>
+{
+  /* for_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_for_statement ;
+    $$->prefix = $1 ;
+    $$->is.for_.initial = $4 ;
+    $$->is.for_.cond = $6 ;
+    $$->is.for_.last = $8 ;
+    $$->is.for_.statement = $11 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( !is_loop_expression($6) ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_FOR_CONDITION ;
+    }
+    pop_label() ;
+  }
+}
+
+
+#########################################
+#  repeat statement
+#########################################
+<<repeat_statement>>
+{
+  /* repeat_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_repeat_statement ;
+    $$->prefix = $1 ;
+    $$->is.repeat.number = $4 ;
+    $$->is.repeat.statement = $7 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $4->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_FOR_REPEAT ;
+    }
+    pop_label() ;
+    repeat_level-- ;
+  }
+}
+
+#########################################
+#  do while statement
+#########################################
+<<do_while_statement>>
+{
+  /* do_while_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_do_while_statement ;
+    $$->prefix = $1 ;
+    $$->is.dowhile.statement = $4 ;
+    $$->is.dowhile.cond = $7 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( !is_loop_expression($7) ) {
+      ERROR_LOCATION( $7->filename, $7->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_WHILE_CONDITION ;
+    }
+    pop_label() ;
+  }
+}
+
+#########################################
+#  forever statement
+#########################################
+<<forever_statement>>
+{
+  /* forever_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_forever_statement ;
+    $$->prefix = $1 ;
+    $$->is.forever.statement = $4 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    pop_label() ;
+  }
+}
+
+#########################################
+#  case statement
+#########################################
+<<case_statement>>
+{
+  /* case_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_case_statement ;
+    $$->prefix = $1 ;
+    $$->is.case_statement.cond = $4 ;
+    $$->is.case_statement.items = $7 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+    case_items_type_check( $4, $7, $2.filename, $2.linenum  ) ;
+  }
+}
+
+<<case_item>>
+{
+  /* case_item */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    expression_node *cond ;
+    cond = $1 ;
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_case_item ;
+    $$->is.case_item.cond = $1 ;
+    $$->is.case_item.statement = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+  }
+}
+
+<<case_default>>
+{
+  /* case_default */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_case_default ;
+    $$->is.case_item.statement = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+  }
+}
+
+#########################################
+#  casex statement
+#########################################
+<<casex_statement>>
+{
+  /* casex_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_casex_statement ;
+    $$->prefix = $1 ;
+    $$->is.case_statement.cond = $4 ;
+    $$->is.case_statement.items = $7 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+    case_items_type_check( $4, $7 ) ;
+  }
+}
+
+#########################################
+#  casez statement
+#########################################
+<<casez_statement>>
+{
+  /* casez_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_casez_statement ;
+    $$->prefix = $1 ;
+    $$->is.case_statement.cond = $4 ;
+    $$->is.case_statement.items = $7 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+    case_items_type_check( $4, $7 ) ;
+  }
+}
+
+#########################################
+#  randcase statement
+#########################################
+<<randcase_statement>>
+{
+  expression_node *rnd, *tmp, **pr ;
+  statement_node *item ;
+  int num_element = 0 ;
+  int index = 0 ;
+  /* randcase_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_randcase_statement ;
+    $$->prefix = $1 ;
+    $$->is.case_statement.items = $4 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+    rnd = ALLOC(expression_node) ;
+    rnd->type = JD_rnd_exp ;
+    rnd->data_type = JD_exp_num_type ;
+    rnd->is.rnd.dst_width == -1 ; /* int type */
+    $$->is.case_statement.cond = rnd ;
+    item = $$->is.case_statement.items ;
+    pr = &rnd->is.rnd.range ;
+    while( item ) {
+      tmp = ALLOC(expression_node) ;
+      tmp->type = JD_rand_val_exp ;
+      tmp->is.rnd_range.ub = ALLOC(expression_node) ;
+      tmp->is.rnd_range.ub->type = JD_int_num ;
+      tmp->is.rnd_range.ub->is.int_value = index++ ;
+      item->is.case_item.cond = tmp->is.rnd_range.ub ;
+      tmp->is.rnd_range.weight = item->is.case_item.weight ;
+      tmp->is.rnd_range.weight_flag = 1 ;
+      *pr = tmp ;
+      pr = &tmp->is.rnd_range.nxt ;
+      num_element++ ;
+      item = item->next ;
+    }
+    rnd->is.rnd.num_element = num_element ;
+    if( top_static_rnd ) check_static_rnd( top_static_rnd, rnd ) ;
+    else top_static_rnd = rnd ;
+  }
+}
+
+<<randcase_item>>
+{
+  /* randcase_item */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_case_item ;
+    $$->is.case_item.weight = atol($1.name) ;
+    $$->is.case_item.statement = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+  }
+}
+
+#########################################
+#  break statement
+#########################################
+<<break_statement>>
+{
+  /* break_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    label_data *label ;
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_break_statement ;
+    $$->prefix = $1 ;
+    $$->is.break_continue.label = $3.name ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    label = find_label($3.name) ;
+    if( label ) {
+      $$->is.break_continue.label_num = label->break_num ;
+      $$->is.break_continue.level = label->level ;
+      $$->is.break_continue.repeat = label->repeat ;
+    }
+    else {
+      if( $3.name ) {
+        ERROR_BREAK_LABEL_CANT_BE_FOUND( $3.name ) ;
+      }
+      else {
+        ERROR_BREAK_STATEMENT_ON_OUT_OF_LOOP ;
+      }
+    }
+    if( $1 && $1->is.smt_prefix.label ) {
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+  }
+}
+
+<<NullLabel>>
+{
+  /* NullLabel */
+  $$.name = NULL ;
+
+}
+
+#########################################
+#  continue statement
+#########################################
+<<continue_statement>>
+{
+  /* continue_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    label_data *label ;
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_continue_statement ;
+    $$->prefix = $1 ;
+    $$->is.break_continue.label = $3.name ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    label = find_label($3.name) ;
+    if( label ) {
+      $$->is.break_continue.label_num = label->continue_num ;
+      $$->is.break_continue.level = label->level ;
+    }
+    else {
+      if( $3.name ) {
+        ERROR_LOCATION( $2.filename, $2.linenum ) ;
+        ERROR_CONTINUE_LABEL_CANT_BE_FOUND( $3.name ) ;
+      }
+      else {
+        ERROR_LOCATION( $2.filename, $2.linenum ) ;
+        ERROR_CONTINUE_STATEMENT_ON_OUT_OF_LOOP ;
+      }
+    }
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+  }
+}
+
+#########################################
+#  fork join statement
+#########################################
+<<fork_join_statement>>
+{
+  /* fork_join_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_fork_join_statement ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    $$->prefix = $1 ;
+    $$->is.fork_join.statement_list = $3 ;
+    $$->is.fork_join.join_flag = $4 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+  }
+}
+
+<<join>>
+{
+  $$ = JD_join ;
+}
+
+<<spoon>>
+{
+  $$ = JD_spoon ;
+}
+
+<<knife>>
+{
+  $$ = JD_knife ;
+}
+
+#########################################
+#  teminate statement
+#########################################
+<<teminate_statement>>
+{
+  /* teminate_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_terminate_statement ;
+    $$->prefix = $1 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+  }
+}
+
+#########################################
+#  breakpoint statement
+#########################################
+<<breakpoint_statement>>
+{
+  /* breakpoint_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_breakpoint_statement ;
+    $$->prefix = $1 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    $$->is.breakpoint.filename = $3.name ;
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+  }
+}
+
+<<DDnameeqNULL>>
+{
+  /* DDnameeqNULL */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$.name = NULL ;
+  }
+}
+
+#########################################
+#  expression statement
+#########################################
+<<expression_statement>>
+{
+  /* expression_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_expression_statement ;
+    $$->prefix = $1 ;
+    $$->is.exp.expression = $2 ;
+    $$->filename = $3.filename ;
+    $$->linenum = $3.linenum ;
+    if( $1 && $1->is.smt_prefix.label ) {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      WARNING_INVALID_LABEL_FOR_NON_LOOP_STATEMENT_IGNORED ;
+    }
+  }
+}
+
+#########################################
+#  assign statement
+#########################################
+<<assign_statement>>
+{
+  /* assign_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_assign_statement ;
+    $$->prefix = $1 ;
+    $$->is.assign.expression = $2 ;
+    $2->is.assign.strength = $3 ;
+    $$->filename = $4.filename ;
+    $$->linenum = $4.linenum ;
+    if( $3 != JD_normal ) {
+      expression_node *lvalue = $2->is.assign.lvalue ;
+      if( !is_port_expression( lvalue ) ) {
+        ERROR_LOCATION( $4.filename, $4.linenum ) ;
+        ERROR_ILLEGAL_STRENGTH_USAGE_ON_NON_PORT_ASSIGNMENT ;
+      }
+    }
+  }
+}
+
+<<normal>>
+{
+  $$ = JD_normal ;
+}
+
+<<weak>>
+{
+  $$ = JD_weak ;
+}
+
+<<strong>>
+{
+  $$ = JD_strong ;
+}
+
+#########################################
+#  function call statement
+#########################################
+<<func_call_statement>>
+{
+  /* func_call_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_function_call_statement ;
+    $$->prefix = $1 ;
+    $$->is.funccall.expression = $2 ;
+    $$->filename = $3.filename ;
+    $$->linenum = $3.linenum ;
+  }
+}
+
+#########################################
+#  return statement
+#########################################
+<<return_statement>>
+{
+  /* return_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_return_statement ;
+    $$->is.ret.expression = $2 ;
+    $$->filename = $3.filename ;
+    $$->linenum = $3.linenum ;
+    $$->is.ret.dtype = current_func_name->data_type ;
+    $$->is.ret.ptype = this_class_name ;
+    if( $2 ) {
+      if( !check_name_data_type( 
+             current_func_name->data_type, this_class_name, $2, 1 ) 
+        ) 
+      {
+        ERROR_LOCATION( $3.filename, $3.linenum ) ;
+        ERROR_RETURN_DATA_TYPE_MISMATCH ;
+      }
+    }
+  }
+}
+
+#########################################
+#  verilog task call statement
+#########################################
+<<verilog_task_call_statement>>
+{
+  /* verilog_task_call_statement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    named_node *verilog = findname( "verilog" ) ;
+    if( verilog == NULL ) {
+      ERROR_VERILOG_CLASS_NOT_DEFINED ;
+    }
+    else {
+      named_node *mfunc = findname_in_scope( verilog->child_scope, $3.name ) ;
+      if( mfunc == NULL ) {
+        ERROR_LOCATION( $3.filename, $3.linenum ) ;
+        ERROR_MEMBER_FUNCTION_NOT_DEFINED( $3.name ) ;
+      }
+      else {
+        expression_node *vcall ;
+        vcall = ALLOC(expression_node) ;
+        vcall->type = JD_verilog_task_call_exp ;
+        vcall->data_type == JD_void_type ;
+        vcall->is.var.name = mfunc ;
+        vcall->is.var.args = $5 ;
+        vcall->filename = $7.filename ;
+        vcall->linenum = $7.linenum ;
+        /* TBI
+        arg_check( mfunc, $5 ) ;
+        */
+        $$ = ALLOC(statement_node) ;
+        $$->type = JD_verilog_task_call_statement ;
+        $$->is.funccall.expression = vcall ;
+        $$->filename = $7.filename ;
+        $$->linenum = $7.linenum ;
+      }
+    }
+  }
+}
+
+###################################################################
+#  ####    ####   #    #   ####    #####    ##    #    #   #####  #
+# #    #  #    #  ##   #  #          #     #  #   ##   #     #    #
+# #       #    #  # #  #   ####      #    #    #  # #  #     #    #
+# #       #    #  #  # #       #     #    ######  #  # #     #    #
+# #    #  #    #  #   ##  #    #     #    #    #  #   ##     #    #
+#  ####    ####   #    #   ####      #    #    #  #    #     #    #
+###################################################################
+
+<<real_num>>
+{
+  /* real_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_real_num ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.real_value = atof($1.name) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<decimal_num>>
+{
+  /* decimal_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_int_num ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.int_value = atol($1.name) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<v_decimal_num>>
+{
+  /* v_decimal_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_v_decimal( $1.name, $$ ) ;
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<c_decimal_num>>
+{
+  /* c_decimal_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_c_decimal( $1.name, $$ ) ;
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<v_hex_num>>
+{
+  /* v_hex_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_v_hex( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<c_hex_num>>
+{
+  /* c_hex_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_c_hex( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<v_octal_num>>
+{
+  /* v_octal_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_v_octal( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<c_octal_num>>
+{
+  /* c_octal_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_c_octal( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<v_bin_num>>
+{
+  /* v_bin_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_v_binary( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<c_bin_num>>
+{
+  /* c_bin_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_c_binary( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<const_minus_const>>
+{
+  /* const_minus_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_minus_exp, $1, $3 ) ;
+  }
+}
+
+<<const_plus_const>>
+{
+  /* const_plus_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_plus_exp, $1, $3 ) ;
+  }
+}
+
+<<const_times_const>>
+{
+  /* const_times_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_times_exp, $1, $3 ) ;
+  }
+}
+
+<<const_div_const>>
+{
+  /* const_div_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_div_exp, $1, $3 ) ;
+  }
+}
+
+<<const_mod_const>>
+{
+  /* const_mod_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_mod_exp, $1, $3 ) ;
+  }
+}
+
+<<const_and_const>>
+{
+  /* const_and_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_and_exp, $1, $3 ) ;
+  }
+}
+
+<<const_or_const>>
+{
+  /* const_or_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_or_exp, $1, $3 ) ;
+  }
+}
+
+<<const_eor_const>>
+{
+  /* const_eor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_eor_exp, $1, $3 ) ;
+  }
+}
+
+<<const_nand_const>>
+{
+  /* const_nand_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_nand_exp, $1, $3 ) ;
+  }
+}
+
+<<const_nor_const>>
+{
+  /* const_nor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_nor_exp, $1, $3 ) ;
+  }
+}
+
+<<const_neor_const>>
+{
+  /* const_neor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_neor_exp, $1, $3 ) ;
+  }
+}
+
+<<const_land_const>>
+{
+  /* const_land_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_lop_const( JD_exp_land_exp, $1, $3 ) ;
+  }
+}
+
+<<const_lor_const>>
+{
+  /* const_lor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_lop_const( JD_exp_lor_exp, $1, $3 ) ;
+  }
+}
+
+<<const_rshift_const>>
+{
+  /* const_rshift_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_sop_const( JD_exp_rshift_exp, $1, $3 ) ;
+  }
+}
+
+<<const_urshift_const>>
+{
+  /* const_urshift_const */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    $$ = const_sop_const( JD_exp_urshift_exp, $1, $3 ) ;
+  }
+}
+
+<<const_lshift_const>>
+{
+  /* const_lshift_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_sop_const( JD_exp_lshift_exp, $1, $3 ) ;
+  }
+}
+
+<<const_lt_const>>
+{
+  /* const_lt_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_lt_exp, $1, $3 ) ;
+  }
+}
+
+<<const_gt_const>>
+{
+  /* const_gt_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_gt_exp, $1, $3 ) ;
+  }
+}
+
+<<const_eqeq_const>>
+{
+  /* const_eqeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_eqeq_exp, $1, $3 ) ;
+  }
+}
+
+<<const_le_const>>
+{
+  /* const_le_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_le_exp, $1, $3 ) ;
+  }
+}
+
+<<const_ge_const>>
+{
+  /* const_ge_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_ge_exp, $1, $3 ) ;
+  }
+}
+
+<<const_ne_const>>
+{
+  /* const_ne_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_ne_exp, $1, $3 ) ;
+  }
+}
+
+<<const_eqeqeq_const>>
+{
+  /* const_eqeqeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_eqeqeq_exp, $1, $3 ) ;
+  }
+}
+
+<<const_neqeq_const>>
+{
+  /* const_neqeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_neqeq_exp, $1, $3 ) ;
+  }
+}
+
+<<const_eqQeq_const>>
+{
+  /* const_eqQeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_eqQeq_exp, $1, $3 ) ;
+  }
+}
+
+<<const_Qne_const>>
+{
+  /* const_eqQeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_Qne_exp, $1, $3 ) ;
+  }
+}
+
+<<const_eqeqQ_const>>
+{
+  /* const_eqeqQ_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_eqeqQ_exp, $1, $3 ) ;
+  }
+}
+
+<<const_Qeqeq_const>>
+{
+  /* const_Qeqeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_Qeqeq_exp, $1, $3 ) ;
+  }
+}
+
+<<u_minus_const>>
+{
+  /* u_minus_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_minus_exp, $2 ) ;
+  }
+}
+
+<<u_tilde_const>>
+{
+  /* u_tilde_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_tilde_exp, $2 ) ;
+  }
+}
+
+<<u_not_const>>
+{
+  /* u_not_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_not_exp, $2 ) ;
+  }
+}
+
+<<u_and_const>>
+{
+  /* u_and_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_and_exp, $2 ) ;
+  }
+}
+
+<<u_or_const>>
+{
+  /* u_or_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_or_exp, $2 ) ;
+  }
+}
+
+<<u_eor_const>>
+{
+  /* u_eor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_eor_exp, $2 ) ;
+  }
+}
+
+<<u_nand_const>>
+{
+  /* u_nand_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_nand_exp, $2 ) ;
+  }
+}
+
+<<u_nor_const>>
+{
+  /* u_nor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_nor_exp, $2 ) ;
+  }
+}
+
+<<u_neor_const>>
+{
+  /* u_neor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_neor_exp, $2 ) ;
+  }
+}
+
+<<mask_comp_const>>
+{
+  /* mask_comp_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = mask_comp_const( $1, $3, $5 ) ;
+  }
+}
+
+<<conditional_const>>
+{
+  /* conditional_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = conditional_const( $1, $3, $5 ) ;
+  }
+}
+
+
+<<concatenate_const>>
+{
+  /* concatenate_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = concatenate_const( $2 ) ;
+  }
+}
+
+<<duplicate_const>>
+{
+  /* duplicate_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = duplicate_const( $2, $4 ) ;
+  }
+}
+
+#########################################
+#  string constant 
+#########################################
+
+<<string_expression>>
+{
+  /* string_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_string_exp ;
+    $$->data_type = JD_exp_string_type ;
+    $$->is.string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<concatenate_string>>
+{
+  /* concatenate_string */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = concatenate_string( $2 ) ;
+  }
+}
+
+<<duplicate_string>>
+{
+  /* duplicate_string */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = duplicate_string( $2, $4 ) ;
+  }
+}
+
+###############################################################################
+#  ######  #    #  #####   #####   ######   ####    ####   #   ####   #    #  #
+#  #        #  #   #    #  #    #  #       #       #       #  #    #  ##   #  #
+#  #####     ##    #    #  #    #  #####    ####    ####   #  #    #  # #  #  #
+#  #         ##    #####   #####   #            #       #  #  #    #  #  # #  #
+#  #        #  #   #       #   #   #       #    #  #    #  #  #    #  #   ##  #
+#  ######  #    #  #       #    #  ######   ####    ####   #   ####   #    #  #
+###############################################################################
+
+
+
+#########################################
+#  timed expression
+#########################################
+
+<<timed_expression>>
+{
+  /* timed_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( $1 ) {
+      $1->is.time.exp_list = $3 ;
+      $1->data_type = JD_exp_num_type ;
+    }
+    $$ = $1 ;
+  } 
+}
+
+<<time_range_a>>
+{
+  /* time_range_a */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_timed_till_exp ;
+    $$->data_type = JD_exp_unknown_type ;
+    $$->is.time.delay = $2 ;
+    $$->is.time.window = NULL ;
+    $$->is.time.clock = $3 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<time_range_b>>
+{
+  /* time_range_b */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_timed_till_exp ;
+    $$->data_type = JD_exp_unknown_type ;
+    $$->is.time.delay = $2 ;
+    $$->is.time.window = $4 ;
+    $$->is.time.clock = $5 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<time_range_c>>
+{
+  /* time_range_c */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_timed_while_exp ;
+    $$->data_type = JD_exp_unknown_type ;
+    $$->is.time.delay = $2 ;
+    $$->is.time.window = NULL ;
+    $$->is.time.clock = $3 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<time_range_d>>
+{
+  /* time_range_d */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_timed_while_exp ;
+    $$->data_type = JD_exp_unknown_type ;
+    $$->is.time.delay = $2 ;
+    $$->is.time.window = $4 ;
+    $$->is.time.clock = $5 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+#########################################
+#  parallel eval expression
+#########################################
+
+<<parallel_eval_expression>>
+{
+  /* parallel_eval_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    expression_node *exp ;
+    int n ;
+    $$ = ALLOC(expression_node) ;
+    $$->type = $1 ;
+    $$->is.time.exp_list = $3 ;
+    $$->filename = $4.filename ;
+    $$->linenum = $4.linenum ;
+    $$->data_type = JD_exp_num_type ;
+    exp = $3 ;
+    n = 0 ;
+    while( exp ) {
+      n++ ;
+      if( exp->data_type == JD_exp_new_type ) {
+        ERROR_LOCATION( exp->filename, exp->linenum ) ;
+        ERROR_ILLEGAL_DATA_TYPE_ON_NTH_ARG_FOR_PARALLEL_COND(n) ;
+      }
+      exp = exp->next ;
+    }
+  }
+}
+
+<<p_and>>
+{
+  /* p_and */
+  $$ = JD_parallel_and_exp ;
+}
+
+<<p_or>>
+{
+  /* p_or */
+  $$ = JD_parallel_or_exp ;
+}
+
+
+#########################################
+#  return expression
+#########################################
+<<return_expression>>
+{
+  /* return_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    named_node *name ;
+    /* check if this is variable, as it could be function name */
+    if(!in_advice) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_RETURN_EXPRESSION_ON_OUT_OF_ADVICE ;
+    }
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_return_exp ;
+    set_func_type_of_func($$, current_func_name) ;
+    $$->user_data_type = current_func_name ;
+  }
+}
+
+
+
+#########################################
+#  variable & port expression
+#########################################
+<<varport_expression>>
+{
+  /* varport_expression */
+  $$ = $1 ;
+  SKIP_ON_ERROR ;
+  PASS2 {
+    named_node *name ;
+    /* check if this is variable, as it could be function name */
+    if( $1->type == JD_this_exp ) {
+      if( aspect_parsing && !in_advice ) {
+        ERROR_LOCATION( $1->filename, $1->linenum ) ;
+        ERROR_ILLEGAL_USAGE_OF_THIS_IN_ASPECT_FUNCTION ;
+      }
+    }
+    else if(  $1->type == JD_super_exp ) {
+      /* This is OK */
+    }
+    else if( !is_var_name( $1->is.var.name ) ) {
+      ERROR_LOCATION( $1->filename, $1->linenum ) ;
+      ERROR_ILLEGAL_NAME_TYPE_FOR_VARIABLE($1->is.var.name->name) ;
+    }
+  }
+}
+
+
+
+<<var_dot_var>>
+{
+  /* var_dot_var */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    named_node *name ;
+    int offset ;
+    named_node *class ;
+    
+    name = find_member( $1, $3.name, &offset, &class ) ;
+    if( name == NULL ) {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      ERROR_UNDEFINED_MEMBER_NAME($3.name) ;
+    }
+    else if ( (name->is_local || name->is_protected ) &&
+               $1->type != JD_this_exp && $1->type != JD_super_exp ) 
+    {
+        ERROR_LOCATION( $3.filename, $3.linenum ) ;
+        ERROR_ILLEGAL_ACCESS_TO_PROTECTED_MEMBER_NAME($3.name) ;
+    }
+    else {
+      $$ = ALLOC(expression_node) ;
+      $$->type = JD_varport_exp ;
+      $$->is.var.name = name ;
+      $$->is.var.depth = $4 ;
+      $$->is.var.member_offset = offset ;
+      $$->is.var.class = class ;
+      $$->filename = $3.filename ;
+      $$->linenum = $3.linenum ;
+      $$->is.var.pre = $1 ;
+      if( $4 ) { 
+        /* depth specified */
+        if( !port_type( name ) || 
+            ( name->sub_type!=JD_single_sub_type && $5 == NULL) ) 
+        {
+          ERROR_LOCATION( $4->filename, $4->linenum ) ;
+          ERROR_ILLEGAL_USAGE_OF_DEPTH ;
+        }
+      }
+      $$->is.var.range = $5 ;
+      if( !check_var_range( name, $4, $5, $3.filename, $3.linenum ) ) {
+        ERROR_LOCATION( $3.filename, $3.linenum ) ;
+        ERROR_ILLEGAL_ACCESS_RANGE ;
+      }
+      set_var_type( $$, $5, $4 ) ; /* exp, range, depth */
+    }
+  }
+}
+
+<<var_dot_super>>
+{
+  /* var_dot_super */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( $1->type != JD_varport_exp || 
+        $1->is.var.name->type != JD_var_name ||
+        $1->is.var.name->data_type->type != JD_class_name ||
+        $1->is.var.name->data_type->info.class_name.parent == NULL ) 
+    {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      ERROR_ILLEGAL_SUPER_USAGE_ON_CLASS_WITHOUT_PARENT ;
+    }
+    if( is_array_exp_type($1->data_type) ) 
+    {
+      ERROR_LOCATION( $3.filename, $3.linenum ) ;
+      ERROR_ILLEGAL_SUPER_USAGE_ON_ARRAY_OR_LIST ;
+    }
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_super_exp ;
+    $$->data_type = JD_exp_object_type ;
+    $$->user_data_type = $1->is.var.name->data_type->info.class_name.parent ;
+    $$->filename = $3.filename ;
+    $$->linenum = $3.linenum ;
+    $$->is.var.pre = $1 ;
+  }
+}
+
+<<var_expression>>
+{
+  /* var_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    named_node *name ;
+    
+    name = findname( $1.name ) ;
+    if( name == NULL ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_UNDEFINED_NAME($1.name) ;
+    }
+    else if( name->type != JD_port_name && name->type != JD_portset_name && 
+             name->type != JD_aspect_name &&
+             name->data_type == NULL ) 
+    {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_UNKNOWN_DATA_TYPE_OF_VARIABLE($1.name) ;
+    }
+    else if( !var_port_func_type( name->type ) ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_TYPE_FOR_VARIABLE_FUNCION($1.name) ;
+    }
+    else {
+      $$ = ALLOC(expression_node) ;
+      if( name->type == JD_aspect_name )
+        $$->type = JD_aspect_exp ;
+      else
+        $$->type = JD_varport_exp ;
+      $$->is.var.name = name ;
+      $$->is.var.depth = $2 ;
+      if( name->is_member ) {
+        int offset ;
+        named_node *ret ;
+        ret = findmember_in_class( this_class_name, $1.name, &offset ) ;
+        if( name != ret ) {
+          ERROR_LOCATION( $1.filename, $1.linenum ) ;
+          ERROR_ILLEGAL_NAME_TYPE_FOR_VARIABLE_FUNCION($1.name) ;
+        }
+        $$->is.var.member_offset = offset ;
+        $$->is.var.class = this_class_name ;
+        if( name->is_local && offset ) {
+          ERROR_LOCATION( $1.filename, $1.linenum ) ;
+          ERROR_ILLEGAL_ACCESS_TO_PROTECTED_MEMBER_NAME($1.name) ;
+        }
+        if( class_initial_code && this_class_name->type != JD_aspect_name &&
+            (offset || !name->is_static) ) 
+        {
+          ERROR_LOCATION( $1.filename, $1.linenum ) ;
+          ERROR_ILLEGAL_ACCESS_NON_STATIC_MEMBER_NAME_IN_CLASS_INIT($1.name) ;
+        }
+      }
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+      if( $2 ) { /* depth is defined */
+        if( !port_type( name ) || 
+            ( name->sub_type!=JD_single_sub_type && $3 == NULL) ) 
+        {
+          ERROR_LOCATION( $1.filename, $1.linenum ) ;
+          ERROR_ILLEGAL_USAGE_OF_DEPTH ;
+        }
+      }
+      $$->is.var.range = $3 ;
+      if( !check_var_range( name, $2, $3, $1.filename, $1.linenum ) ) {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_ILLEGAL_ACCESS_RANGE ;
+      }
+      set_var_type( $$, $3, $2 ) ; /* exp, range, depth */
+    }
+  }
+}
+
+<<super>>
+{
+  /* super */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( !class_parsing ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_SUPER_USAGE_ON_OUT_OF_CLASS ;
+    }
+    if( this_class_name->info.class_name.parent == NULL ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_SUPER_USAGE_ON_CLASS_WITHOUT_PARENT ;
+    }
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_super_exp ;
+    $$->data_type = JD_exp_object_type ;
+    $$->user_data_type = this_class_name->info.class_name.parent ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<this>>
+{
+  /* this */
+  SKIP_ON_ERROR ; 
+  PASS2 {
+    if( !class_parsing && !aspect_parsing) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_THIS_USAGE_ON_OUT_OF_CLASS ;
+    }
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_this_exp ;
+    $$->data_type = JD_exp_object_type ;
+    if( in_advice ) {
+      statement_node *a, *b ;
+      expression_node *xa, *xb ;
+      int check_ok = 1 ;
+      /* check all the pointcut has a single class name */
+      a = current_func_name->info.func.pointcut ;
+      while( a ) {
+        xa = a->prefix ;
+        if( xa->type != JD_pointcut_name || xa->next == NULL ) {
+          ERROR_LOCATION( $1.filename, $1.linenum ) ;
+          ERROR_ILLEGAL_THIS_USAGE_IN_ADVACE_WITH_UNKNOWN_CLASS ;
+          a = NULL ;
+          check_ok = 0 ;
+        }
+        else {
+          b = a->next ;
+          if( b ) {
+            xb = b->prefix ;
+            if( strcmp( xa->is.string, xb->is.string ) ) {
+              ERROR_LOCATION( $1.filename, $1.linenum ) ;
+              ERROR_ILLEGAL_THIS_USAGE_IN_ADVACE_WITH_UNKNOWN_CLASS ;
+              b = NULL ;
+              check_ok = 0 ;
+            }
+          }
+          a = b ;
+        }
+      }
+      if( check_ok ) {
+        named_node *cls ;
+        xa = current_func_name->info.func.pointcut->prefix ;
+        cls = findname_in_scope( top_scope, xa->is.string ) ;
+        if( cls ) {
+          if(cls->type != JD_class_name) {
+            ERROR_LOCATION( $1.filename, $1.linenum ) ;
+            ERROR_ILLEGAL_THIS_USAGE_IN_ADVACE_WITH_UNKNOWN_CLASS ;
+          }
+          else {
+            $$->user_data_type = cls ;
+          }
+        }
+        else {
+          ERROR_LOCATION( $1.filename, $1.linenum ) ;
+          ERROR_ILLEGAL_THIS_USAGE_IN_ADVACE_WITH_UNKNOWN_CLASS ;
+        }
+      }
+    }
+    else if( aspect_parsing ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_USAGE_OF_THIS_IN_ASPECT_FUNCTION ;
+    }
+    else 
+      $$->user_data_type = this_class_name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<dot_depth>>
+{
+  /* dot_depth */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    char *depth = &$1.name[1] ;
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_int_num ;
+    $$->is.int_value = atol(depth) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<bit_access_range>>
+{
+  /* bit_access_range */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_bit_range_exp ;
+    $$->is.range.ub = $2 ;
+    $$->is.range.lb = $4 ;
+    $$->filename = $5.filename ;
+    $$->linenum = $5.linenum ;
+    if( !is_int_expression($2) || !is_int_expression($4) ) {
+      ERROR_LOCATION( $5.filename, $5.linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_ARRAY_OR_BIT_ACCESS_RANGE ;
+    }
+  }
+}
+
+<<array_access_ranges>>
+{
+  SKIP_ON_ERROR ;
+  PASS2 {
+    expression_node *exp, *exp1 ;
+    int i = 0 ;
+    $$ = $1 ;
+    if( $1 ) {
+      exp = $1 ;
+      while(exp) {
+        i++ ;
+        exp = exp->next ;
+      }
+      $$->is.range.num_index = i ;
+      if( i == 2 ) {
+        /* [n][n] */
+        exp = $1 ;
+        exp1 = $$->next ;
+        if( exp->type != JD_single_range_exp  && 
+            exp1->type != JD_single_range_exp    )
+        {
+          /* [string][string] is not acceptable */
+          ERROR_LOCATION( exp->filename, exp->linenum ) ;
+          ERROR_ILLEGAL_DATA_TYPE_FOR_MULTIDIMENTION_ARRAY_ACCESS_RANGE(i) ;
+        }
+        if( exp->type != JD_single_range_exp  && 
+            exp1->type == JD_single_range_exp    )
+        {
+          /* [string][n], so the last one becomes bit access */
+          $$->is.range.num_index = 1 ;
+          $$->is.range.bit_index = 1 ;
+          exp1->type = JD_single_bit_range_exp ;
+        }
+      }
+      else if( i > 1 ) {
+        i = 0 ;
+        exp = $1 ;
+        while( exp ) {
+          /* more than two, all must be [n] */
+          i++ ; /* just for error message */
+          if( exp->type != JD_single_range_exp ) {
+            ERROR_LOCATION( exp->filename, exp->linenum ) ;
+            ERROR_ILLEGAL_DATA_TYPE_FOR_MULTIDIMENTION_ARRAY_ACCESS_RANGE(i) ;
+          }
+          exp = exp->next ;
+        }
+      }
+    }
+  }
+}
+
+<<array_access_range_bit_access_range>>
+{
+  /* array_access_range_bit_access_range */
+  /* [n]..[u:l] */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    expression_node *exp, *tail ;
+    int i = 0 ;
+    $$ = $1 ;
+    if( $1 ) {
+      exp = $1 ;
+      tail = exp ;
+      while(exp) {
+        i++ ;
+        exp = exp->next ;
+        if( exp ) tail = exp ;
+      }
+      $$->is.range.num_index = i ;
+      $$->is.range.bit_index = 1 ; /* set flag to indicate bit access exists */
+      if( i > 1 ) {
+        i = 0 ;
+        exp = $1 ;
+        while( exp ) {
+          i++ ;
+          if( exp->type != JD_single_range_exp ) {
+            ERROR_LOCATION( exp->filename, exp->linenum ) ;
+            ERROR_ILLEGAL_DATA_TYPE_FOR_MULTIDIMENTION_ARRAY_ACCESS_RANGE(i) ;
+          }
+          exp = exp->next ;
+        }
+      }
+      tail->next = $2 ; /* connect the bit access range at the end */
+    }
+  }
+}
+
+<<array_access_range>>
+{
+  /* array_access_range */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->is.range.ub = $2 ;
+    $$->filename = $3.filename ;
+    $$->linenum = $3.linenum ;
+    if( is_string_expression($2) )
+      $$->type = JD_string_range_exp ;
+    else {
+      $$->type = JD_single_range_exp ;
+      if( !is_int_expression($2)  ) {
+        ERROR_LOCATION( $3.filename, $3.linenum ) ;
+        ERROR_ILLEGAL_DATA_TYPE_FOR_ARRAY_OR_BIT_ACCESS_RANGE ;
+      }
+    }
+  }
+}
+
+#########################################
+#  bool & null expression
+#########################################
+<<null_expression>>
+{
+  /* null_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_null_exp ;
+    $$->data_type = JD_exp_void_type ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<true_expression>>
+{
+  /* true_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_true_exp ;
+    $$->data_type = JD_exp_bool_type ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<false_expression>>
+{
+  /* false_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_false_exp ;
+    $$->data_type = JD_exp_bool_type ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<enum_expression>>
+{
+  /* enum_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    named_node *name ;
+    
+    name = findname( $1.name ) ;
+    if( name == NULL ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_UNDEFINED_NAME($1.name) ;
+    }
+    else if( name->type != JD_enum_member_name ) {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_USAGE_FOR_ENUM($1.name) ;
+    }
+    else {
+      $$ = ALLOC(expression_node) ;
+      $$->type = JD_varport_exp ;
+      $$->is.var.name = name ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+      set_var_type( $$, NULL, NULL ) ; /* exp, range, depth */
+    }
+  }
+}
+
+#########################################
+#  function call expression
+#########################################
+<<func_call_exp>>
+{
+  /* func_call_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( $1 ) {
+      $1->type = JD_function_call_exp ;
+      $1->is.var.args = $3 ;
+      if( !is_func_name( $1->is.var.name ) ) {
+        ERROR_LOCATION( $1->filename, $1->linenum ) ;
+        ERROR_ILLEGAL_NAME_FOR_FUNCTION_CALL( $1->is.var.name->name ) ;
+      }
+      else {
+        set_func_type( $1 ) ;
+      }
+      /* can't check here, do it expression.c 
+      actual_arg_check(  
+        $1->is.var.name, $3, $1->is.var.pre, $1->filename, $1->linenum 
+      ) ;
+      */
+      $1->filename = $4.filename ;
+      $1->linenum = $4.linenum ;
+    }
+    $$ = $1 ;
+  }
+}
+
+<<default_arg>>
+{
+  /* default_arg */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_default_arg ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+#########################################
+#  state expression
+#########################################
+<<post_increment>>
+{
+  /* post_increment */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_postincrement_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.expression = $1 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type || 
+        $1->type != JD_varport_exp || 
+        !var_port_type( $1->is.var.name->type )   
+      ) 
+    {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_FOR_NUMERICAL_OPERATION ;
+    }
+  }
+}
+
+<<post_decrement>>
+{
+  /* post_decrement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_postdecrement_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.expression = $1 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type || 
+        $1->type != JD_varport_exp || 
+        !var_port_type( $1->is.var.name->type )   
+      ) 
+    {
+      ERROR_LOCATION( $2.filename, $2.linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_FOR_NUMERICAL_OPERATION ;
+    }
+  }
+}
+
+<<pre_increment>>
+{
+  /* pre_increment */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_preincrement_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.expression = $2 ;
+    $$->filename = $2->filename ;
+    $$->linenum = $2->linenum ;
+    if( $2->data_type != JD_exp_num_type || 
+        $2->type != JD_varport_exp || 
+        !var_port_type( $2->is.var.name->type )   
+      ) 
+    {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_FOR_NUMERICAL_OPERATION ;
+    }
+  }
+}
+
+<<pre_decrement>>
+{
+  /* pre_decrement */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_predecrement_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.expression = $2 ;
+    $$->filename = $2->filename ;
+    $$->linenum = $2->linenum ;
+    if( $2->data_type != JD_exp_num_type || 
+        $2->type != JD_varport_exp || 
+        !var_port_type( $2->is.var.name->type )   
+      ) 
+    {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_FOR_NUMERICAL_OPERATION ;
+    }
+  }
+}
+
+#########################################
+#  concatenation expression
+#########################################
+<<concatenation_expression>>
+{
+  /* concatenation_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_concatenation_exp ;
+    $$->is.expression = $2 ;
+    $$->filename = $3.filename ;
+    $$->linenum = $3.linenum ;
+    {
+      expression_node *exp = $2 ;
+      int n = 0 ;
+      while( exp ) {
+        n++ ;
+        if( exp->data_type != JD_exp_num_type && 
+            exp->data_type != JD_exp_string_type )
+        {
+          ERROR_LOCATION( $2->filename, $2->linenum ) ;
+          ERROR_ILLEGAL_NTH_EXPRESSION_FOR_CONCATENATION_OPERATION( n ) ;
+          exp = NULL ; 
+        }
+        else if ( exp->next && exp->data_type != exp->next->data_type ) {
+          ERROR_LOCATION( $2->filename, $2->linenum ) ;
+          ERROR_ILLEGAL_NTH_EXPRESSION_FOR_CONCATENATION_OPERATION( n+1 ) ;
+          exp = NULL ; 
+        }
+        else exp = exp->next ;
+      }
+      $$->data_type = $2->data_type ;
+    }
+  }
+}
+
+<<duplicate_expression>>
+{
+  /* duplicate_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_duplication_exp ;
+    $$->is.binary.left = $2 ;
+    $$->is.binary.right = $4 ;
+    $$->filename = $6.filename ;
+    $$->linenum = $6.linenum ;
+    if( $2->data_type != JD_exp_num_type || !is_int_expression($2)) {
+      ERROR_LOCATION( $6.filename, $6.linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT ;
+    }
+    else if( $4->data_type != JD_exp_num_type &&  
+             $4->data_type != JD_exp_string_type ) 
+    {
+      ERROR_LOCATION( $6.filename, $6.linenum ) ;
+      ERROR_NUMERICAL_OR_STRING_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT ;
+    }
+    $$->data_type = $4->data_type ;
+  }
+}
+
+#########################################
+#  list expression
+#########################################
+<<list_expression>>
+{
+  /* list_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_list_exp ;
+    $$->is.expression = $3 ;
+    $$->filename = $4.filename ;
+    $$->linenum = $4.linenum ;
+    $$->data_type = JD_exp_list_type ;
+    {
+      expression_node *exp = $3 ;
+      int n = 0 ;
+      while( exp ) {
+        n++ ;
+        if ( is_array_exp_type(exp->data_type) ) {
+          ERROR_LOCATION( $4.filename, $4.linenum ) ;
+          ERROR_ARRAY_OR_LIST_CANT_BE_AN_ELEMENT_OF_LIST(n) ;
+          exp->next = NULL ; 
+        }
+        if ( exp->next && exp->data_type != exp->next->data_type ) {
+          ERROR_LOCATION( $4.filename, $4.linenum ) ;
+          ERROR_ILLEGAL_TYPE_DETECTED_ON_NTH_ELEMENT_FOR_LIST_OPERATION(n+1) ;
+          exp = NULL ; 
+        }
+        else exp = exp->next ;
+      }
+    }
+  }
+}
+
+#########################################
+#  binary expression
+#########################################
+<<exp_minus_exp>>
+{
+  /* exp_minus_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_minus_exp ;
+    $$->is.binary.left = $1 ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "-" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "-" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_plus_exp>>
+{
+  /* exp_plus_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_plus_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "+" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "+" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_times_exp>>
+{
+  /* exp_times_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_times_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "*" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "*" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_div_exp>>
+{
+  /* exp_div_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_div_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "/" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "/" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_mod_exp>>
+{
+  /* exp_mod_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_mod_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "%" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "%" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_and_exp>>
+{
+  /* exp_and_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_and_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "&" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "&" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_or_exp>>
+{
+  /* exp_or_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_or_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "|" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "|" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_eor_exp>>
+{
+  /* exp_eor_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_eor_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "^" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "^" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_nand_exp>>
+{
+  /* exp_nand_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_nand_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "~&" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "~&" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_nor_exp>>
+{
+  /* exp_nor_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_nor_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "~|" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "~|" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_neor_exp>>
+{
+  /* exp_neor_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_neor_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "~^" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "~^" ) ;
+    }
+    $$ = binary_constant_folding( $$ ) ;
+  }
+}
+
+<<exp_land_exp>>
+{
+  /* exp_land_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_land_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type == JD_exp_new_type || !check_cond_data_type( $1 ) ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_ON_1ST_ELEMENT_OF_( "&&" ) ;
+    }
+    if( $3->data_type == JD_exp_new_type || !check_cond_data_type( $3 ) ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_ON_2ND_ELEMENT_OF_( "&&" ) ;
+    }
+  }
+}
+
+<<exp_lor_exp>>
+{
+  /* exp_lor_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_lor_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type == JD_exp_new_type || !check_cond_data_type( $1 ) ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_ON_1ST_ELEMENT_OF_( "||" ) ;
+    }
+    if( $3->data_type == JD_exp_new_type || !check_cond_data_type( $3 ) ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_ON_2ND_ELEMENT_OF_( "||" ) ;
+    }
+  }
+}
+
+<<exp_rshift_exp>>
+{
+  /* exp_rshift_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_rshift_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( ">>" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( ">>" ) ;
+    }
+  }
+}
+
+<<exp_urshift_exp>>
+{
+  /* exp_urshift_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_urshift_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( ">>>" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( ">>>" ) ;
+    }
+  }
+}
+
+<<exp_lshift_exp>>
+{
+  /* exp_lshift_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_lshift_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "<<" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "<<" ) ;
+    }
+  }
+}
+
+<<exp_lt_exp>>
+{
+  /* exp_lt_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_lt_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "<" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "<" ) ;
+    }
+  }
+}
+
+<<exp_gt_exp>>
+{
+  /* exp_gt_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_gt_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( ">" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( ">" ) ;
+    }
+  }
+}
+
+<<exp_eqeq_exp>>
+{
+  /* exp_eqeq_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_eqeq_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( !is_compare_ok( $1, $3 ) ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_COMBINATION_FOR_( "==" ) ;
+    }
+  }
+}
+
+<<exp_le_exp>>
+{
+  /* exp_le_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_le_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "<=" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "<=" ) ;
+    }
+  }
+}
+
+<<exp_ge_exp>>
+{
+  /* exp_ge_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_ge_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( ">=" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( ">=" ) ;
+    }
+  }
+}
+
+<<exp_ne_exp>>
+{
+  /* exp_ne_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_ne_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( !is_compare_ok( $1, $3 ) ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_COMBINATION_FOR_( "!=" ) ;
+    }
+  }
+}
+
+<<exp_eqeqeq_exp>>
+{
+  /* exp_eqeqeq_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_eqeqeq_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( !is_compare_ok( $1, $3 ) ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_COMBINATION_FOR_( "===" ) ;
+    }
+  }
+}
+
+<<exp_neqeq_exp>>
+{
+  /* exp_neqeq_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_neqeq_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( !is_compare_ok( $1, $3 ) ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_COMBINATION_FOR_( "!==" ) ;
+    }
+  }
+}
+
+<<exp_eqQeq_exp>>
+{
+  /* exp_eqQeq_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_eqQeq_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "=?=" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "=?=" ) ;
+    }
+  }
+}
+
+<<exp_Qne_exp>>
+{
+  /* exp_Qne_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_Qne_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "!?=" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "!?=" ) ;
+    }
+  }
+}
+
+<<exp_eqeqQ_exp>>
+{
+  /* exp_eqeqQ_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_eqeqQ_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "==?" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "==?" ) ;
+    }
+  }
+}
+
+<<exp_Qeqeq_exp>>
+{
+  /* exp_Qeqeq_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_exp_Qeqeq_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.binary.left = $1 ;
+    $$->is.binary.right = $3 ;
+    $$->filename = $2.filename ;
+    $$->linenum = $2.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "?==" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "?==" ) ;
+    }
+  }
+}
+
+<<u_minus_exp>>
+{
+  /* u_minus_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_u_minus_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.unary.this = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_FOR_UNARY( "-" ) ;
+    }
+    $$ = unary_constant_folding( $$ ) ;
+  }
+}
+
+<<u_tilde_exp>>
+{
+  /* u_tilde_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_u_tilde_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.unary.this = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_FOR_UNARY( "~" ) ;
+    }
+    $$ = unary_constant_folding( $$ ) ;
+  }
+}
+
+<<u_not_exp>>
+{
+  /* u_not_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_u_not_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.unary.this = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    if( $2->data_type == JD_exp_new_type ||
+         $2->data_type == JD_exp_void_type
+    ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_FOR_UNARY( "!" ) ;
+    }
+    $$ = unary_constant_folding( $$ ) ;
+  }
+}
+
+<<u_and_exp>>
+{
+  /* u_and_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_u_and_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.unary.this = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_FOR_UNARY( "&" ) ;
+    }
+    $$ = unary_constant_folding( $$ ) ;
+  }
+}
+
+<<u_or_exp>>
+{
+  /* u_or_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_u_or_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.unary.this = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_FOR_UNARY( "|" ) ;
+    }
+    $$ = unary_constant_folding( $$ ) ;
+  }
+}
+
+<<u_eor_exp>>
+{
+  /* u_eor_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_u_eor_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.unary.this = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_FOR_UNARY( "^" ) ;
+    }
+    $$ = unary_constant_folding( $$ ) ;
+  }
+}
+
+<<u_nand_exp>>
+{
+  /* u_nand_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_u_nand_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.unary.this = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_FOR_UNARY( "~&" ) ;
+    }
+    $$ = unary_constant_folding( $$ ) ;
+  }
+}
+
+<<u_nor_exp>>
+{
+  /* u_nor_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_u_nor_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.unary.this = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_FOR_UNARY( "~|" ) ;
+    }
+    $$ = unary_constant_folding( $$ ) ;
+  }
+}
+
+<<u_neor_exp>>
+{
+  /* u_neor_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_u_neor_exp ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.unary.this = $2 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_TYPE_FOR_UNARY( "~^" ) ;
+    }
+    $$ = unary_constant_folding( $$ ) ;
+  }
+}
+
+<<conditional_exp>>
+{
+  /* conditional_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_conditional_exp ;
+    $$->data_type = $3->data_type ;
+    $$->is.trinary.first = $1 ;
+    $$->is.trinary.second = $3 ;
+    $$->is.trinary.third = $5 ;
+    $$->filename = $4.filename ;
+    $$->linenum = $4.linenum ;
+    if( $1->data_type == JD_exp_new_type ) {
+      ERROR_LOCATION( $1->filename, $1->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_FOR_1ST_ELEMENT_OF_( "? : " ) ;
+    }
+    if( $3->data_type != $5->data_type ) {
+      ERROR_LOCATION( $5->filename, $5->linenum ) ;
+      ERROR_ILLEGAL_EXPRESSION_COMBINATION_FOR_( "? : " ) ;
+    }
+  }
+}
+
+
+<<eqCeq_exp>>
+{
+  /* eqCeq_exp */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_eqCeq_exp ;
+    $$->data_type = JD_exp_num_type   ;
+    $$->is.trinary.first = $1 ;
+    $$->is.trinary.second = $3 ;
+    $$->is.trinary.third = $5 ;
+    $$->filename = $4.filename ;
+    $$->linenum = $4.linenum ;
+    if( $1->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $1->filename, $1->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_1ST_ELEMENT_OF_( "= :" ) ;
+    }
+    if( $3->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "= :" ) ;
+    }
+    if( $5->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $5->filename, $5->linenum ) ;
+      ERROR_NUMERICAL_EXPRESSION_IS_EXPECTED_FOR_2ND_ELEMENT_OF_( "= :" ) ;
+    }
+  }
+}
+
+
+##################################################
+#   ##     ####    ####      #     ####   #    # #
+#  #  #   #       #          #    #    #  ##   # #
+# #    #   ####    ####      #    #       # #  # #
+# ######       #       #     #    #  ###  #  # # #
+# #    #  #    #  #    #     #    #    #  #   ## #
+# #    #   ####    ####      #     ####   #    # #
+##################################################
+<<assign_expression>>
+{
+  /* assign_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_assign_exp ;
+    $$->is.assign.lvalue = $1 ;
+    $$->is.assign.ops = $2 ;
+    $$->is.assign.expression = $3 ;
+    $$->is.assign.strength = JD_normal ;
+    $$->filename = $3->filename ;
+    $$->linenum = $3->linenum ;
+    if( $$->is.assign.lvalue->type == JD_varport_exp &&
+        $$->is.assign.lvalue->is.var.range != NULL &&
+        $$->is.assign.lvalue->is.var.name->sub_type == JD_list_sub_type
+      ) 
+    {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_LIST_ACCESS_FOR_ASSIGNMENT ; 
+    }
+    else if( !check_assign_data_type( 
+         $$->is.assign.lvalue, $$->is.assign.expression, 1 ) 
+      ) 
+    {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_ASSIGNMENT ; 
+    }
+    else if( $2 != JD_assign_EQ && $2 != JD_assign_NB_EQ && 
+        ($1->type != JD_varport_exp || $1->data_type != JD_exp_num_type
+         || $3->data_type != JD_exp_num_type )
+      )
+    {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_ARITHMETIC_ASSIGNMENT ; 
+    }
+    else 
+      set_assign_data_type_offset( 
+       $$->is.assign.lvalue, $$->is.assign.expression
+      );
+    
+    if( $3->type == JD_rnd_exp || $3->type == JD_cyc_exp ) 
+    {
+      expression_node *lvalue = $$->is.assign.lvalue ;
+      switch( lvalue->is.var.name->type ) {
+        case JD_port_name:
+        
+          break ;
+        case JD_var_name:
+        case JD_mvar_name:
+        case JD_arg_name:
+          switch( lvalue->is.var.name->data_type->type ) {
+            case JD_int_type:
+              $3->is.rnd.dst_width = -1 ;
+              break ;
+            case JD_bit_type:
+              if( lvalue->is.var.name->data_type->i_endian )
+                $3->is.rnd.dst_width = 
+                  lvalue->is.var.name->data_type->lb - 
+                  lvalue->is.var.name->data_type->ub + 1 ;
+              else
+                $3->is.rnd.dst_width = 
+                  lvalue->is.var.name->data_type->ub - 
+                  lvalue->is.var.name->data_type->lb + 1 ;
+              break ;
+          }
+          break ;
+      }
+    }
+  }
+}
+
+<<assign_list_expression>>
+{
+  /* assign_list_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_assign_list_exp ;
+    $$->is.assign.lvalue = $1 ;
+    $$->is.assign.ops = JD_assign_EQ ;
+    $$->is.assign.expression = $3 ;
+    $$->is.assign.strength = JD_normal ;
+    $$->filename = $3->filename ;
+    $$->linenum = $3->linenum ;
+    if( !check_assign_list_data_type( 
+         $$->is.assign.lvalue, $$->is.assign.expression ) 
+      ) 
+    {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_ASSIGNMENT ; 
+    }
+  }
+}
+
+<<assign_eq>>
+{
+  $$ = JD_assign_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_nb_eq>>
+{
+  $$ = JD_assign_NB_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_plus_eq>>
+{
+  $$ = JD_assign_Pls_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_minus_eq>>
+{
+  $$ = JD_assign_Minus_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_times_eq>>
+{
+  $$ = JD_assign_Time_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_div_eq>>
+{
+  $$ = JD_assign_Div_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_mod_eq>>
+{
+  $$ = JD_assign_Mod_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_rshif_eq>>
+{
+  $$ = JD_assign_Rsft_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_urshift_eq>>
+{
+  $$ = JD_assign_Ursft_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_lshift_eq>>
+{
+  $$ = JD_assign_Lsft_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_and_eq>>
+{
+  $$ = JD_assign_And_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_or_eq>>
+{
+  $$ = JD_assign_Or_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_eor_eq>>
+{
+  $$ = JD_assign_Eor_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_nand_eq>>
+{
+  $$ = JD_assign_Nand_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_nor_eq>>
+{
+  $$ = JD_assign_Nor_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+<<assign_neor_eq>>
+{
+  $$ = JD_assign_Neor_EQ ;
+  filename = $1.filename ;
+  linenum = $1.linenum ;
+}
+
+
+#########################################
+#  assgin new expression
+#########################################
+<<assign_new_expression>>
+{
+  /* assign_new_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_assign_exp ;
+    $$->is.assign.lvalue = $1 ;
+    $$->is.assign.ops = JD_assign_EQ ;
+    $$->is.assign.expression = $3 ;
+    $$->is.assign.strength = JD_normal ;
+    $$->filename = $3->filename ;
+    $$->linenum = $3->linenum ;
+    if( !check_assign_data_type( 
+         $$->is.assign.lvalue, $$->is.assign.expression, 1 ) 
+      ) 
+    {
+      ERROR_LOCATION( $$->filename, $$->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_ASSIGNMENT ; 
+    }
+  }
+}
+
+#########################################
+#  new expression
+#########################################
+<<new_expression>>
+{
+  /* new_expression */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_new_exp ;
+    if( $3 && $3->type == JD_new_block_exp )
+      $$->data_type = JD_exp_new_block_type ;
+    else $$->data_type = JD_exp_new_type ;
+    $$->is.new.args = $2 ;
+    $$->is.new.obj = $3 ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<new_block>>
+{
+  /* new_block */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_new_block_exp ;
+    $$->is.new_bl.ock = $1 ;
+  }
+}
+
+#########################################
+#  aspect block
+#########################################
+<<aspect_name>>
+{
+  /* aspect_name */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    named_node *asp ;
+    if( asp = findname_in_scope( top_scope, $1.name ) ) {
+      if(asp->type != JD_aspect_name) {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_ILLEGAL_NAME_USAGE_FOR_ASPECT( $1.name ) ;
+      }
+      $$ = asp ;
+    }
+    else {
+      $$ = ALLOC(named_node) ;
+      $$->type = JD_aspect_name ;
+      $$->name = $1.name ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+      addname( $$ ) ;
+    }
+  }
+  PASS2{
+    named_node *asp ;
+    if( asp = findname_in_scope( top_scope, $1.name ) ) {
+      if(asp->type != JD_aspect_name) {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_ILLEGAL_NAME_USAGE_FOR_ASPECT( $1.name ) ;
+      }
+      $$ = asp ;
+    }
+  }
+}
+
+
+<<aspect_begin>>
+{
+  /* aspect_begin */
+  SKIP_ON_ERROR ;
+  PASS1_2{
+    enter_class_scope( $3 ) ;
+    aspect_parsing = 1 ;
+    this_class_name = $3 ;
+  }
+  PASS1{
+    $3->is_extern = is_extern_flag ;
+  }
+  PASS2 {
+    /* at this point, name registration is already done by aspect_name */
+    $<block>$ = ALLOC(block_node) ;
+    $<block>$->name = $3 ;
+    $3->info.class_name.block = $<block>$ ;
+    $<block>$->filename = $2.filename ;
+    $<block>$->linenum = $2.linenum ;
+    $<block>$->type = JD_aspect_definition ;
+    $<block>$->parent = current_block ;
+    $<block>$->scope = current_scope ;
+    current_block = $<block>$ ;
+    $<block>$->is.class.is_extern = is_extern_flag ;
+    in_file_used = 1 ;
+  }
+  CLEAR_VAR_FUNC_ATTR_FLAGS ;
+}
+
+
+<<aspect_end>>
+{
+  /* aspect_end */
+  if( !aspect_parsing ) break ; /* error before entering class */
+  PASS1_2{
+    exit_scope( ) ;
+    aspect_parsing = 0 ;
+    this_class_name = NULL ;
+  }
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = $<block>5 ;
+    current_block = $$->parent ;
+  }
+}
+
+
+<<aspect_function_definition>>
+{
+  /* aspect_function_definition */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( current_block ) {
+      if( current_block->is.class.member_funcs == NULL ) {
+        current_block->is.class.member_funcs = $1 ;
+      }
+      else {
+        block_node *member_funcs = current_block->is.class.member_funcs ;
+        while( member_funcs->next ) member_funcs = member_funcs->next ;
+        member_funcs->next = $1 ;
+      }
+    }
+    if( $1 && $1->name ) {
+      $1->name->is_member = 1 ;
+    }
+  }
+}
+
+<<aspect_advice_definition>>
+{
+  /* aspect_advice_definition */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    if( current_block ) {
+      if( current_block->is.class.member_funcs == NULL ) {
+        current_block->is.class.member_funcs = $1 ;
+      }
+      else {
+        block_node *member_funcs = current_block->is.class.member_funcs ;
+        while( member_funcs->next ) member_funcs = member_funcs->next ;
+        member_funcs->next = $1 ;
+      }
+    }
+    if( $1 && $1->name ) {
+      $1->name->is_member = 1 ;
+    }
+  }
+}
+
+#########################################
+#  advice block
+#########################################
+
+<<advice_name>>
+{
+  /* advice_name */
+  named_node *nm ;
+  named_node *scope ;
+  SKIP_ON_ERROR ;
+  PASS1 {
+    if( nm = findname_in_scope( current_scope, $1.name ) ) {
+      $$ = nm ;
+      if( nm->type != JD_advice_name )
+      {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_DUPLICATED_NAME($1.name) ;
+      }
+    }
+    else {
+      $$ = ALLOC(named_node) ;
+      $$->name = $1.name ;
+      $$->filename = $1.filename ;
+      $$->linenum = $1.linenum ;
+      /* type can't be defined yet */
+      $$->type = JD_advice_name ;
+      addname( $$ ) ;
+    }
+  }
+  PASS2 {
+    nm = findname_in_scope( current_scope, $1.name ) ;
+    $$ = nm ;
+    if (nm == NULL) {
+      printname_in_scope( current_scope ) ;
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($1.name) ;
+    }
+    else {
+      if( nm->type != JD_advice_name )
+      {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_ILLEGAL_NAME_DETECTED_ON_PASS2($1.name) ;
+      }
+    }
+  }
+}
+
+<<advice_name_found>>
+{
+  /* func_name_found */
+  SKIP_ON_ERROR ;
+  in_advice = 1 ;
+  current_func_name = $3 ;
+  PASS1 {
+    enter_scope( $3 ) ;
+    $3->data_type = $2 ;
+  }
+  PASS2 {
+    $3->data_type = $2 ;
+    enter_scope( $3 ) ;
+  }
+  CLEAR_VAR_FUNC_ATTR_FLAGS ;
+}
+
+<<advice_pointcut>>
+{
+  /* advice_pointcut */
+  if( !in_advice ) break ;
+  PASS2 {
+    $3->info.func.pointcut = $8 ;
+  }
+}
+  
+<<advice_define>>
+{
+  /* advice_define */
+  $$ = NULL ;
+  if( !in_advice ) break ;
+  current_func_name = NULL ;
+  in_advice = 0 ;
+  PASS1_2 {
+    exit_scope() ;
+  }
+  ERROR_CLR_BLOCK {
+    PASS2 {
+      if( is_abstract_arg( $6 ) ) {
+        ERROR_LOCATION( $7.filename, $7.linenum ) ;
+        ERROR_ILLEGAL_USAGE_OF_ABSTRUCT_ARGUMENT ;
+      }
+      if( $10 == NULL ) { /* $10 = opt_outer_block */
+        /* member function declaration */
+        if( $3->info.func.class_block == NULL )
+        {
+          $$ = ALLOC(block_node) ;
+          $$->type = JD_advice_definition ;
+          $$->name = $3 ;
+          $$->name->data_type = $2 ;
+          $$->is.func.args = $6 ;
+          $$->is.func.pointcut = $8 ;
+          $3->info.func.args = $6 ;
+          $$->linenum = $3->linenum ;
+          $$->filename = $3->filename ;
+          $3->info.func.class_block = current_block ;
+          $3->info.func.func_block = $$ ;
+        }
+        else check_advice( $2, $3, $6, $8 ) ;
+      }
+      else {  /* body block exist */
+        /* advice block declaration */
+        if( $3->info.func.class_block == NULL )
+        {
+          $$ = ALLOC(block_node) ;
+          $$->type = JD_advice_definition ;
+          $$->name = $3 ;
+          $$->is.func.block = $10 ;
+          $$->is.func.args = $6 ;
+          $$->is.func.pointcut = $8 ;
+          $3->info.func.args = $6 ;
+          $$->linenum = $4.linenum ;
+          $$->filename = $4.filename ;
+          $3->info.func.class_block = current_block ;
+          $3->info.func.func_block = $$ ;
+        }
+        else if( $3->info.func.func_block->is.func.block ) {
+          ERROR_LOCATION( $4.filename, $4.linenum ) ;
+          ERROR_MULTIPLE_DECLARATION_OF_ADVICE_FOUND ;
+        }
+        else {
+          check_advice( $2, $3, $6, $8 ) ;
+          $$->is.func.block = $10 ;
+          $$->linenum = $4.linenum ;
+          $$->filename = $4.filename ;
+        }
+        if( $$->is.func.pointcut == NULL ) $$->is.func.pointcut = $8 ;
+      }
+    }
+  }
+  CLEAR_VAR_FUNC_ATTR_FLAGS ;
+}
+
+#########################################
+#  pointcut definition
+#########################################
+<<pointcut_name>>
+{
+  /* pointcut_name */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_pointcut_name ;
+    $$->is.string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<call_pointcut>>
+{
+  /* call_pointcut */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_call_pointcut_statement ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    $$->prefix = $3 ;
+  }
+}
+
+<<return_pointcut>>
+{
+  /* return_pointcut */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_return_pointcut_statement ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    $$->prefix = $3 ;
+  }
+}
+
+<<overwrite_pointcut>>
+{
+  /* overwrite_pointcut */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(statement_node) ;
+    $$->type = JD_overwrite_pointcut_statement ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    $$->prefix = $3 ;
+  }
+}
+
+    
+#########################################
+#  static random
+#########################################
+
+<<static_rnd>>
+{
+  /* static_rnd */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    expression_node *arg, *tmp ;
+    int width = 0 ;
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_rnd_exp ;
+    $$->data_type = JD_exp_num_type ;
+    arg = $3 ;
+    while( arg ) {
+      switch( arg->type ) {
+        case JD_rand_val_exp:
+        case JD_rand_range_exp:
+          if( $$->is.rnd.range ) {
+            ERROR_LOCATION( arg->filename, arg->linenum ) ;
+            ERROR_MORE_THAN_ONE_RAND_RANGE_DECLARED ;
+          }
+          $$->is.rnd.range = arg ;
+          tmp = arg ;
+          while( tmp ) {
+            $$->is.rnd.num_element += tmp->is.rnd_range.num_element ;
+            if( tmp->is.rnd_range.width > width ) 
+              width = tmp->is.rnd_range.width ;
+            tmp = tmp->is.rnd_range.nxt ;
+          }
+          $$->is.rnd.width = width ;
+          break ;
+        case JD_rand_size_exp:
+          if( $$->is.rnd.size ) {
+            ERROR_LOCATION( arg->filename, arg->linenum ) ;
+            ERROR_MORE_THAN_ONE_RAND_SIZE_DECLARED ;
+          }
+          $$->is.rnd.size = arg->is.int_value ;
+          break ;
+        case JD_rand_limit_exp:
+          if( $$->is.rnd.limit ) {
+            ERROR_LOCATION( arg->filename, arg->linenum ) ;
+            ERROR_MORE_THAN_ONE_RAND_LIMIT_DECLARED ;
+          }
+          $$->is.rnd.limit = arg->is.int_value ;
+          break ;
+        case JD_rand_name_exp:
+          if( $$->is.rnd.name ) {
+            ERROR_LOCATION( arg->filename, arg->linenum ) ;
+            ERROR_MORE_THAN_ONE_NAME_DECLARED ;
+          }
+          $$->is.rnd.name = arg->is.string ;
+          break ;
+        case JD_rand_cond_lt:
+        case JD_rand_cond_gt:
+        case JD_rand_cond_le:
+        case JD_rand_cond_ge:
+        case JD_rand_cond_ne:
+        case JD_rand_cond_Qeq:
+        case JD_rand_cond_Qne:
+          if( !$$->is.rnd.cond ) $$->is.rnd.cond = arg ;
+          else {
+            tmp = $$->is.rnd.cond ;
+            while( tmp->is.rnd_cond.nxt ) tmp = tmp->is.rnd_cond.nxt ;
+            tmp->is.rnd_cond.nxt = arg ;
+          }
+          break ;
+      }
+      arg = arg->next ;
+    }
+    if( top_static_rnd ) {
+      if( !check_static_rnd( top_static_rnd, $$ ) ) {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_NAMED_RND_WITH_DIFFERENT_RANGE_DETECTED( $$->is.rnd.name ) ;
+      }
+    }
+    else top_static_rnd = $$ ;
+  }  
+}
+
+
+<<static_cyc>>
+{
+  /* static_cyc */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    expression_node *arg, *tmp ;
+    int width = 0 ;
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_cyc_exp ;
+    $$->data_type = JD_exp_num_type ;
+    arg = $3 ;
+    while( arg ) {
+      switch( arg->type ) {
+        case JD_rand_val_exp:
+        case JD_rand_range_exp:
+          if( $$->is.rnd.range ) {
+            ERROR_LOCATION( arg->filename, arg->linenum ) ;
+            ERROR_MORE_THAN_ONE_RAND_RANGE_DECLARED ;
+          }
+          $$->is.rnd.range = arg ;
+          tmp = arg ;
+          while( tmp ) {
+            $$->is.rnd.num_element += tmp->is.rnd_range.num_element ;
+            if( tmp->is.rnd_range.width > width ) 
+              width = tmp->is.rnd_range.width ;
+            if( tmp->is.rnd_range.weight || tmp->is.rnd_range.weight_flag )
+            {
+              ERROR_LOCATION( tmp->filename, tmp->linenum ) ;
+              ERROR_ILLEGAL_USAGE_OF_WEIGHT_IN_CYC ;
+            }
+            tmp = tmp->is.rnd_range.nxt ;
+          }
+          $$->is.rnd.width = width ;
+          break ;
+        case JD_rand_size_exp:
+          if( $$->is.rnd.size ) {
+            ERROR_LOCATION( arg->filename, arg->linenum ) ;
+            ERROR_MORE_THAN_ONE_RAND_SIZE_DECLARED ;
+          }
+          $$->is.rnd.size = arg->is.int_value ;
+          if( arg->is.int_value > 96 ) {
+            ERROR_LOCATION( $3->filename, $3->linenum ) ;
+            ERROR_CYC_SIZE_TOO_LARGE_MAX_96 ;
+          }
+          break ;
+        case JD_rand_limit_exp:
+          if( $$->is.rnd.limit ) {
+            ERROR_LOCATION( arg->filename, arg->linenum ) ;
+            ERROR_MORE_THAN_ONE_RAND_LIMIT_DECLARED ;
+          }
+          $$->is.rnd.limit = arg->is.int_value ;
+          break ;
+        case JD_rand_name_exp:
+          if( $$->is.rnd.name ) {
+            ERROR_LOCATION( arg->filename, arg->linenum ) ;
+            ERROR_MORE_THAN_ONE_NAME_DECLARED ;
+          }
+          $$->is.rnd.name = arg->is.string ;
+          break ;
+        case JD_rand_cond_lt:
+        case JD_rand_cond_gt:
+        case JD_rand_cond_le:
+        case JD_rand_cond_ge:
+        case JD_rand_cond_ne:
+        case JD_rand_cond_Qeq:
+        case JD_rand_cond_Qne:
+          if( !$$->is.rnd.cond ) $$->is.rnd.cond = arg ;
+          else {
+            tmp = $$->is.rnd.cond ;
+            while( tmp->is.rnd_cond.nxt ) tmp = tmp->is.rnd_cond.nxt ;
+            tmp->is.rnd_cond.nxt = arg ;
+          }
+          break ;
+      }
+      arg = arg->next ;
+    }
+    if( top_static_rnd ) {
+      if( !check_static_rnd( top_static_rnd, $$ ) ) {
+        ERROR_LOCATION( $1.filename, $1.linenum ) ;
+        ERROR_NAMED_RND_WITH_DIFFERENT_RANGE_DETECTED( $$->is.rnd.name ) ;
+      }
+    }
+    else top_static_rnd = $$ ;
+  }  
+}
+
+
+<<rand_values>>
+{
+  /* rand_values */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    expression_node *d1, *d3 ;
+    d1 = $1 ;
+    d3 = $3 ;
+    
+    if(d1) {
+      if( (d1->is.rnd_range.weight && !d3->is.rnd_range.weight) ||
+        (!d1->is.rnd_range.weight && d3->is.rnd_range.weight)
+      ) {
+        ERROR_LOCATION( $3->filename, $3->linenum ) ;
+        ERROR_INCONSISTENT_WEIGHT_DECLARATION ;
+      }
+      while(d1->is.rnd_range.nxt) d1 = d1->is.rnd_range.nxt ;
+      d1->is.rnd_range.nxt = d3 ;
+    }
+  }
+  $$ = $1 ;
+}
+
+<<rand_value_single>>
+{
+  /* rand_value_single */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    int weight  ;
+    $$ = $1 ;
+    if( !eval_to_int( $3, &weight ) ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_ILLEGAL_WEIGHT ;
+    }
+    else {
+      $$->is.rnd_range.weight = weight ;
+      $$->is.rnd_range.weight_flag = 1 ;
+    }
+  }
+}
+
+<<rand_value_double>>
+{
+  /* rand_value_double */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    int weight  ;
+    $$ = $1 ;
+    if( !eval_to_int( $3, &weight ) ) {
+      ERROR_LOCATION( $3->filename, $3->linenum ) ;
+      ERROR_ILLEGAL_CONSTANT_TYPE ;
+    }
+    else {
+      $$->is.rnd_range.weight = weight ;
+      $$->is.rnd_range.weight_flag = 2 ;
+    }
+    $$->filename = $1->filename ;
+    $$->linenum = $1->linenum ;
+  }
+}
+
+<<rand_val>>
+{
+  /* rand_range */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_rand_val_exp ;
+    $$->is.rnd_range.ub = $1 ;
+    $$->is.rnd_range.num_element = 1 ;
+    $$->filename = $1->filename ;
+    $$->linenum = $1->linenum ;
+  }
+}
+
+<<rand_range>>
+{
+  /* rand_range */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    int size, flag, width  ;
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_rand_range_exp ;
+    
+    if( const_range_const( $1, $3, &size, &flag, &width) ) {
+      $$->is.rnd_range.num_element = size ;
+      $$->is.rnd_range.width = width ;
+      if( flag ) {
+        $$->is.rnd_range.ub = $3 ;
+        $$->is.rnd_range.lb = $1 ;
+      }
+      else {
+        $$->is.rnd_range.ub = $1 ;
+        $$->is.rnd_range.lb = $3 ;
+      }
+    }
+    $$->filename = $3->filename ;
+    $$->linenum = $3->linenum ;
+  }
+}
+
+<<rand_parm>>
+{
+  /* rand_parm */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    int tmp ;
+    $$ = ALLOC(expression_node) ;
+    if( !strcmp( $1.name, "size" ) ) {
+      $$->type = JD_rand_size_exp ;
+      if( !eval_to_int( $3, &tmp ) ) {
+        ERROR_LOCATION( $3->filename, $3->linenum ) ;
+        ERROR_ILLEGAL_CONSTANT_TYPE ;
+      }
+      else if( tmp == 0 ) {
+        ERROR_LOCATION( $3->filename, $3->linenum ) ;
+        ERROR_ILLEGAL_RND_SIZE ;
+      }
+      $$->is.int_value = tmp ;
+    }
+    else if( !strcmp( $1.name, "limit" ) ) {
+      int tmp ;
+      $$->type = JD_rand_limit_exp ;
+      if( !eval_to_int( $3, &tmp ) ) {
+        ERROR_LOCATION( $3->filename, $3->linenum ) ;
+        ERROR_ILLEGAL_CONSTANT_TYPE ;
+      }
+      $$->is.int_value = tmp ;
+    }
+    else if( !strcmp( $1.name, "name" ) ) {
+      $$->type = JD_rand_name_exp ;
+      if( $3->type != JD_string_exp ) {
+        ERROR_LOCATION( $3->filename, $3->linenum ) ;
+        ERROR_ILLEGAL_CONSTANT_TYPE ;
+      }
+      $$->is.string = $3->is.string ;
+    }
+    else {
+      ERROR_LOCATION( $1.filename, $1.linenum ) ;
+      ERROR_ILLEGAL_RND_PARAMETER( $1.name ) ;
+    }
+    $$->filename = $3->filename ;
+    $$->linenum = $3->linenum ;
+  }
+}
+
+<<rand_cond_lt>>
+{
+  /* rand_cond_lt */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_rand_cond_lt ;
+    $$->is.rnd_cond.exp = $2 ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_RND_COND ;
+    }
+  }
+}
+
+<<rand_cond_gt>>
+{
+  /* rand_cond_gt */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_rand_cond_gt ;
+    $$->is.rnd_cond.exp = $2 ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_RND_COND ;
+    }
+  }
+}
+
+<<rand_cond_le>>
+{
+  /* rand_cond_le */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_rand_cond_le ;
+    $$->is.rnd_cond.exp = $2 ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_RND_COND ;
+    }
+  }
+}
+
+<<rand_cond_ge>>
+{
+  /* rand_cond_ge */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_rand_cond_ge ;
+    $$->is.rnd_cond.exp = $2 ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_RND_COND ;
+    }
+  }
+}
+
+<<rand_cond_ne>>
+{
+  /* rand_cond_ne */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_rand_cond_ne ;
+    $$->is.rnd_cond.exp = $2 ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_RND_COND ;
+    }
+  }
+}
+
+<<rand_cond_Qeq>>
+{
+  /* rand_cond_Qeq */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_rand_cond_Qeq ;
+    $$->is.rnd_cond.exp = $2 ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_RND_COND ;
+    }
+  }
+}
+
+<<rand_cond_Qne>>
+{
+  /* rand_cond_Qne */
+  SKIP_ON_ERROR ;
+  PASS2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_rand_cond_Qne ;
+    $$->is.rnd_cond.exp = $2 ;
+    if( $2->data_type != JD_exp_num_type ) {
+      ERROR_LOCATION( $2->filename, $2->linenum ) ;
+      ERROR_ILLEGAL_DATA_TYPE_FOR_RND_COND ;
+    }
+  }
+}
+

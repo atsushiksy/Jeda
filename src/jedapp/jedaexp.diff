@@ -1,0 +1,174 @@
+552,569d551
+<     
+<   case 'L':
+<     /* Capital L may start a wide-string or wide-character constant.  */
+<     if (lexptr[1] == '\'')
+<       {
+< 	lexptr++;
+< 	wide_flag = 1;
+< 	mask = MAX_WCHAR_TYPE_MASK;
+< 	goto char_constant;
+<       }
+<     if (lexptr[1] == '"')
+<       {
+< 	lexptr++;
+< 	wide_flag = 1;
+< 	mask = MAX_WCHAR_TYPE_MASK;
+< 	goto string_constant;
+<       }
+<     break;
+572,725d553
+<     wide_flag = 0;
+<     mask = MAX_CHAR_TYPE_MASK;
+<   char_constant:
+<     lexptr++;
+<     if (keyword_parsing) {
+<       char *start_ptr = lexptr - 1;
+<       while (1) {
+< 	c = *lexptr++;
+< 	if (c == '\\')
+< 	  c = parse_escape (&lexptr, mask);
+< 	else if (c == '\'')
+< 	  break;
+<       }
+<       yylval.name.address = tokstart;
+<       yylval.name.length = lexptr - start_ptr;
+<       return NAME;
+<     }
+< 
+<     /* This code for reading a character constant
+<        handles multicharacter constants and wide characters.
+<        It is mostly copied from c-lex.c.  */
+<     {
+<       register HOST_WIDEST_INT result = 0;
+<       register int num_chars = 0;
+<       int chars_seen = 0;
+<       unsigned width = MAX_CHAR_TYPE_SIZE;
+<       int max_chars;
+< #ifdef MULTIBYTE_CHARS
+<       int longest_char = local_mb_cur_max ();
+<       char *token_buffer = (char *) alloca (longest_char);
+<       (void) local_mbtowc (NULL_PTR, NULL_PTR, 0);
+< #endif
+< 
+<       max_chars = MAX_LONG_TYPE_SIZE / width;
+<       if (wide_flag)
+< 	width = MAX_WCHAR_TYPE_SIZE;
+< 
+<       while (1)
+< 	{
+< 	  c = *lexptr++;
+< 
+< 	  if (c == '\'' || c == EOF)
+< 	    break;
+< 
+< 	  ++chars_seen;
+< 	  if (c == '\\')
+< 	    {
+< 	      c = parse_escape (&lexptr, mask);
+< 	    }
+< 	  else
+< 	    {
+< #ifdef MULTIBYTE_CHARS
+< 	      wchar_t wc;
+< 	      int i;
+< 	      int char_len = -1;
+< 	      for (i = 1; i <= longest_char; ++i)
+< 		{
+< 		  token_buffer[i - 1] = c;
+< 		  char_len = local_mbtowc (& wc, token_buffer, i);
+< 		  if (char_len != -1)
+< 		    break;
+< 		  c = *lexptr++;
+< 		}
+< 	      if (char_len > 1)
+< 		{
+< 		  /* mbtowc sometimes needs an extra char before accepting */
+< 		  if (char_len < i)
+< 		    lexptr--;
+< 		  if (! wide_flag)
+< 		    {
+< 		      /* Merge character into result; ignore excess chars.  */
+< 		      for (i = 1; i <= char_len; ++i)
+< 			{
+< 			  if (i > max_chars)
+< 			    break;
+< 			  if (width < HOST_BITS_PER_INT)
+< 			    result = (result << width)
+< 			      | (token_buffer[i - 1]
+< 				 & ((1 << width) - 1));
+< 			  else
+< 			    result = token_buffer[i - 1];
+< 			}
+< 		      num_chars += char_len;
+< 		      continue;
+< 		    }
+< 		}
+< 	      else
+< 		{
+< 		  if (char_len == -1)
+< 		    warning ("Ignoring invalid multibyte character");
+< 		}
+< 	      if (wide_flag)
+< 		c = wc;
+< #endif /* ! MULTIBYTE_CHARS */
+< 	    }
+< 
+< 	  if (wide_flag)
+< 	    {
+< 	      if (chars_seen == 1) /* only keep the first one */
+< 		result = c;
+< 	      continue;
+< 	    }
+< 
+< 	  /* Merge character into result; ignore excess chars.  */
+< 	  num_chars++;
+< 	  if (num_chars <= max_chars)
+< 	    {
+< 	      if (width < HOST_BITS_PER_INT)
+< 		result = (result << width) | (c & ((1 << width) - 1));
+< 	      else
+< 		result = c;
+< 	    }
+< 	}
+< 
+<       if (c != '\'')
+< 	error ("malformatted character constant");
+<       else if (chars_seen == 0)
+< 	error ("empty character constant");
+<       else if (num_chars > max_chars)
+< 	{
+< 	  num_chars = max_chars;
+< 	  error ("character constant too long");
+< 	}
+<       else if (chars_seen != 1 && ! traditional)
+< 	warning ("multi-character character constant");
+< 
+<       /* If char type is signed, sign-extend the constant.  */
+<       if (! wide_flag)
+< 	{
+< 	  int num_bits = num_chars * width;
+< 	  if (num_bits == 0)
+< 	    /* We already got an error; avoid invalid shift.  */
+< 	    yylval.integer.value = 0;
+< 	  else if (lookup ((U_CHAR *) "__CHAR_UNSIGNED__",
+< 		      sizeof ("__CHAR_UNSIGNED__") - 1, -1)
+< 	      || ((result >> (num_bits - 1)) & 1) == 0)
+< 	    yylval.integer.value
+< 	      = result & (~ (unsigned HOST_WIDEST_INT) 0
+< 			  >> (HOST_BITS_PER_WIDEST_INT - num_bits));
+< 	  else
+< 	    yylval.integer.value
+< 	      = result | ~(~ (unsigned HOST_WIDEST_INT) 0
+< 			   >> (HOST_BITS_PER_WIDEST_INT - num_bits));
+< 	}
+<       else
+< 	{
+< 	  yylval.integer.value = result;
+< 	}
+<     }
+< 
+<     /* This is always a signed type.  */
+<     yylval.integer.signedp = SIGNED;
+<     
+<     return CHAR;

@@ -1,0 +1,40 @@
+
+/* This definition is globally shared by all the types
+   for persing reason, and semantics must be handled at action level per 
+   each type.
+*/
+
+opt_var_func_attrib:
+  /* empty */
+  | 
+  var_func_attribs 
+  ;
+  
+var_func_attribs: 
+  var_func_attrib
+  |
+  var_func_attribs var_func_attrib
+  ;
+  
+var_func_attrib:
+  'static'
+  | 
+  'extern'
+  | 
+  'local'
+  | 
+  'global'
+  | 
+  'protected'
+  | 
+  'abstract'
+  | 
+  'final'
+  | 
+  'export'
+  | 
+  'clone'
+  |
+  'overwrite'
+  ;
+  

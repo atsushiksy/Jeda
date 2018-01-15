@@ -1,0 +1,5 @@
+make
+rm -f -r work
+vlib work
+vlog -f vfiles ../ff_test.jeda.v 
+

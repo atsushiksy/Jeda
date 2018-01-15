@@ -1,0 +1,6 @@
+# This file defines the type of non-terminal nodes
+#  gen_node_type.pl converts this file to node type entry for YACC
+#  
+
+  
+<expression>

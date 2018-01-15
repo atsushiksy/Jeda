@@ -1,0 +1,5 @@
+
+terminate_statement:
+  opt_statement_prefix 'terminate' semicolon 
+  ;
+

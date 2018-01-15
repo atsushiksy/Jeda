@@ -1,0 +1,1 @@
+../tests/$1 +jeda_debug_on_error -V $1.vcd

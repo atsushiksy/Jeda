@@ -1,0 +1,190 @@
+<html>
+<head>
+</head>
+<body>
+
+<h1>
+<a href="index.html">Contents</a> | <a href="jeda_example.html">Prev</a></h1>
+
+<h1>
+18. 言語の拡張
+</h1>
+
+<blockquote>
+ユーザーが、システム関数やシステムクラスを追加定義することによって、
+Jeda言語の機能を拡張することができます。
+Jedaの標準システム関数とシステムクラスは、 $JEDA_HOME/include/jeda_utils.jh
+にて宣言されています。
+この標準定義ファイルをコンパイルしたものが、$JEDA_HOME/include/jeda_utils.jo 
+で、リンカーにて使用されます。
+<p>
+これと同様のユーザー定義ファイルを、jedaスクリプトの
+"-U <util>" オプションによって、追加することができます。
+この場合、コンパイル時には <util>.jhが、リンク時には <util>.joが追加定義
+ファイルとして読み込まれます。
+
+<p>
+ユーザー定義のシステム関数／クラスを作成するためには、以下を行ないます。
+
+<blockquote>
+
+<li>
+ユーザー定義ファイル(<util>.jh)を、Jedaのソースとして記述します。
+18.1で説明されているように、形式的関数引数によって、柔軟な記述方法を
+利用できます。
+</li>
+<li>
+jedacmpを -X オプションを付けて実行し、ユーザー定義ファイル(<util>.jh)を
+コンパイルして、オブジェクト版の定義ファイル(<util>.jo)を作成します。
+</li>
+<li>
+
+</li>
+<li>
+定義した関数／クラスに対応するCの関数を作成します。関数/クラス名と
+Cの関数の名前の関係は、18.2で説明されています。
+</li>
+
+</li>
+<li>
+上記のCコード、もしくはコンパイルしたオブジェクトを、リンクのために
+jedaスクリプトを実行する際に指定します。
+</li>
+
+</blockquote>
+
+<p>注：このメカニズムは、実際に全てのJedaのシステム関数とシステムクラス
+をインプリメントするために用いられています。
+これらをインプリメントしているCソースは、core_sys_funcs.c、 random.c、 
+string.c、regexp_exec.cなどで見ることができます。これらは、実際に
+どのようにインプリメントを行なうことが出来るかの良い例として
+参照できます。
+</blockquote>
+
+<h2>
+18.1 形式的関数引数
+</h2>
+
+<blockquote>
+ユーザーが定義する関数(実際の機能がCにて実装されているもの)では、
+正規表現を用いた関数の引数の定義を行なうことが出来ます。
+<br>
+以下の構造がサポートされています。
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-- すべてのタイプの引数一つとマッチします。
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( &lt;arg_list> )*&nbsp;&nbsp;
+-- ゼロ以上の与えられた引数リストとマッチします。
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( &lt;arg_list> )+&nbsp;&nbsp;
+-- 一つ以上の与えられた引数リストとマッチします。
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( &lt;arg_list> )|&nbsp;&nbsp;
+-- 与えられた引数リストのなかのどれか一つの引数とマッチします。
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ &lt;arg_list> ]&nbsp;&nbsp;&nbsp;
+-- ゼロもしくは一つの与えられた引数リストとマッチします。
+<p>
+例えば、printfの引数は、以下のように定義できます。
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+printf( string format ( , ? )* ) ;</font>
+<p>コンパイラは、コンパイル時に正規表現としての引数の正しさをチェックします。
+Cで実装されるユーザーの関数は、引数が最終的に正しいかをチェックする必要が
+あることに注意してください。
+<br>&nbsp;</blockquote>
+
+<h2>
+18.2 Jedaでの定義とCで実装される関数の名前の関係
+</h2>
+
+<blockquote>
+システム関数 <font face="Courier New,Courier">foo()</font>が
+Jeda側で宣言されると、Jedaリンカーは、対応するCの関数
+<font face="Courier New,Courier">JD_sf_foo()</font>
+が存在することと仮定します。
+<p>
+システムクラス<font face="Courier New,Courier">bar</font>, と
+メンバー関数 <font face="Courier New,Courier">boo()</font> が
+Jeda側で宣言されると、Jedaリンカーは、以下の関数が存在することと
+仮定します。
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+*JD_sa_bar()</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- そのクラスのインスタンスをアロケートする (newの前に呼ばれる)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+JD_sd_bar()</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- そのクラスのインスタンスをデアロケートする。(ゴミ集め時に呼ばれる)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+*JD_dup_bar( void *dt )</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- そのクラスのインスタンスのコピーを作成する。
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork時にcloneフラグがセットされていた場合に呼ばれる。
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+JD_sc_bar_mf_new( void *dt )</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- new 関数、アロケートの後で呼ばれる
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">void
+JD_sc_bar_mf_boo( void *dt )</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- ユーザーが定義したメンバー関数
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char *<font face="Courier New,Courier">JD_disp_bar(
+char *indent, void *dt, char eol )</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- 表示関数。インスタンスの内容を示す文字列をアロケートして返す。
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+文字列は呼び出し側がデアロケートする。
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+'indent' は返される文字列の先頭におかれるべき文字列
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+'eol' は、改行コード
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</blockquote>
+
+<h2>
+18.3 引数と関数の戻り値
+</h2>
+
+<blockquote>
+Jedaコード(コンパイルされたユーザーのJedaコード)と共に動作するC言語のコードを記述するために、いくつかのマクロが "exec_macro.h"ファイルに用意されています。このファイルは、&lt;jeda source release>/src/include ディレクトリに置かれいます。
+関数の引数は、Jedaの実行スタックを介して渡されます。引数へのアクセスには、
+マクロ<font face="Courier New,Courier">GET_STACK(n)</font> を使用します。
+ここで、n は、スタックトップからのオフセットです。
+<br>
+引数の数は、Cの変数NUM_ARGに与えられます。したがって、(ゼロから数えて)i番目
+の引数は、GET_STACK(NUM_ARG-i-1)で得ることが出来ます。
+
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>JD_data *dt
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>dt = GET_STACK( NUM_ARG-i-1
+) ;</font></font></blockquote>
+<p><br>
+ここで、この 'dt'が、単純にJD_dataストラクチャへのポインタとしては、使用できないことに注意してください。
+Jedaのコアは、最適化のため、このポインタの０ビットをセットしたsmall integerを、整数を表現するために使用します。(奇数アドレスのポインタ) このようなsmall integerをポインタとしてアクセスすると、バスエラーが発生します。(SPARCシステムでは、この場合デバッガーで捕捉することすら出来ません。)
+このsmall integerを取り扱うために、マクロ IS_SMLINT(x)と、SMLINT2INT(x)を使用することが出来ます。
+<p>&nbsp;
+<blockquote><font face="Times New Roman,Times">JD_data *dt ;</font>
+<br><font face="Times New Roman,Times">int value ;</font><font face="Times New Roman,Times"></font>
+<p><font face="Times New Roman,Times">if( IS_SMLINT( dt ) ) value = SMLINT2INT(dt)
+;</font>
+<br><font face="Times New Roman,Times">else {</font>
+<br><font face="Times New Roman,Times">&nbsp; switch( dt->type ) {</font>
+<br><font face="Times New Roman,Times">&nbsp;&nbsp;&nbsp; ..</font>
+<br><font face="Times New Roman,Times">&nbsp; }</font>
+<br><font face="Times New Roman,Times">}</font></blockquote>
+
+<p><br>
+呼び出し側に値を返すのは、ACC経由で行ないます。整数値１００を返すためには、
+次のように行ないます。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>ACC_TYPE = JD_D_int
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>ACC_INT = 100 ;</font></font></blockquote>
+
+<p><br>文字列 "foo"を返すためには：
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>ACC_TYPE =&nbsp;
+JD_D_string ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>ACC_STRING = (char *)sturdup("foo")
+;</font></font></blockquote>
+
+<p><br>
+より複雑なデータ構造へのアクセスや、非数値データを返すこともできますが、
+こうした複雑な操作を行なうには、Jedaの内部構造を十分に熟知する必要があります。
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

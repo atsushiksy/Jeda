@@ -1,0 +1,330 @@
+<html>
+<head>
+</head>
+<body>
+<a href="manage_if_driver.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="cell_gen_checker.html">next</a>
+<h1>
+<font size=+1>8. UTOPIA セル ドライバーとレシーバー
+</font></h1>
+
+<ul>
+UTOPIAポート セル ドライバー と レシーバーは、UTOPIA ATM インターフェース
+レイヤーをインプリメントしています。
+これらの、ソースファイルは、
+<a href="../utils/cell_driver_1.j">cell_driver_1.j</a>と
+<a href="../utils/cell_receiver_1.j">cell_receiver.j</a>です。
+</ul>
+
+<h2>
+8.1 UTOPIA セル ドライバー
+</h2>
+
+<ul>
+マネージメントインターフェースドライバーと同様に、UTOPIAポートへの
+インターフェースのためのsignal変数がドライバークラスのメンバー変数
+として宣言されます。複数のポートに対して、複数のドライバーインスタンス
+を使用することが予期出来るため、変数 id でどのポートであるかを
+認識します。
+<br>
+二つのセマフォー clev_sem と drive_sem が ドライバーの排他制御に使用され
+ており、複数のスレッドがらのドライバーの競合が回避出来るようになっています。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class cell_driver {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal rx_clk
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal soc ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal en ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal clav ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; semaphore clav_sem
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; semaphore drive_sem
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font></ul>
+コンストラクタ関数 new() は、ドライバーを設定するにに必要なポート信号を
+引数に取ります。この関数は、セマフォーを設定し、出力をアイドル状態に
+ドライブします。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void new(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+a_id,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_rx_clk,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_data,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_soc,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_en,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_clav</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; id
+= a_id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rx_clk
+= a_rx_clk ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data
+= a_data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; soc
+= a_soc ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; en
+= a_en ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clav
+= a_clav ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+drive signals to inactive state</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clav.0
+= 1'b0 ; // active high</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; soc.0
+= 1'b0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data.0
+= 0 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+using two semaphore to allow back to back drive</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clav_sem
+= new ;&nbsp; // mutex for driving clav</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; drive_sem
+= new ;&nbsp; // mutex for sending a cell</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>
+関数 drive_cell() は、セル インスタンスを引数にとり、それをUTOPIAポートへと
+ドライブします。二つのセマフォーが、clav信号とデーターポートへのアクセスを
+調停するために使用されています。セルの最期のバイトデータがドライブされる
+時点で、現在実行中のセルドライバーは、clav信号を０にweak状態でドライブし、
+clev_semを開放します。もし、別のドライバが次のセルをドライブする準備が
+出来ている場合、このcleve信号は、１に書き換えられ、セルは連続して
+送られます。データ転送は、en信号が前のサイクルでドライブされた場合に
+ストールします。このストールが発生する可能性があるため、次のドライバーは、
+clev_semを前のドライバーの５２バイト目で受け取っても、データーをすぐには
+ドライブ出来ない場合があります。このため、二つ目のセマフォー drve_semによって
+データのドライブのタイミングを制御しています。
+<br>&nbsp;
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void drive_cell(
+int dly, cell_class cell ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i, j ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clav_sem.get()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+dly ) @dly(posedge rx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clav.0
+= 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @(posedge
+rx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; drive_sem.get()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 53 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+soc.0 = i?1'b0:1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+data.0 = cell.data[i] ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( i == 52 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clav.0 = 1'b0 weak ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clav_sem.put() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assert(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@1,MAX_ENABLE_DELAY (en.1 == 1'b0) // using pipe one signal</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ; // note that using</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; drive_sem.put()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"a cell driven on %d at %d\n", id, get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;</ul>
+前のサイクルでのen信号の検出は、単純にパイプライン化信号 en.1 を用いて
+行なっています。これにより、つねに前のサイクルでの信号の状態を参照する
+ことができます。このsignal変数に対応するポート信号は、適切なdepth属性で
+宣言されていなければなりません。
+<p><img SRC="../html/pipeline.gif" height=269 width=698></ul>
+
+<h2>
+8.2 UTOPIA セル レシーバー
+</h2>
+
+<ul>
+セルレシーバーも、同様に tx側のUTOPIAポートに対するsignal変数を持ちます。
+受け取られたセルは、single_cell_queueのインスタンス rcv_que
+に送られ、最終的に正しく受け取られたかのチェックが行なわれます。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class cell_receiver
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal tx_clk
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal soc ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal en ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal clav ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; single_cell_queue
+rcv_que ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int receive_count
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int receive_num
+;</font></font></ul>
+
+<p><br>
+変数 receive_countとreceive_numが、受信ポートがわのフロー制御のために
+使用されます。テスターは、一つのcellの受信が期待されるたびにreceive_numを
+１増加します。この値は、ランダム値ジェネレータで発生された遅延の後に
+receive_countに転送され、この値に基づいてフロー制御のためのclav信号が
+ドライブされます。
+二つの異なった遅延メカニズムのための関数、receive_enable_loop()と
+receive_enable_loop_rnd() が利用できます。
+<p>
+関数 receive_enable_loop()は、送られたセルと、受信すべきセル間の遅延を
+最小値に幅をもった乱数をプラスすることで決定します。変数receive_numは、
+セルがドライバーによってポートにドライブされた時点で、テスターによって
+増加され、対応するセルが出力側に転送されることが期待されます。コンフィグ
+レジスタの値によって、一つのセルが複数のポートに転送される場合もあり、
+この場合テスターは、複数のレシーバーインスタンスの receive_num変数を
+増加する必要があります。
+この関数によって使用されるフロー制御は、セルが連続的に転送されると
+フロー制御を全く行なわなくなります。(つねに受信すべきセルが存在する)
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void receive_enable_loop(
+int rcv_dly_c, int rcv_dly_r ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+dly ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+while( receive_num == 0 ) @(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dly = rcv_dly_c + (rcv_dly_r?(random()%rcv_dly_r):0) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if(dly) @dly(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_count++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_num-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>
+関数 receive_enable_loop_rnd()は、受け取られたセルから次に受け取られるセルまで
+の遅延を制御します。したがって、このメカニズムは常にフロー制御が行なわれる
+ようにすることが出来ます。
+変数receive_countは、それ自身がゼロで、かつreceive_numがゼロでない場合に
+のみ、増加します。したがって、セルの受信は、一つ一つ処理されます。
+ランダム分散クラス(12章で説明します。)のインスタンスに
+よって生成された遅延が、受信するセルとセルの間に適応されます。
+(定数０を指定することで、遅延の無い状態も作り出せます)
+このメカニズムは、ATM転送側での特定の受信レートをつくり出すことが出来ます。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void receive_enable_loop_rnd(
+random_distribution rnd ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+dly ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; receive_count++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+while( receive_count || receive_num == 0 ) @(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dly = rnd.gen_random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if(dly) @dly(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_count++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_num-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1></font></font>&nbsp;</ul>
+<font face="Courier New,Courier"><font size=-1></font></font>
+<p><br>
+関数 receive_loop() は、ポートからセルを受信し、それを受信キューに転送する
+スレッドを生成します。
+<br>
+この関数は、変数receive_countがゼロでないかをチェックし、受信すべき
+セルがあるときには、clav信号をドライブしてセルを受信します。
+セルバイトの転送ループの最期で、receive_countがゼロかどうかをチェックし、
+もしゼロでなければ、連続してセルの受信をおこないます。
+これによって、UTOPIAポートのフロー制御をコントロールします。
+<br>
+レシーバーがセルのバイトデータを受信し始めたばあい、en信号が
+最大 MAX_ENABLE_DELAY (１０００サイクルに設定)以内に出力されることを
+期待します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void receive_loop()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cell_class
+cell ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( receive_count == 0 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+while( receive_count == 0 ) @(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clav.0 = 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@(posedge tx_clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clav.0 = 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+receive_count-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for( i = 0 ; i &lt; 53 ; i++ ) {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( i == 52 &amp;&amp; receive_count == 0) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clav.0 = 1'b0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assert(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@1,MAX_ENABLE_DELAY (en.0 == 1'b0)</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ; // note that using</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assert( soc.0 == i?1'b0:1'b1 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell.data[i] = data.0 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "a cell received on %d at %d\n", id, get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+rcv_que.que.send( cell ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;
+<br>&nbsp;</ul>
+
+<br>&nbsp;
+<br>&nbsp;</ul>
+<a href="manage_if_driver.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="cell_gen_checker.html">next</a>
+</body>
+</html>

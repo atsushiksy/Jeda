@@ -1,0 +1,6 @@
+concatenation_expression:
+  '{' expression_list '}' 
+  |
+  '{' expression '{' expression '}' '}'
+  ;
+

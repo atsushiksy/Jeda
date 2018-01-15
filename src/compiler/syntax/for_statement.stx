@@ -1,0 +1,26 @@
+
+for_statement:
+  opt_statement_prefix 'for' '(' 
+    opt_multi_expressions ';' opt_expression ';' opt_multi_expressions
+  ')' 
+  statement 
+  ;
+  
+opt_multi_expressions:
+  /* empty */
+  |
+  multi_expressions
+  ;
+
+multi_expressions:
+  for_expression
+  |
+  multi_expressions ',' for_expression
+  ;
+  
+for_expression:
+  state_expression 
+  |
+  assign_expression
+  ;
+  

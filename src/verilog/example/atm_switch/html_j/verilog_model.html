@@ -1,0 +1,63 @@
+<html>
+<head>
+</head>
+<body>
+<a href="index.html">index</a> : <a href="verif_environment.html">next</a>
+<p><font size=+1>
+1. Verilogモデルとその仕様
+</font>
+<blockquote>
+ここで使用するDUT(device under test)は、４ポートATMスイッチです。
+オリジナルのモデルは、 Qualis Design Corporationによって開発され、
+Janick Bergeron氏のVerification Guildプロジェクトからダウンロードされました。
+<a href="http://www.janick.bergeron.com/guild/project.html">(http://www.janick.bergeron.com/guild/project.html)</a>
+<p>
+その設計仕様は、Qualis社から提供されています。
+(<a href="../verilog/spec.pdf">spec.pdf</a>)
+<p>このVerilogモデルは３つのファイルから構成されます。
+<br>&nbsp;
+<ul>
+<li>
+<a href="../verilog/utopia1_atm_rx.v">utopia1_atm_rx.v</a></li>
+
+<br>UTOPIA レシーバ モジュール
+<br>&nbsp;
+<li>
+<a href="../verilog/utopia1_atm_tx.v">utopia1_atm_tx.v</a></li>
+
+<br>UTOPIA トランスミッタ モジュール
+<br>&nbsp;
+<li>
+<a href="../verilog/squat.v">squat.v</a></li>
+
+<br>4ポート ATM スイッチ モデル.</ul>
+
+<p><br>
+このソースコードをチェックし、以下の問題点に気づきました。
+<br>&nbsp;
+<ul>
+<li>
+VPIが０の場合も、ルックアップが行なわれる
+</li>
+
+<br>仕様書の2.2.4では、以下のように記述されています。
+<ul>For each non-errored cells received with a non-zero VPI, the configuration
+information for that cells' VPI is looked up.</ul>
+しかし、モデルはVPIがゼロであることをチェックせず、常にルックアップがおこなわれます。ソフトウェアが、コンフィグレジスタのエントリ０に０を書き込むことで、この機能は実現することが出来ますが、すくなくとも、モデルは仕様書どうりには設計されていません。
+<br>&nbsp;
+<li>
+フェアでない転送アービトレーション
+</li>
+
+<br>
+squat.v内の、セルの転送メカニズムは、ポート間のフェアなアービトレーションを
+行なわず、下位のポートが常に高いプライオリティを持つように設計されています。
+したがって、簡単に飢餓状態(特定のポートがサービスされない状態)をつくり出すことができます。
+<p>この問題点を検知するためのテストケースを、後に示します。
+<br>&nbsp;
+<br>&nbsp;</ul>
+<a href="index.html">index</a> : <a href="verif_environment.html">next</a>
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

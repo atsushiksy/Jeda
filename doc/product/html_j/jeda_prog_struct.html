@@ -1,0 +1,127 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a><b> | </b><a href="jeda_lex_elm.html">Prev</a><b>
+| </b><a href="jeda_basic_data.html">Next</a>
+<h1>
+<b>
+3. プログラム構造
+</b></h1>
+
+<blockquote>&nbsp; 
+Jedaのプログラムは、以下の要素から構成されます。
+<p>&nbsp;&nbsp;&nbsp; 
+ポート宣言
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+シミュレータ(Verilog)へのインターフェースをおこなうJedaポートの宣言をおこなう。
+<p>&nbsp;&nbsp;&nbsp; 
+ポートセット ブロック
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+シミュレータ(Verilog)へのインターフェースをおこなうJedaポートの集合であるポートセットの宣言をおこなう。
+<p>&nbsp;&nbsp;&nbsp; 
+コネクションセット ブロック
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+Jedaポートとシミュレータ内のノードとの直接接続を指定する。
+<p>&nbsp;&nbsp;&nbsp; 
+タイプ宣言
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+enum と クラス タイプを宣言する。
+<p>&nbsp;&nbsp;&nbsp; 
+ローカル、グローバル変数宣言
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+ローカル、グローバル変数の宣言を行う。
+<p>&nbsp;&nbsp;&nbsp; 
+イニシャル ステートメント
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+シミュレーション時間 0 (ゼロ)時に実行されるステートメントを宣言する。
+<p>&nbsp;&nbsp;&nbsp; 
+関数定義
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+関数を定義する。mainと言う名の関数がプログラムのスタートポイントとなる。
+<p>&nbsp;&nbsp;&nbsp; 
+クラス定義
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+クラスを定義する。
+<p>
+ここに、ポート、ポートセット、クラス、関数の各定義をふくむ、完全なJeda
+プログラムの例を示します。
+<br>&nbsp;
+<p><font face="Courier New,Courier">// bare port declaration</font>
+<br><font face="Courier New,Courier">input clock ;</font>
+<br><font face="Courier New,Courier">input [7:0] data_in @clock ;</font>
+<br><font face="Courier New,Courier">output [7:0] data_out @clock drive
+posedge skew 2 ;</font>
+<p><font face="Courier New,Courier">// portset declaration</font>
+<br><font face="Courier New,Courier">portset if_0 {</font>
+<br><font face="Courier New,Courier">&nbsp; input clk ;</font>
+<br><font face="Courier New,Courier">&nbsp; input d_in @if_0.clk ;</font>
+<br><font face="Courier New,Courier">&nbsp; output d_out @if_0.clk drive
+posedge skew 2 ;</font>
+<br><font face="Courier New,Courier">}</font>
+<p><font face="Courier New,Courier">// another portset declaration</font>
+<br><font face="Courier New,Courier">portset if_1 {</font>
+<br><font face="Courier New,Courier">&nbsp; input clk ;</font>
+<br><font face="Courier New,Courier">&nbsp; input d_in @if_0.clk ;</font>
+<br><font face="Courier New,Courier">&nbsp; output d_out @if_0.clk drive
+posedge skew 2 ;</font>
+<br><font face="Courier New,Courier">}</font>
+<p><font face="Courier New,Courier">class if_driver {</font>
+<br><font face="Courier New,Courier">&nbsp; string name ;</font>
+<br><font face="Courier New,Courier">&nbsp; signal clk ;</font>
+<br><font face="Courier New,Courier">&nbsp; signal d_in ;</font>
+<br><font face="Courier New,Courier">&nbsp; signal d_out ;</font>
+<p><font face="Courier New,Courier">&nbsp; void new(</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; string a_name,</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; signal a_clk,</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; signal a_d_in,</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; signal a_d_out</font>
+<br><font face="Courier New,Courier">&nbsp; ) {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; name = a_name ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; clk = a_clk ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; d_in = a_d_in ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; d_out = a_d_out
+;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<p><font face="Courier New,Courier">&nbsp; void d_drive_loop() {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; printf(</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "if_driver
+%s d_drive_loop started at %d\n",</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name,
+get_cycle()</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; fork</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; forever {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @(posedge
+clk) ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d_out.0
+= d_in.0 ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; knife</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<p><font face="Courier New,Courier">} // end of class if_driver</font>
+<p><font face="Courier New,Courier">void main() {</font>
+<br><font face="Courier New,Courier">&nbsp; if_driver d0, d1 ;</font>
+<p><font face="Courier New,Courier">&nbsp; d0 = new( "d0" if_0.clk, if_0.d_in,
+if_0.d_out ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; d1 = new( "d1" if_1.clk, if_1.d_in,
+if_1.d_out ) ;</font>
+<p><font face="Courier New,Courier">&nbsp; d0.drive_loop() ;</font>
+<br><font face="Courier New,Courier">&nbsp; d1.drive_loop() ;</font>
+<p><font face="Courier New,Courier">&nbsp; repeat(10000) {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; @(posedge clock)
+;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; data_out.0 = data_in.0
+;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br><font face="Courier New,Courier">}</font>
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+
+</body>
+</html>
+
+
+
+

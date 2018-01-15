@@ -1,0 +1,1580 @@
+/****************************************************************************
+      Jeda Programming Language Syntax Specification
+
+   Copyright (C) 1999, 2000, 2001 Juniper Networks Inc.
+
+   This program is free software; you can redistribute it and/or modify it
+   under the terms of the GNU General Public License as published by the
+   Free Software Foundation; either version 2, or (at your option) any
+   later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA.  
+   
+*****************************************************************************/
+
+
+1. Lexical Elements
+  
+  1.1 white space
+    White spece does no meaning and acts as separator.
+  
+  1.2 comments
+    Two types of comment are supported.
+    
+    /* text */   : A traditional C style comment
+    //           : A single line comment
+    
+  1.3 Identifiers
+    
+    [a-zA-Z_][a-zA-Z_0-9]*
+    
+  1.4 Keywords
+    
+#KEYWORD jeda_keyword.data
+
+    ** 'long' is a keyword, but not used now.
+
+  1.5 Separators and Operators
+  
+#KEYWORD jeda_operators.data
+  
+  1.6 Constant
+  
+    1.6.1 Integer Constant
+      Integer Constant start with non-zero digit followed by any digit.
+      
+        0
+        [1-9][0-9]*
+      
+    1.6.2 C style numerical Constant
+      C style numerical number constant starts with 0 and a formant character
+      followed by digit characters. 0hff or 0Hff style can be used for hex.
+      0xb0100 style can be used for binary.
+      
+       0[dDoOxXhHbB][0-9a-fA-FzZxX]+
+      
+    1.6.3 Verilog style numerical Literal
+      Verilog style numerical numbers are also supported. 
+      
+        [0-9]*'[dDoOxXhHbB][0-9a-fA-FzZxX]+
+      
+
+    1.6.4 String Constant
+      String constant is a sequence of caractors within " (double quote). 
+      More than one line of string can be specified with \ (backslash) 
+      followed by \n (new line).
+      
+    1.6.5 null Literal
+      null represents empty status of a Jeda object.
+      
+       null
+       
+2. Program structure
+  Jeda source code consists of the following elements.
+  
+
+    port declaration 
+        specifies individual port to interfaces to simulator(Verilog)
+
+    portset block 
+        specifies set of ports to interfaces to simulator(Verilog)
+
+    connectionset block
+        specifies connections between port in portset and node in simulator
+    
+    type definition
+        specifies enum and class type
+        
+    local and global variable declarations
+        specifies local and global variables
+    
+    inital statement
+        specifies statement to be executed at time zero.
+        
+    function definition
+        specifies functions. A function with name main is the starting point
+        of Jeda code.
+        
+    class definition
+        specifies classes.
+        
+#BEGIN  translation_unit
+
+3. Port and port_set
+
+  3.1 port
+  
+    Jeda interfaces to the simulator (Verilog) world via a port.
+  A port is defined as verilog port with keywords 'input', 'output', or
+  'inout'. A port can be declared anywhere outside functions. A port can
+  be declared as a single bit, or vector.
+  A port io direction should be one of the following:
+  
+    input  -- port is input to Jeda.
+    
+    output -- port is output from Jeda.
+    
+    inout  -- port is inout to/from Jeda.
+    
+  The port direction can be followed by the bit_range to specify
+  a bus signal. It can take small-endian bit order such as [0:2] in this 
+  language.  (This is also true for bit type variable.)
+  
+    Example: 
+      input single ;  // single bit input port
+      output [3:0] nibble ; // 4-bit bus output port
+      inout [7:0] a_bus ;  // 8 bit bus inout port
+ 
+  When a port is declared, it becomes the (Verilog) port on the Jeda
+  module.
+
+    Jeda module in Verilog corresponding above:
+    
+       module jeda_module (
+         CLOCK,
+         single,
+         nibble,
+         a_bus
+         ..
+       ) ;
+     
+       input CLOCK ;
+       input single ;
+       output [3:0] nibble ;
+       inout [7:0] a_bus ;
+
+#BEGIN port
+  1.2 port access
+    A reference to a port has two meanings, a pointer to the port, and the
+    value on the port. 
+    
+    Regular reference to a port name means the pointer to the port. The pointer
+    can be stored to a signal variable for indirect access to the port.
+    
+      signal p_sig ;
+    
+      p_sig = a_bus ; // signal p_sig holds a pointer to a_bus
+    
+    The access to the value is done with 'depth' suffix ( '.n' where n is
+    the integer number ). 
+    The depth must be 0 when a value is stored to the port.
+    
+      a_bus.0 = 8'hff ;   // driving a_bus
+    
+      i = single.0 ;      // sampling single
+    
+  1.3 port attribute
+  
+    A port can have various attributes to determine how to interface to the
+  simulator. 
+  Attributes can be added on the port declaration following to the port name.
+  When the attribute is ommitted to the global port variables the following
+  default value is used: 
+  
+    default_attrib := @CLOCK sample posedge skew 0 drive posedge skew 1 ;
+  
+  Attirbute can only be added if the default value needed to be changed.
+  
+    Example:
+      input single @other_clock ; // clock reference to other_clock
+      output [3:0] nibble drive negedge skew 2 ; // @CLOCK is used
+      inout [7:0] a_bus sample negedge skew -2 ; // @CLOCK, drive are default
+  
+  Attributes to be added to the port variables are the followings:
+    
+  1) Clock attribute
+    Clock attribute specifies the reference clock to the port. The reference
+    clock is used when assignement or evaluation is specified with cycle
+    element. 
+    The clock attribute is specified with '@' followed by clock port name.
+    If the clock attribute is omitted, the system clock 'CLOCK' is used
+    as the reference clock.
+    
+    Example:
+      input clock ;
+      output [7:0] data @clock drive posedge skew 1 ;
+      input [7:0] sig @clock sample posedge ;
+      
+    When 'data' specified above is driven with clock reference, the port
+    'clock', instead of CLOCK is used as the clock reference.
+    
+    @5 data.0 = 8'hff ;
+      
+    When 'sig' above is sampled with clock reference, the port 'clock' is
+    used as the reference.
+    
+    // sampling of sig is done at posedge of 'clock'
+    if( @2,5( sig == 8'h55 ) ) printf( "sig becomes 8'h55\n" ) ;
+    
+  2) drive attribute
+    Drive attribute determines the timing the port is driven when assignment
+    to a port is associated with the cycle element. Skew value can be added to
+    delay the actuall drive timming from the clock edge. Skew is given as
+    unit time of the simulator. 
+    Drive attribute should only be added to output or inout port type.
+    
+    Edge:
+      posedge 
+        driving edge is positive edge. This is the default.
+      negedge 
+        driving edge is negative edge.
+      bothedge 
+        driving edge is both positive and negative edge
+    
+    Skew:
+      'skew' value
+        Integer constant 'value' is to specify the unit delay from the drive
+        edge to the value shows up on the simulator. 
+        Assignment to the port is scheduled at the given edge, and effective
+        after the given skew. This allows the code stays at edge of clock
+        for various procedures, and drive the data with skew to avoid racing
+        conditions.
+        
+  3) sample attribute
+    Sample attribute determines the timing the port data is sampled when
+    access to the port is associated with the cycle element. Negative skew
+    value can be added to access the value at the given unit time fefore the
+    given clock edge. Skew must be negative or compiler will report an error.
+    Sample attribute should only be added to input or inout port type.
+    
+    posedge 
+      sampling edge is positive edge. This is the default if clock port is
+      defined. 
+    negedge 
+      sampling edge is negative edge.
+    bothedge
+      sampling edge is both positive and negative edge
+
+    depth <value> 
+      number of pipeline cycles to be kept. The pipelined port value can
+      be accessed with <portset_name>.<port_name>.n where n is integer
+      value. 
+    
+    node <string>
+      specifies the node in the simulator. This can be also done with
+      connection set block (explained later).
+
+#BEGIN port_attrib
+
+  1.4 class functions for port variable
+  
+    port variable has (at least) the following class functions:
+               
+     drive_clock( period1, period2 = period1, initial = 0, dly = 0 ) 
+        drive the output/inout port with given clock period.
+    
+        <period1> : first period of clock in unit delay.
+        <period2> : second period of clock. <period2> = <period1> if ommitted.
+        <initial> : initial value of clock. <initval> = 0 if omitted.
+        <startdly> : delay befor clock starts toggling. 
+                     <startdly> = 0 if omitted.
+
+        initval             __________            __________
+       ____________________|          |__________|          |__________
+      ^
+      |<-- <startdly>-----><-period1-><-period2->  (repeat)
+      |
+      time called
+    
+       
+  1.5 port_set
+  
+    Ports can be grouped with 'port_set' to represent a logical correction of
+  ports. A port set can declared with port set attribuite which becomes
+  the default attributes for the port within the port_set.
+  
+  The port within a port_set will show up on Jeda module as
+  <port_set_name>_<port_name>. 
+  
+    Note: The user must avoid the combination of port_set name and port name
+          that's ends up the same result, e.g.
+            port_set: foo_x  port: _bar    -> foo_x_bar
+            port_set: foo_   port: x_bar   -> foo_x_bar
+
+  Port_set can be defined with defaut clock
+
+  Access to the port in port_set is done with '.' operator. 
+  
+    <port_set_name>.<port_name>.0  : regular access to the data
+    <port_set_name>.<port_name>.n  : data of n-th pipeline
+      
+#BEGIN port_set
+
+4. Connection Set
+   Connection set is a way of connecting ports in portset to specific
+   simulator node.
+   This can be separate file(s) specified at compilation/link time.
+   
+   connectionset {
+     sigs.siga "verilog_top.port_a" ;
+     sigs.sigb "verilog_top.port_b" ;
+     single_sig "verilog_top.port_c" ;
+   }
+
+
+#BEGIN connection_set
+
+5. Global and Local Variable Declaration
+  5.1
+  Local variables are variables that are shared with functions, classes within
+  one source file. Such a variable can be declared outside of any block with
+  "local" attribute. The scope to the valiable is only within the source file.
+  
+    local bit [7:0] foo ;
+    
+  5.2
+  Global variables are variables that shared among all the Jeda code that
+  is linked together as a complete program.
+  There are two mechanism to declare and share the global variable.
+  First one is variable declaration without any attibute. 
+  
+     int new_flag ;
+
+  To share the variable from another file, another file must use "extern"
+  attribute on variable declaration.
+    
+     extern int new_flag ;
+     
+  With this mechanism, there should be only one variable declaration without
+  "extern" attribute.
+  
+  
+  Second mechanism is to use "global" attribute. The variable with global
+  attribute can be declared in multiple files. The consistency of the 
+  declaration including initalize value is checked at link time.
+  
+    global int gflag = 0 ;
+    
+  This mechanism is usefull when the global variable declarations are done
+  in a include file, and included in multiple files.
+  
+  It is not allowed to mix those two mechanisms. For example, using global
+  and extern attribute will cause an error at link time.
+  
+  5.3
+  Initial statement can be declared to execute the statement at time zero.
+  Any number's of initial statements can be declared, and they are all 
+  executed at time zero, before main function is called. The order of execution
+  among initial statements are unknown. 
+  Initial statement can also be used in class declaration. In this case, the
+  statement can only access the static member variables.  
+ 
+#BEGIN initial_statement
+ 
+6. Variables and enum type declarations
+  Local variables and local enum types can be declared at the beginning of
+  any block. They have the local scope.
+  
+  {
+    enum color = black, white ;
+    int i ;
+    color blackorwhite ;
+      ..
+    {
+      enum color = red, green, blue ;
+      int i, j ;
+      color rgb_color ;
+        ..
+    }
+  }
+  
+#BEGIN var_enum_definition
+
+7. Variable Declaration
+  Any type of variable can be declared as non-array (no array range), 
+  array ( with [ <num> ] ), associative array ( with [] ), string indexed 
+  array ( with [ * ] ), or list ( with <> ) ;
+  For array with fixed size, multi dimentional array is supported.
+  
+    int foo[100] ;      // array of size 100 of int
+    bit [5:0] bar[] ;   // associative array of bit [5:0]
+    float flt<> ;          // list of float
+    int foobar [*] ;    // string indexed array of int
+    int mfoo[100][50][5] ;  // 3 dimentional array of int 
+    
+  7.1 local variable sharing among thread
+  When a local variable is declared in a block, it will be shared among
+  the threads by default. This sometimes causes a problem due to the
+  timing when the forked thread is actualy executed. For example:
+  
+    int i ;
+    
+    for (i = 0 ; i < 5 ; i++ ) {
+      fork
+        check_func( i ) ;
+      knife
+    } 
+  
+  Since The Jeda code runs non-preemptively, the main thread that executes
+  for loop keeps running and complete the for loop before any forked thread
+  execution takes place. As the result, all the thread that start the 
+  function call check_func sees that i = 5, instead of incremental assignment
+  to each thread.
+  
+  To avoid this problem, a variable can be declared with 'clone' attribute.
+  
+    clone int i ;
+    
+  The variable with 'clone' attribute will be cloned when a new thread is
+  created. Thus it won't be affected by other threads' activity on the
+  local variable.
+    
+#BEGIN variable_definition
+
+  7.2 direct array/list variable access
+  Array and list variables can be directly manipulated as a hole.
+  It can be assigned, or passed as an argument to a function.
+  
+  Example
+  {
+    int  foo[] ;   /* assoc array */
+    int  bar[] ;   /* assoc array */
+    
+    foo[0] = 5 ; 
+    
+    bar = foo ;   /* assoc array to assoc array assignment */
+  
+  }
+  
+  When such direct assignment is done, the hole array contents are duplicated
+  and then stored. Thus, there's no side effect after the assignment. (except
+  the class array which is a pointer)
+  
+  7.3 member functions for array/list variables
+    Array and list variables have the member functions when it is used as
+  a hole.
+  
+  Example
+  {
+    int  foo[] ;   /* assoc array */
+    
+    .
+    .
+    
+    printf( "Number of elements in foo is %0d\n", foo.num_element() ) ;
+    
+  }  
+  
+  Array variable have the following member functions to handle the internal
+  state:
+    int num_element()
+      returns total number of elements. 
+    
+  Multi-dimentional Array variable have the following member functions to 
+  handle the internal state:
+    int dimension() 
+      returns number of dimension of the array.
+    
+    int dim_size( int n )
+      returns array size per dimension
+      
+    int num_element()
+      returns total number of elements. 
+    
+  Associative array and string indexed array have the following member 
+  function to handle internal state:
+         
+     int num_element()
+       return the number of elements in the list
+
+     int <> index_list()      for associateve array
+     string <> index_list()   for string indexed array
+       return the list of all the index
+       
+     int check_index( int id )
+     int check_index( string id )
+       check if value for id exists.
+       
+     void delete_index( int id )
+     void delete_index( string id )
+       delete the data entry pointed by id
+       
+     void flush_all() 
+       delete all the data entry         
+       
+   List data can not be accessed by index. The following member function can
+   be used to access to the contents.
+   
+     int num_element()
+       return the number of elements in the list
+       
+     void push( <same_data_type> )
+       adds an element at the top (or right) of the list.
+    
+     <same_data_type> pop()
+       takes an element off from the top of the list and returns it
+    
+     void bpush( <same_data_type> )
+       adds an element at the bottom (or left) of the list
+    
+     <same_data_type> bpop()
+       takes an element off from the bottom of the list and returns it.
+     
+     void sort()
+       Sort the element. Only valid for numerical and string list. 
+
+    List data can also be used for mailbox and region. 
+    See Section 16.6 "list of various data" for details.
+       
+8. Basic Data Types
+  The followings are the list of basic data tyoes that is supported by
+  Jeda. A function without returning value must be declared as void type.
+  The class name and enum name becomes user defined data type. There are
+  various predefined classes and enums besides those primitive data types.
+  
+  void        :   function with no type
+  int         :   integer
+  float       :   single floating point
+  double      :   double floating point
+  bit         :   bit(s)
+  string      :   string
+  signal      :   holds a port 
+  
+
+  8.1 signal data type
+  
+  Signal is a variable type that can hold a pointer to the port. This variable
+  can be used to access to a port indirectly and help make the code flexble.
+  Assigning of the port pointer is done by the direct reference to the port. 
+  
+    signal foo ;  // 1-bit port foo
+
+    foo = pt ;  
+     
+  Normal access to the port variable means the manupulation of the pointer
+  to the actual Verilog module port. 
+  
+    signal my_signal ;
+    
+    my_signal = foo ;  // copy pointer value in foo to my_signal
+    
+  Access to the data of the port variable must be done with depth attributes.
+  
+    my_signal.0 = 1'b0 ;  // driving 0 to the port
+    
+    if( my_signal.0 == 0 ) printf( "my_signal is 0\n" ) ;
+    
+  Depth is an integer constant, and must be limited by the value given to
+  the port as an attribute. When the depth is set to 5, the port value
+  of 5 cycle before can be accessed as:
+  
+    if( my_signal.5 == 0 && my_signal.0 == 1 ) print( "Yahoo\n" ) ;
+  
+  Note that the check of the pipe depth can only be done at run time.
+  Assignment a value to the signal is only valid to depth 0.
+  
+    my_signal.0 = 8'hff ; // driving 
+    
+    my_signal.5 = 8'h00 ; // illegal and compiler will report an error
+    
+#BEGIN data_type
+
+9. Type Definition
+  Enumeration type data can be declared as the following.
+  
+    enum color = blue, green, blue ;
+  
+  Typedef primitive can be used to declare the class data type before
+  the actual class declaration is defined. This can solve the cross
+  reference between more than one class in the same source file.
+  
+#BEGIN type_definition
+
+10. Attributes for variable, function and class
+  The followings are all the possible attributes combinations for variable,
+  function, and class. 
+   Here's the keyword and valid type:
+   
+   static     :  variable
+   extern     :  variable, function, class. body of function should be empty.
+   local      :  variable, function, class
+   global     :  variable
+   protected  :  variable in class, function in class
+   abstruct   :  function
+   final      :  class, function in class, variable in class
+   overwrite  :  function in extended class
+   export     :  function
+   
+#BEGIN var_func_class_attrib
+
+11. Function Declaration
+  All the code are written as function. The function with name "main"
+  is the start point of program.
+  The function must be declared with data_type of returned value. The
+  function without return type must be declared as void type. When the
+  type is ommitted on type definition, the function becomes void type.
+  (Not int as C)
+  
+#BEGIN function_definition
+
+12. Class Declaration
+  The user can declare the class to construct a user defined data type,
+  associated with functions that manipurate the data.
+  
+  class foo_class {
+    int bar ;
+    
+    int read_var() {
+      return bar ;
+    }
+  }
+  
+  The instance of the class is declared as a variable of its class:
+  
+    foo_class  foo ;
+    
+  When an instance is declared, it remains empty and 'new' assignment
+  allocates the contents ;
+  
+    foo = new ;
+  
+  Special new function can be specified in the class declaration to pass
+  arguments to new allocation, and special initialization. This new function
+  must be declared as void type.
+  
+    class foo_class {
+      int bar ;
+      
+      void new( int x ) {
+        bar = x ;
+      }
+    }
+    
+  
+    void yoo() {
+      foo_class foo ;
+    
+      foo = new(2) ;
+    }
+    
+  
+ 
+ 12.1 Extention of a class
+  A class can be extended with keyword 'extends'. The new class inherits
+  all the members (except 'local' members) from its parent. Any members
+  can be redefined in the child class unless it's declared 'final' in the
+  parent.
+  
+  The extended class instance and its parent class instance can be assigned 
+  in either direction (up-cast and down-cast). For down-cast, the class type
+  correctness is checked at runtime as it is not clear if the parent instance
+  is holding the extended class instance of the destination at the compilation
+  time.
+  
+    class foo_class {
+      ..
+    }
+  
+    class bar_class extends foo_class {
+      ..
+    }
+    
+    void yoo() {
+      foo_class foo ;
+      bar_class bar ;
+      bar_class boo ;
+    
+      bar = new ;
+    
+      foo = bar ; // up-cast
+      boo = foo ; // down-cast
+    }
+    
+  When super class uses arguments on its new() function, the child new function
+  can call the super class's new function at the very first statement in its
+  new function.
+  
+    class foo_class {
+      ..
+      void new( int x ) {
+        ..
+      }
+    }
+  
+    class bar_class extends foo_class {
+      ..
+      void new() {
+        super.new(0) ;  // must call as the first statement of new()
+        ..
+      }
+    }
+    
+ 12.2 Abstruct class
+  Abstruct class is a class with abstruct function(s) which is declared with
+  'abstruct' attribute. Such a function can be declared without the actual 
+  function body assuming that the body will be declared in its child class.
+  The abstruct class that contains abstruct function (without body) can be
+  used to specify a template of the class. The actual method that corresponds
+  to the abstruct method must be defined in its child class.
+  Instance of such abstruct class can be declared, but calling new() directory
+  to allocate the instance is not allowed. The allocation to such abstruct 
+  class instance should only be done by assigning its child instance to it.
+  
+  // XXX show example for abstruct class and extention
+
+ 12.3 Overwrite function  
+  When a function in a class is redefined in its child class, the scope for
+  the function is limitted within the child class. For example:
+  
+    class parent {
+      void foo() {
+        printf( "parent foo called\n" ) ;
+      }
+      void bar() {
+        foo() ;
+      }
+    } // end of class parent
+  
+    class child extends parent {
+      void foo() {
+        printf( "child foo called\n" ) ;
+      }
+    }
+  
+  When a child instance called the function bar, the parent class's foo() 
+  is called from the bar() function even child has foo() function redeclared.
+  When a function is redeclared with 'overwrite' attribute, the child's 
+  function is referenced from it's parent as well. 
+    
+    class child_a extends parent {
+      overwrite void foo() {
+        print( "child foo called\n" ) ;
+      }
+    }
+    
+  In this case, when parent's bar() function is called from child_a's
+  instance, redeclared foo() is called from bar() function.
+  Such an overwrite function must have the same arguments as the overwritting
+  function in the parent.
+
+#BEGIN class_definition
+
+
+13. Statement
+  Statement is the basic element of program element. 
+  
+#BEGIN statement
+
+  13.1 Block
+    Block is a statement to encapslate one or more statement together.
+    Local variable and local enum type can be declared at the top of block.
+  
+#BEGIN block
+
+  13.2 Statement Prefix
+    Every statement can have label and cycle element.
+  
+    13.2.1 Label
+      Label can be declared to specify the range of loop for break and continue
+      statement. Label is started with : followed by label name as:
+  
+        <label_name>: 
+    
+      Label is only valid for loop statement (i.e. while, for, repeat, do,
+      forever). Label for other type of statement will be ignored.
+  
+    13.2.2 Cycle Element
+      Any statement can have cycle element to delay the execution by number
+      of cycle. When the number of cycle is ommited, cycle = 1 is used as the
+      default.
+      Statement with the cycle element first checks if it's on the required
+      edge. If not, then it wait to the required edge, then sync with the 
+      edge given number of cycles. Thus, @0 will move the execution to the
+      edge only if it's not on the edge at the execution.
+    
+      int a, b, c ;
+      @5 (posedge sig.clk) a = 5 ;
+        // wait for 5 posedge of sigs.clk, then assign 10 to a
+      @5 b = 5 ;
+        // wait for 5 posedge of internal clock, then assign 10 to b
+      
+      When a port assignment is used with cycle delay, the driving edge for
+      the port is used as the default clock. Non-blocking assignment '<=' 
+      operator can be used to schedule the drive without waiting. This is only
+      allowed for assignment to a port.
+  
+        @5 sigs.a <= 2'b00 ; 
+          // use drive edge of sigs.a, non-blocking assignment
+    
+        @0 sigs.b = 1'b1 ; // not wait if it's on the edge
+        
+    13.2.3 Note on the order of evaluation
+      When a statement with the cycle element is detected, the following
+      rules are applied to the evaluation:
+      
+      1)If the statement is an assignment, right hand side is evaluated
+        first, before the delay given by the cycle element is applied to
+        the execution.
+      
+      2)If the statement is not an assignment, the delay given by the cycle
+        element is applied immediately, then the statement execution will
+        be invoked.
+        
+      This rules will gualantee the result for blocking and non-blocking
+      assignment. But there will be some confusing cases when the right
+      hand expression on the assigment contains a delay factor. In such a
+      case, the delay given by the right hand side will occure first during
+      the evaluation of the right hand side, then the delay given by the
+      cycle element of the statement will be applied. 
+        
+#BEGIN statement_prefix
+  
+  13.3. Null statement
+   Null statement can be used for no-operation. This is useful for just
+   generate cycle delay.
+   
+   
+#BEGIN null_statement
+
+  13.4 If else statement
+    if [ else ] for conditional execution.
+    
+#BEGIN if_statement  
+
+
+  13.5 While statement
+    Loop while the condition is true.
+    
+#BEGIN while_statement   
+
+  13.6 for statement
+    Famous for loop structure
+    
+#BEGIN for_statement
+
+  13.7 repeat statement
+    Repeat the execution given times.
+    
+#BEGIN repeat_statement
+
+  13.8 Do while statement
+    Similar to while statement, but condition is checked at the end of loop.
+    
+#BEGIN do_while_statement
+
+  13.9 Forever statement
+    Loop forever till terminated.
+    
+#BEGIN forever_statement
+
+  13.10 Case statement
+    Verilog style case statement. (No, switch is not supported.)
+    
+#BEGIN case_statement
+
+  13.11 Casex statement
+    Verilog style casex statement which ignores x in the field.
+    
+#BEGIN casex_statement
+
+  13.12 Casez statement
+    Verilog style casez statement which ignores z in the field.
+    
+#BEGIN casez_statement
+
+  13.13 Break statement
+    Break statement exit the loop. When label is not specified,
+    it terminates the most inner loop.
+    When the (valid) label is specified, it exit from the loop statement
+    with the given label.
+    
+#BEGIN break_statement
+
+  13.14 Continue statement
+    Continue statement move the control to the end of loop for next 
+    iteration. Without the label, it effects to the most inner loop.
+    When the label is specified, it effects to the loop statement with the
+    label.
+    
+#BEGIN continue_statement
+
+  13.15 Fork join statement
+    Statements placed between fork - join will be executed concurrently.
+    There are three ways to end the fork. Ending with 'join' will wait all the
+    forked threads' completion. 
+    Ending with 'spoon', it waits for the first one thread to complete. 
+    Ending with 'knife', it won't wait for the completion and continue to
+    execute the following statement.
+  
+#BEGIN fork_join_statement
+
+  13.16 Terminate statement
+    Terminate statement will terminate all the descendant threads started 
+    from the function.
+
+#BEGIN terminate_statement
+
+  13.17 Breakpoint statement
+    Breakpoint statement terminates the execution and transfer the control
+    to debugger. 
+
+#BEGIN breakpoint_statement
+
+  13.18 increment and decrement statement
+    ++, -- can be used as C to do increment and decrement.
+
+       val++ ;
+       --i ;
+           
+#BEGIN expression_statement
+
+  13.19 Assign statement
+    Assign statement stores right hand expression to left hand (variable
+    or port). 
+  
+    When assignment is done to a port, assign strength can be specified
+    with 'weak' and 'strong' sufix. Without those, the assignment is handled
+    as normal strength. Those strength is internal strength within Jeda
+    that drives the port at given simulation time slot. 
+    
+    Assigning a string to bit data is allowed, which will transfer a string
+    in to the bit variable at the byte boundary. 
+    
+      bit [8*20-1:0] name ;
+      
+      name = "unkown" ;
+      
+    This assignment is for communicating string information to Verilog using
+    Verilog task call mechanism. The assignment with subbit access is not
+    allowed.
+        
+        name[7:0] = "g" ; // illegal, compile error
+    
+    Direct assignment of bit valiable to a string variable is not allowed.
+    The system function bit2string will convert back the bit (contains string)
+    to a string value.
+      
+      string name_string ;
+      bit [8*20-1:0] name ;
+      
+      name = "my_name" ;
+      
+      name_string = bit2string( name ) ;
+        
+#BEGIN assign_statement
+  
+  13.20 Function call statement
+    Function can be called as statement. If the function returns a value,
+    the value will be discarded. 
+    
+    On argument with default value, '*' can be used to select the default
+    value. If the actual number of arguments is less than the defined arguments,
+    the arguments is passed from the top, and default value is taken for the
+    missing arguments. If default value is not defined on those argument,
+    compiler will report error.
+    
+#BEGIN function_call_statement
+
+14. Constant and expression
+  14.1 Constant
+    Constant are predetermined value to specify the fixed value. All the 
+    ALU operation can be used to specify the constant. Calculation 
+    of such value is done at compilation time. All the calculation is done
+    with long integer (64bit integer), and can't contain x X z Z in the
+    number representation. Constant calculation exceeding 64-bit integer
+    will cause truncation without error message.
+
+#BEGIN constant
+
+  14.2 Number representation
+    Fixed number can be specified in various form. The language support
+    both Verilog and C style number representation.
+    Decimal number representation without bit size will become 32-bit
+    representation. 
+    Other representation without size will take the maximum size for
+    the given representation.
+    
+#BEGIN number_representation
+   
+  14.3 Expression
+    Expressions are primitive elements of calculation. 
+    
+#BEGIN expression
+  
+  14.4 Special compare operators
+  
+    There are three types of comparison that ignore the fields with x or z
+    value.
+    
+        <left_expression> =?= <right_expression>
+        
+      '=?=' operator comares left and right expression, but masks any bit
+      field that contains x or z on both side.
+    
+        <left_expression> ?== <right_expression>
+        
+      '?==' only masks x and z on left hand side. It returns false if
+      x or z is found on those masked bit field on right hand side.
+    
+        <left_expression> ==? <right_expression>
+        
+      '==?' only masks x and z on right hand side.
+     
+    Masked comparison takes the following form:
+    
+      <left_expression> =:= <right_expression> : <mask_expression> 
+    
+    This expression can be used to specify the masked comparison without
+    using x or z value. (This will be useful to write code that works on
+    2-value mode.)
+    
+  14.4 Timed expression
+    Any Jeda expression evaluation can be associated with cycle element.
+    This timed expression has the following format, and return 1 (for true)
+    or 0 (for false) value.
+
+      <time_element> '(' <expression> ( ',' <expression )*  ')'
+    
+    The <time_element> has the following form
+  
+      @delay [ , window ] [ <clock_edge_spec> ]
+        wait delay cycle, then seek for the expression becomes true within 
+        given window cycle
+        When window is ommitted, window = 0 is used.
+    
+      @@delay[ , window ] [ <clock_edge_spec> ]
+        wait delay cycle, then check that the expression is always true within 
+        given window cycle
+        When window is ommitted, window = 0 is used.
+  
+    <clock_edge_spec> is the option to specify which clock edge to be used.
+    It takes the following format:
+    
+       '(' <edge_spec> <port or signal variable expresion> ')'
+  
+    <edge_spec> can be 'posedge', 'negedge', or 'bothedge'.
+  
+    If it is omitted, the clock edge used to count the cycle is determined by 
+    the left most expression from the <time_element>. 
+  
+    Example:
+  
+      if( @0,100( sigs.a.0 == 2'b00 ) ) printf( "zee!\n" ) ;
+    
+      if( !@0,100( sigs.a.0 == 2'b01 ) ) error( "sig.a.0 != 2'b01\n" ) ;
+         
+#BEGIN timed_expression
+
+    Those timed expressions can be evaluated concurrently with the parallel
+    primitives p_and, p_or.
+    
+    p_and takes one or more timed expression and evaluate them parallelly,
+    and return a int value, 1 or 0 corresponds to true or faulse of the 
+    evaluation.
+    p_and returns 1 when all the listed timed expressions are true.
+    Otherwise, it returns 0.
+    
+    p_or takes one or more timed expression and evaluate them parallelly.
+    It returns a int value, 1 or 0 corresponds to tru or faulse of the
+    evaluation. 
+    
+    This anding and oring operation are logical operation that the evaluation
+    complete when the result is deterministic. For example, any one of the
+    p_and term becomes 0, it immediately finish the evaluation and returns
+    0. The similar case in p_or, that one of the evaluation becomes 1, it 
+    immediately returns 1. 
+    Uncompleted evaluation stays in the system, and discarded when it finished.
+    
+       if( p_or( @0,5( p.a == 4'b0110), @0,5( p.a == 4'b1110) ) ) ..
+        
+  14.5 null expression
+    'null' represents the empty status of any type of object.
+  
+#BEGIN bool_null_expression
+
+  14.6 increment and decrement expression
+    As C language, pre and post increment, decrement can be used.
+    
+#BEGIN state_expression
+
+  14.7 concatenation expression
+    Concatenation can be used to merge bit or string values.
+    
+      a = {3'b001, b[3:1], 1'b0, b[0] } ;
+      
+      str = {"bill","sux"} ;
+      
+    The following form repeats the pattern with given number
+    
+         {<num> { pattern }
+     
+       a = {10{3'b010}} ;
+       
+       str = {5{"woops!"}} ;
+       
+#BEGIN concatenation_expression
+
+  14.8 list expression
+    List of objects can be constructed with '{ } (quoted bracket) primitive.
+    
+      int list_of_int <> ;
+      
+      list_of_int = '{ 0, 1, 2, 3, 4, 5, 6, 7} ;
+      
+    All the enumerated members must be the same type. 
+    
+#BEGIN list_expression
+
+  14.9 Variable and port expression
+    Access to variable and port. Nothing much to say..
+  
+#BEGIN varport_expression
+
+  14.10 Function call
+    function will return a value of given type. 'void' type function can not
+    be used as expression.
+
+#BEGIN function_call
+
+  14.11 Assign (is not an) expression
+    Assign is not allowed to be used as expression. This is to avoid common
+    mistake of using assignment operator '=' instead of '=='.
+    Operator '<=' is used for non-blocking assignment. (Now we are back
+    to Verilog compatible form.)
+    
+  14.12 Concatenated assignment expression
+    Using list expression '{ } (quoted bracket) on left hand side allows to
+    do the concatenated assignment. Data to be stored in the bracket must be
+    variable of bit or int, or port/signals with depth. Right hand side must be
+    int or bit type. 
+
+#BEGIN assign_expression
+
+
+15. System functions
+  Several system functions are predefined.
+      
+  15.1 random(), rand48()
+    
+      int random( [int seed] ) ;
+      int rand48( [int seed] ) ;
+      int urandom( [int seed] ) ;
+      int urand48( [int seed] ) ;
+      
+    Two types of random generation function random() and rand48() are
+    supported. 
+    random() function used Tersenne Twister random function developped by
+    Makoto Matsumoto and Takuji Nishimura. This pseudo random function has
+    the period of 2**19937-1.  
+    rand48() used the standard rand48 algorithm. 
+    urandom() and urand48() is unsigned version.
+    When the argument seed is provided, internal state is initialized with
+    the given seed. This should be called at the beginning of simulation.
+    Besides those random functions, a rich set of random generation classes 
+    are provided so the user can generate individual random sequence per each
+    instance. (See the explanation below)
+    
+  15.2 error()
+      
+      void error( [printf_arg] ) ;
+      
+      Generate the Verification Error message.
+  
+  15.3 warning()
+      void waring( [printf_arg] ) 
+      
+      Generate the Verification Warning message.
+      
+  15.4 unit_delay()
+      
+      void unit_delay( int length ) ;
+      
+      Unit delay given length.
+  
+
+  15.5 string utils
+     
+      string sprintf( string fmt, (?)* ) ;
+        returns a string as the result of sprintf
+        
+      int strsearch( string str, string pattern ) ;
+        returns a location index in str that contains pattern
+        
+      string substring( string str, int start [, int end] ) ;
+        returns a sub-string from str
+        
+      int strlen( string ) ;
+        returns the length of the orig
+        
+      int atoi( string str ) ;
+        convert str as a integer string to integer value
+      
+      bit abintobit( string str ) ;
+        convert str as a binary string to a bit value
+      
+      bit aocttobit( string str ) ;
+        convert str as a octal string to a bit value
+      
+      bit ahextobit( string str ) ;
+        convert str as a hex string to a bit value
+      
+      string bit2string( bit ) ;
+        convert bit with string value to string value
+        
+  15.6 misc. functions
+  
+      bit [31:0] get_cycle() ;
+        returns current CycleCount value. CycleCount is a 32-bit counter
+        created in jeda verilog module (.jeda.v) and clocked at the posedge
+        of CLOCK signal in the module.
+        
+      bit [63:0] get_time() ;
+        returns 64-bit current simulation time value.
+        
+      string get_plusarg( string pattern ) ;
+        returns post match string of plus argument with given pattern. It will
+        return null if not match. The pattern must be longer than 2 charactors.
+
+16. System classes
+  Several system classes are predefined.
+    
+  16.1 random_ucb class
+    ucb algorithm based random sequence generator class
+    
+      new( int seed = 0 ) ; 
+        when seed is 0, default initialization will be used.
+        
+      int random() ;
+        generate a random value.
+        
+      int urandom() ;
+        generate an unsigned random value.
+        
+      
+  16.2 random_48 class
+     rand48 algorithm based random generator class
+
+      new( int seed = 0 ) ; 
+        when seed is 0, default initialization will be used.
+        
+      int random() ;
+        generate a random value.
+        
+      int urandom() ;
+        generate an unsigned random value.
+  
+  16.3 random_mt class
+    Mersenne Twister (Of period of 2**19937-1) based random sequence generator
+    
+      new( int seed = 0 ) ; 
+        when seed is 0, default initialization will be used.
+        
+      int random() ;
+        generate a random value.
+        
+      int urandom() ;
+        generate an unsigned random value.
+        
+  16.4 semaphore class
+  
+      new( int unit = 1 ) ; 
+        unit specifies the inital unit value.
+        
+      int get( int unit = 1 ) ;
+        get unit from semaphore, wait in semaphore if enough unit exist
+        
+      int check( int unit = 1 ) ;
+        get unit from semaphore, return 0 if not enough unit exist
+        
+      void put( int unit = 1 ) ;
+        put unit to semaphore
+        
+      void timeout( int cycle ) ;
+        set timeout limit as internal clock cycle.
+        Specifying 0 disables the timeout.
+        
+  
+  16.5 event class
+    Event class can be used to transfer an event among various thread.
+     
+     void trigger()  
+      generate a trigger. This trigger will be active within current
+      simulation time slot. (unless it is cleared)
+
+     void trigger_on() 
+       generate a trigger and keep it on. This triger remains on
+       until it is cleared.
+
+     void trigger_pulse() 
+      generate an inpulse trigger. This is only effective to
+      the thread currently waiting on the event.
+
+     int sync()  
+      wait on trigger.
+
+     int sync_clear() 
+      wait on trigger, then clear it when triggered.
+
+     int check() 
+      check and return 1 the trigger is active, otherwise return 0
+
+     int check_clear() 
+      check, and clear if trigger is active.
+      
+     void timeout( int value )
+      set timeout limit in CLOCK cycle.
+
+    When an event variable is empty (instance is not declared), then
+    all the functions are ignored. Trigger functions do nothing, and
+    sync, check functions return immediately with return value 1.
+    Thus, putting null to an event variable can skip the synchronize
+    mechanism. 
+        
+  16.6 list of various data
+    list of various data can be declared as regular variable declaration
+    with '<>' as array range. 
+ 
+     Direct assignment can be made as:
+      
+      int ilist <> ;
+      
+      ilist = '{ 0, 1, 2, 3, 4, 5 }
+   
+    
+    Internal element can be handled with the following member functions.
+    
+      void push( var_type data ) ;
+      
+      void bpush( var_type data ) ;
+      
+      var_type pop() ;
+      
+      var_type bpop() ;
+          
+      int num_element() ;
+
+    List type can be used as a mailbox with the following function 
+    
+      send( var_type data ) ; 
+        -- this is equivalent to push() function
+        
+      var_type receive() ;
+        If list is not empty, this is same as bpop(), if list is empty, then
+        the calling thread will wait until data is sent.
+
+    List type can be used as a value based mutex with the following
+    functions. 
+    
+      int enter( var_type value [ , var_type value ..] ) ;
+         entering critical region with the given values. If the given
+         value is already set in the list, it will wait untill all the
+         given value is not in the list.
+      
+      int check_enter( var_type value [ , var_type value ..] ) ;
+         check_enter() function works the same as enter(), but it immediately
+         return 0 when a value is already in the list, and don't wait in 
+         the queue.
+        
+      void exit( var_type value, [, var_type value ..] ) ;
+        removeing the values from 
+
+    
+    Timeout function set the timeout limit for both receive() and enter()
+    functions.
+    
+      void timeout( int cycle ) ;
+      
+    Sort function sort the element. This function is only valid for int, bit
+    and string type list.
+    
+      void sort() ;
+
+         
+   16.8 regexp (regular expression match engine) class
+      Regular expression engine (developped by University of Tronto,
+      written by Henry Spencer) with some Perl5 extenention (by Larry Wall)
+      is ported as a system class. 
+      
+       int match( string source, string regexp ) ;
+          Try the regular expression match, and returns 1 if succeeded,
+          or 0 otherwise.
+        
+       string prematch() ;
+          Returns the prematch string from the previous match
+        
+       string postmatch() ;
+          Returns the postmatch string from the previous match
+          
+       string thismatch() ;
+          Returns the matched string from the previous match
+        
+       string backref( int num ) ;
+          Returns the match in the parensises.
+   
+     Only the following special caractor features are supported.
+     
+       Code             Maches
+       .                Any charactor (include '/n')
+       \a               Alarm (beep)
+       \n               Newline
+       \r               Carriage return
+       \t               Tab
+       \f               Formfeed
+       \e               Escape
+       \d               A digit, same as [0-9]
+       \D               A nondigit
+       \w               A word character(alphanumeric), same as [a-zA-Z_0-9]
+       \W               A nonword character
+       \s               A whitespace character, same as [ \t\n\r\f]
+       \S               A non-whitespace character
+       \0               null character
+       \<single digit> corresponding parentheses actually matched
+       \<two or three octal digit> character with the octal value
+       \x<one or two hex digit> character with the hex value
+       \c<Single Character> Corresponding control character
+       
+       Supported Assertions
+       
+       Assertion         Meaning
+       ^                 Matches at the beginning of the string
+       $                 Matches at the end of the string
+       \b                Matches at word boundary (between \w and \w)
+       \B                Matches except at word boundary
+       
+       Supported Quantifiers
+       
+       Quantifire         Range
+       *                  0 or more times
+       +                  1 or more times
+       ?                  0 or 1 time
+       
+       
+   16.9 signal class
+   
+     signal class is provided to hold indirect pointer to the actual port
+     in port set structure. 
+     
+         signal sig ;
+     
+         sig = ports.porta ; 
+     
+   16.10 File class
+    open( string filename, string mode ) ;
+      opening a file
+      
+    close() ;
+      closing a file
+      
+    rewind() ;
+      rewind the access pointer to the begining of the file
+    fprintf() ;
+      printout to a file
+      
+    string readline() ;
+      read one line
+
+
+           
+  17. Verilog task call mechanism:
+    Verilog task call can be done by defining (void) function inside verilog
+    class.
+
+        class verilog {
+          void foobar ( <args> ) "top.foobar" ;
+          void barfoo ( <args> ) "top.barfoo" ;
+        }
+
+#BEGIN verilog_class_definition
+
+      The string after the argument must be the path to the task from the 
+      top module. This definition can be any where at the top level of the 
+      file, and more than one of such definition can be declared. the class
+      verilog can not be instantiated. Instread, the word verilog also 
+      represent the instance when the task call is done. Calling them can be
+      done as verilog member call such as:
+
+        verilog.foobar( 0 ) ;
+
+#BEGIN verilog_task_call_statement
+
+
+
+  18. User extention
+    The user can extend the Jeda language by defining system functions or
+    system class. The system function and system class are usually declared
+    in $JEDA_HOME/include/jeda_utils.jh, but this can be swiched with 
+    "-U utilfile" option to jedacmp (jeda compiler).
+    
+    The compiled version of the system function/class definition (usually
+    $JEDA_HOME/include/jeda_utils.jo) is used by jedalnk (Jeda linker).
+    When the user creates a new definition file, the file must be compiled
+    with -X flag by jedacmp to produce .jo file, and then specified to the
+    linker with "-JL_U jedaobj_file" option.
+    
+    Note:
+      This mechanism is actually used to implement all the system class and
+      function described above. The C code that implenents those functions
+      are found in core_sys_funcs.c, random.c, string.c and regexp_exec.c.
+      Those files are good example of how things can be done.
+
+   18.1 Formal function argument
+      For the user defined functions (which body is implemented with C), the
+      reglar expression mechanism can be used to specify the argument list.
+      The following structures are supported:
+     
+        ?                 -- matches any type of one argument
+        ( <arg_list> )*   -- matches zero or more of given argument list
+        ( <arg_list> )+   -- matches one or more of given argument list
+        ( <arg_list> )|   -- matches one of the argument in the given list
+        [ <arg_list> ]    -- matches zero or one of given argument list
+
+      For example, printf argument can be specified as:
+
+        void printf( string format ( , ? )* ) ;
+        
+      Note that the compiler only checkes the formal correctness of the
+      the argument at the compile time. The user function need to implement
+      the detailed check mechanism.
+
+   18.2 Name relation between Jeda definiton and C function
+     When a system function "foo()" is created in Jeda, the linker assumes
+     that there's the corresponding C function JD_sf_foo()
+     
+     When a system class bar, and class function boo is declared, the linker
+     assumes:
+     
+       void *JD_sa_bar()    
+         -- allocate the class (called before new is called)
+       void JD_sd_bar()    
+         -- deallocate the class (called at garbage collection)
+       void *JD_dup_bar( void *dt )   
+         -- create the duplication of the class, called when clone flag is set
+            and thread if being forked.
+       void JD_sc_bar_mf_new( void *dt ) 
+         -- new function, called after the allocation
+       void JD_sc_bar_mf_boo( void *dt ) 
+         -- the user defined function
+       
+    18.3 Argument, returning value
+      Arguments are passed via Jeda execution stack. To access it, use macro
+      GET_STACK(n) where n is the offset from the top.
+      Number of argument is given to the variable NUM_ARG, so to get the acess
+      to the i-th argument (start from 0), use
+      
+        JD_data *dt ;
+        
+        dt = GET_STACK( NUM_ARG-i-1 ) ; 
+        
+      Returning values are done via ACC. To return an integer value 100 can be
+      done as:
+      
+        ACC_TYPE = JD_D_int ;
+        ACC_INT = 100 ;
+      
+      To return a string "foo":
+      
+        ACC_TYPE =  JD_D_string ;
+        ACC_STRING = (char *)sturdup("foo") ;
+      
+      Accessing more complicated data structure, returning non-integer value
+      can be done. But doing such requires the enough knowledge of internal
+      Jeda execution structure.
+      

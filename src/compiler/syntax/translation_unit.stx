@@ -1,0 +1,32 @@
+
+jeda:  translation_units
+  ;
+  
+translation_units:
+  translation_unit
+  |
+  translation_units translation_unit
+  ;
+  
+translation_unit:
+  port_definition
+  |
+  portset_definition
+  |
+  connectionset_definition
+  |
+  local_global_variable_declaration
+  |
+  top_initial_statement
+  |
+  type_definition
+  |
+  function_definition
+  |
+  class_definition
+  |
+  verilog_class_definition
+  |
+  aspect_definition
+  ;
+

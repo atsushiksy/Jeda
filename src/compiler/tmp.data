@@ -1,0 +1,492 @@
+<<real_num>>
+{
+  /* real_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_real_num ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.real_value = atof($1.name) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<decimal_num>>
+{
+  /* decimal_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->type = JD_int_num ;
+    $$->data_type = JD_exp_num_type ;
+    $$->is.int_value = atol($1.name) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+  }
+}
+
+<<v_decimal_num>>
+{
+  /* v_decimal_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_v_decimal( $1.name, $$ ) ;
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<c_decimal_num>>
+{
+  /* c_decimal_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_c_decimal( $1.name, $$ ) ;
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<v_hex_num>>
+{
+  /* v_hex_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_v_hex( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<c_hex_num>>
+{
+  /* c_hex_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_c_hex( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<v_octal_num>>
+{
+  /* v_octal_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_v_octal( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<c_octal_num>>
+{
+  /* c_octal_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_c_octal( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<v_bin_num>>
+{
+  /* v_bin_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_v_binary( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<c_bin_num>>
+{
+  /* c_bin_num */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = ALLOC(expression_node) ;
+    $$->string = $1.name ;
+    $$->filename = $1.filename ;
+    $$->linenum = $1.linenum ;
+    scan_c_binary( $1.name, $$ ) ;   
+    $$->data_type = JD_exp_num_type ;
+  }
+}
+
+<<const_minus_const>>
+{
+  /* const_minus_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_minus_exp, $1, $3 ) ;
+  }
+}
+
+<<const_plus_const>>
+{
+  /* const_plus_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_plus_exp, $1, $3 ) ;
+  }
+}
+
+<<const_times_const>>
+{
+  /* const_times_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_times_exp, $1, $3 ) ;
+  }
+}
+
+<<const_div_const>>
+{
+  /* const_div_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_div_exp, $1, $3 ) ;
+  }
+}
+
+<<const_mod_const>>
+{
+  /* const_mod_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_mod_exp, $1, $3 ) ;
+  }
+}
+
+<<const_and_const>>
+{
+  /* const_and_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_and_exp, $1, $3 ) ;
+  }
+}
+
+<<const_or_const>>
+{
+  /* const_or_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_or_exp, $1, $3 ) ;
+  }
+}
+
+<<const_eor_const>>
+{
+  /* const_eor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_eor_exp, $1, $3 ) ;
+  }
+}
+
+<<const_nand_const>>
+{
+  /* const_nand_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_nand_exp, $1, $3 ) ;
+  }
+}
+
+<<const_nor_const>>
+{
+  /* const_nor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_nor_exp, $1, $3 ) ;
+  }
+}
+
+<<const_neor_const>>
+{
+  /* const_neor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_aop_const( JD_exp_neor_exp, $1, $3 ) ;
+  }
+}
+
+<<const_land_const>>
+{
+  /* const_land_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_lop_const( JD_exp_land_exp, $1, $3 ) ;
+  }
+}
+
+<<const_lor_const>>
+{
+  /* const_lor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_lop_const( JD_exp_lor_exp, $1, $3 ) ;
+  }
+}
+
+<<const_rshift_const>>
+{
+  /* const_rshift_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_sop_const( JD_exp_rshift_exp, $1, $3 ) ;
+  }
+}
+
+<<const_urshift_const>>
+{
+  /* const_urshift_const */
+  SKIP_ON_ERROR ;
+  PASS1 {
+    $$ = const_sop_const( JD_exp_urshift_exp, $1, $3 ) ;
+  }
+}
+
+<<const_lshift_const>>
+{
+  /* const_lshift_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_sop_const( JD_exp_lshift_exp, $1, $3 ) ;
+  }
+}
+
+<<const_lt_const>>
+{
+  /* const_lt_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_lt_exp, $1, $3 ) ;
+  }
+}
+
+<<const_gt_const>>
+{
+  /* const_gt_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_gt_exp, $1, $3 ) ;
+  }
+}
+
+<<const_eqeq_const>>
+{
+  /* const_eqeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_eqeq_exp, $1, $3 ) ;
+  }
+}
+
+<<const_le_const>>
+{
+  /* const_le_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_le_exp, $1, $3 ) ;
+  }
+}
+
+<<const_ge_const>>
+{
+  /* const_ge_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_ge_exp, $1, $3 ) ;
+  }
+}
+
+<<const_ne_const>>
+{
+  /* const_ne_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_ne_exp, $1, $3 ) ;
+  }
+}
+
+<<const_eqeqeq_const>>
+{
+  /* const_eqeqeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_eqeqeq_exp, $1, $3 ) ;
+  }
+}
+
+<<const_neqeq_const>>
+{
+  /* const_neqeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_neqeq_exp, $1, $3 ) ;
+  }
+}
+
+<<const_eqQeq_const>>
+{
+  /* const_eqQeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_eqQeq_exp, $1, $3 ) ;
+  }
+}
+
+<<const_Qne_const>>
+{
+  /* const_eqQeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_Qne_exp, $1, $3 ) ;
+  }
+}
+
+<<const_eqeqQ_const>>
+{
+  /* const_eqeqQ_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_eqeqQ_exp, $1, $3 ) ;
+  }
+}
+
+<<const_Qeqeq_const>>
+{
+  /* const_Qeqeq_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = const_cop_const( JD_exp_Qeqeq_exp, $1, $3 ) ;
+  }
+}
+
+<<u_minus_const>>
+{
+  /* u_minus_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_minus_exp, $2 ) ;
+  }
+}
+
+<<u_tilde_const>>
+{
+  /* u_tilde_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_tilde_exp, $2 ) ;
+  }
+}
+
+<<u_not_const>>
+{
+  /* u_not_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_not_exp, $2 ) ;
+  }
+}
+
+<<u_and_const>>
+{
+  /* u_and_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_and_exp, $2 ) ;
+  }
+}
+
+<<u_or_const>>
+{
+  /* u_or_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_or_exp, $2 ) ;
+  }
+}
+
+<<u_eor_const>>
+{
+  /* u_eor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_eor_exp, $2 ) ;
+  }
+}
+
+<<u_nand_const>>
+{
+  /* u_nand_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_nand_exp, $2 ) ;
+  }
+}
+
+<<u_nor_const>>
+{
+  /* u_nor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_nor_exp, $2 ) ;
+  }
+}
+
+<<u_neor_const>>
+{
+  /* u_neor_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = aop_const( JD_u_neor_exp, $2 ) ;
+  }
+}
+
+<<mask_comp_const>>
+{
+  /* mask_comp_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = mask_comp_const( $1, $3, $5 ) ;
+  }
+}
+
+<<conditional_const>>
+{
+  /* conditional_const */
+  SKIP_ON_ERROR ;
+  PASS1_2 {
+    $$ = conditional_const( $1, $3, $5 ) ;
+  }
+}

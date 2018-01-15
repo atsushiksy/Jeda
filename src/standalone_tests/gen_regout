@@ -1,0 +1,19 @@
+#!/usr/local/bin/perl
+# 
+while(<>) {
+  chop ;
+  $name = $_ ;
+  $name =~ /\.j$/ ;
+  $obj = $` ;
+  print "file = $name\n" ;
+  $command = "jeda -exe $name\n" ;
+  system $command ;
+  if( $? != 0 ) {
+    die "$command : failed\n" 
+  }
+  $command = "$obj > $obj.out\n" ;
+  system $command ;
+  if( $? != 0 ) {
+    die "$command : failed\n" 
+  }
+}

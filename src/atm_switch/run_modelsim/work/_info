@@ -1,0 +1,49 @@
+m255
+cModel Technology
+d/home/atsushi/work/jeda/src/atm_switch/run_modelsim
+vjeda_module
+IaN5MehWnfn<Pe;zIa;B[S1
+VPCm2??O3Q_BAWol]W=9g:0
+w1051815001
+F../tests/random_test.jeda.v
+L0 5
+OE;L;5.7c;17
+r1
+31
+vsquat
+IhT<Y6HLA6Y>`T=N8Bi0S50
+V82;ci97VJh_g_dSVVdj3=0
+w1051814959
+F../verilog/squat.v
+L0 16
+OE;L;5.7c;17
+r1
+31
+vsquat_test
+INBl_U1F7<]F;>E<oTo_^81
+VUMX05X6QNnQOzRcETJSfk1
+w1051814959
+F../verilog/squat_test.v
+F../verilog/squat_test_inc.vh
+L0 5
+OE;L;5.7c;17
+r1
+31
+vutopia1_atm_rx
+I6TlA`zfGGPY?dY[J7>HS70
+VH]]E`gA?B5Jd1A<;:XoKC1
+w1051814959
+F../verilog/utopia1_atm_rx.v
+L0 19
+OE;L;5.7c;17
+r1
+31
+vutopia1_atm_tx
+IkJnKzcU5ZnmJdfB5a0E?j0
+VZcP>983V:RSKX@TWR2QV;2
+w1051814959
+F../verilog/utopia1_atm_tx.v
+L0 18
+OE;L;5.7c;17
+r1
+31

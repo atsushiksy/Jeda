@@ -1,0 +1,31 @@
+To run valgrind on jeda runtime:
+
+1) Rebuild valgrind with the following instruction from FAQ
+
+Q2. My program dies complaining that syscall 197 is unimplemented.
+
+A2. 197, which is fstat64, is supported by valgrind.  The problem is
+    that the /usr/include/asm/unistd.h on the machine on which your
+    valgrind was built, doesn't match your kernel -- or, to be more 
+    specific, glibc is asking your kernel to do a syscall which is
+    not listed in /usr/include/asm/unistd.h.
+
+    The fix is simple.  Somewhere near the top of vg_syscall_mem.c,
+    add the following line:
+
+       #define __NR_fstat64            197
+
+    Rebuild and try again.  The above line should appear before any
+    uses of the __NR_fstat64 symbol in that file.  If you look at the
+    place where __NR_fstat64 is used in vg_syscall_mem.c, it will be
+    obvious why this fix works.  NOTE for valgrind versions 1.1.0
+    and later, the relevant file is actually coregrind/vg_syscalls.c.
+
+
+2) Avoid flexlm license call (which cause 191 call error)
+   Go to runtime dir, modify Makefile_product with
+   
+     MY_FLAGS = -DNO_LM_LICENSE
+
+
+

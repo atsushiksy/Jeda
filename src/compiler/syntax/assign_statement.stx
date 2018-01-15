@@ -1,0 +1,13 @@
+
+assign_statement:
+  opt_statement_prefix assign_expression opt_strength semicolon
+  ;
+  
+opt_strength:
+  /* nothing */
+  |
+  'weak'
+  |
+  'strong'
+  ;
+

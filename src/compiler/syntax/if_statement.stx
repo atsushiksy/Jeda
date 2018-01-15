@@ -1,0 +1,11 @@
+
+if_else_statement:
+  opt_statement_prefix 'if' '(' expression ')' statement
+  opt_else
+  ;
+
+opt_else:
+  /* empty */
+  |
+  'else' statement
+  ;

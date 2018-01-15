@@ -1,0 +1,374 @@
+<html>
+<head>
+</head>
+<body>
+<a href="index.html"></a>&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_sys_class.html">Prev</a>
+| <a href="jeda_temp.html">Next</a>
+<h1>
+15. コンパイル、リンク、実行
+</h1>
+
+<blockquote>
+本章では、Jedaコードをコンパイル、リンクし、Verilogシミュレータと共に
+実行する方法について説明します。
+
+<h2>
+15.1 全体の流れ
+</h2>
+
+<blockquote>
+Jedaコンパイラ(jedacmp)は、Jedaソースコード(.j)をJedaオブジェクトコード(.jo)
+にコンパイルします。
+Jedaリンカー(jedalnk)は、複数のJedaオブジェクトファイル(.jo)を、リンクして
+一つのC言語のソースコードを生成します。
+このCソースコードは、Cコンパイラによって、オブジェクトコードにコンパイル
+され、Jedaの実行時ライブラリとリンクされてダイナミックライブラリの形式(.dl)
+となります。
+この一連のプロセスは、以下で説明する、Perlスクリプト'jeda'によって一括して
+行なうことが出来ます。
+<br>
+Verilogシミュレーターが起動されると、JedaのPLIコード(Verilog本体にリンク
+されている)が、プラス引数 "+jeda_code=&lt;file_name>"を検索して、
+&lt;file_name> をダイナミックにロードしてJedaコードを実行します。
+</blockquote>
+
+<h2>
+15.2 JEDA_HOME 環境変数
+</h2>
+
+<blockquote>
+Jedaコンパイラとリンカーを実行するためには、環境変数JEDA_HOMEが
+インストールされたディレクトリに設定されてなければなりません。
+また、$JEDA_HOME/binがコマンドのサーチパスに含まれていなければなりません。
+詳しい情報は、<a href="jeda_installation.html">
+Appendix B. インストレーション</a>
+を参照してください。
+</blockquote>
+
+<h2>
+15.3 jeda スクリプト
+</h2>
+
+<blockquote>
+上記のコンパイル、リンク、C-コンパイル、C-リンクのプロセスは、
+通常、Perlスクリプト 'jeda'によって行ないます。
+
+<br>
+コマンドシンタックスは：
+<blockquote>
+<font face="Courier New,Courier">
+jeda [options | filename]..</font>
+</blockquote>
+オプションは、
+<ul>
+<li>
+-out &lt;name></li>
+
+<br>
+出力名を定義します。実際のファイル名は、この名前に各種のサフィックスが
+付いたものです。省略時は、最初の入力ファイルのプリフィックス名が使われます。
+<li>
+-jc</li>
+
+<br>
+Jedaコンパイルのみを行ない、Jedaオブジェクトファイルを作成します。
+<li>
+-dl</li>
+
+<br>
+ダイナミック ライブラリ フォームのファイル(.dl)を作成します。
+<li>
+-exe</li>
+
+<br>
+スタンドアロンの実行ファイルを作成します。
+<li>
+-cc &lt;cc-path></li>
+
+<br>
+Cコンパイラのパスを指定します。デフォルトはgccが使用されます。
+<li>
+-debug</li>
+
+<br>
+実行を行なわず、システム コマンド シーケンスがプリントアウトされます。
+<li>
+-D&lt;defines></li>
+
+<br>
+JedaコンパイラとCコンパイラへのマクロ定義を行ないます。
+<li>
+-I&lt;path></li>
+
+<br>
+JedaコンパイラとCコンパイラへのincludeファイルの検索パスを指定します。
+<li>
+-g</li>
+
+<br>
+Jeda および Cコンパイラに デバッグオプションを付加してコンパイルします。
+<li>
+-h</li>
+
+<br>
+Jedaコンパイラに自動ヘッダーファイル作成を指定します。
+<li>
+-U &lt;util> </li>
+
+<br>
+ユーザーが作成したユーティリティ定義ファイルを指定します。&lt;util>.jhがコンパイラに、&lt;util>.hoがリンカーに使用されます。
+<li>
+-JL_&lt;flag></li>
+
+<br>Jedaリンカーのオプション
+</ul>
+jedaスクリプトは、ファイルのサフィックスからファイルタイプを認識し、
+コンパイル/リンクプロセスにおいて、どのような処理が必要かを決定します。
+以下の、ファイル サフィックスが認識されます。
+<br>&nbsp;
+<ul>
+<li>
+.j</li>
+
+<br>
+Jedaソースファイル。j-compile, j-link, c-compile, c-link が行なわれます。
+<li>
+.jo</li>
+
+<br>
+Jedaオブジェクトファイル。 j-link, c-compile, c-link が行なわれます。
+<li>
+.c</li>
+
+<br>C ソースファイル。c-compile, c-link が行なわれます。
+<li>
+.o</li>
+
+<br>C オブジェクト ファイル。 c-link が行なわれます。
+<li>
+.a</li>
+
+<br>アーカイブ ファイル。c-link が行なわれます。
+<li>
+.so</li>
+
+<br>共有ライブラリ ファイル c-link が行なわれます。
+<li>
+.dl</li>
+
+<br>ダイナミック ライブラリ ファイル。 c-link が行なわれます。</ul>
+</blockquote>
+
+<blockquote>
+例:
+<br>&nbsp;&nbsp;&nbsp; 1) Jedaソース(foo.j) をコンパイルし、Jedaオブジェクト
+(foo.jo)を作成する。
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">jeda
+foo.j</font>
+<p>&nbsp;&nbsp;&nbsp; 2) foo.j をコンパイルし、bar.jo とリンクして、
+C ソース foo.jeda.c を作成する。
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">jeda
+foo.j bar.jo</font>
+<p>&nbsp;&nbsp;&nbsp; 3) foo.j をコンパイルし、bar.joとリンクして、
+zumoo.jeda.cを作成し、bee.cと共にCコンパイルして、zoolib.aとリンクして
+zumoo.dlダイナミック ライブラリ ファイルを作成する。
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">jeda
+-dl -out zumoo foo.j bar.jo bee.c zoolib.a</font>
+<p>&nbsp;&nbsp;&nbsp; 4) foo.jo, bar.jo をリンクして zomoo.jeda.cを作成し、
+zumoo.dlダイナミック ライブラリ ファイルを作成する。
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">jeda
+-dl -out zumoo foo.jo bar.jo</font></blockquote>
+
+<h2>
+15.4 Verikog上でのJedaコードの実行
+</h2>
+
+<blockquote>
+JedaコードをVerilogと共に実行するためには、Jedaモジュール(&lt;out_name>.jeda.v)
+のインスタンスが、Verilog内に作成されなくてはなりません。
+Jedaモジュールは、ポートとポートセット構成、グローバル変数、スタティック変数、
+および、コネクションセットの定義が等しい場合、同一のものが作成されます。
+コンパイルするタイプのVerilog(例：Verilog-NC)が使用されている場合、
+これらの構成が同じであれば、一つのVerilog実行イメージに、色々なJedaコードを
+実行させることが出来ます。実行するダイナミック ライブラリ ファイルの指定は
+プラス引数 +jeda_code=&lt;jeda_dl_file> にて行ないます。
+</blockquote>
+<p>以下のプラス引数が、Jedaの実行時の振舞いを制御するために利用でします。
+<br>&nbsp;
+<ul>
+<li>
++jeda_finish_on_end</li>
+
+<br>このフラグで、Jedaのmain関数が終了した時点でシミュレーションを終了します。
+<br>&nbsp;
+<li>
++jeda_stop_on_end</li>
+
+<br>このフラグで、Jedaのmain関数が終了した時点でシミュレーションを停止します。(Verilogのプロンプトとなります。)
+<br>&nbsp;
+<li>
++jeda_continue_on_end</li>
+
+<br>このフラグで、Jedaのmain関数が終了した以降もシミュレーションを継続します。
+<br>&nbsp;
+<li>
++jeda_finish_on_error</li>
+
+<br>このフラグで、検証エラー(ユーザーのerror()関数呼び出し)または、実行時エラーが発生時、シミュレーションを終了します。
+<br>&nbsp;
+<li>
++jeda_stop_on_error</li>
+
+<br>このフラグで、エラー発生時シミュレーションを停止します。
+<br>&nbsp;
+<li>
++jeda_stop_on_first_error</li>
+
+<br>このフラグで、エラーが検知された時点で直ちにシミュレーションを停止します。この場合、継続して実行するとタイミングがずれる可能性があります。
+<br>&nbsp;
+<li>
++jeda_debug_on_error</li>
+
+<br>このフラグで、エラー発生時に、Jedaデバッガーを起動します。このオプションを使用するためには、コンパイル時に -g オプションを指定する必要があります。
+<br>&nbsp;
+<li>
++jeda_continue_on_error</li>
+
+<br>このフラグで、エラー発生後も引続きシミュレーションを継続します。
+<br>&nbsp;
+<li>
++jeda_no_debugger_on_ctlc</li>
+
+<br>このフラグで、Jedaコード実行中にCtl-Cが押された際にJedaデバッガーを起動することを禁止します。この場合、Ctl-CはVerilogシミュレータによって受け取られます。
+<br>&nbsp;
+<li>
++jeda_debug_on_warning</li>
+
+<br>このフラグで、ワーニング(警告)が検知された場合に、デバッガを起動します。
+
+</ul>
+
+
+
+&nbsp;
+<br>&nbsp;
+<p>
+jedaスクリプトは、jedacmp、jedalnk、gccを必要に応じて起動し色々なレベルの
+出力を生成します。通常、jedacmpやjedalnkを直接実行する必要はありません。
+以下のセクションでは、jedacmpとjedalnkのコマンドシンタックスについて
+説明します。
+</blockquote>
+
+<blockquote>
+<h2>
+15.5 Jedaコンパイラ (jedacmp)
+</h2>
+
+<blockquote>
+Jedaコンパイラ(jedacmp)は、Jedaソースファイル(.j)を読み込み、中間コードの
+オブジェクト ファイル(.jo)を作成します。この中間コードは、Jeda仮想マシンの
+アセンブラコードからなる、テキスト形式のファイルです。
+<br>コマンド シンタックスは：
+<blockquote><font face="Courier New,Courier">jedacmp [options] &lt;source_name>.j
+[&lt;output_name>]</font></blockquote>
+&lt;output_name> が省略された場合 &lt;source_name>.jo 
+(および &lt;source_name.jhのヘッダーファイル)が使われます。
+<br>以下のオプションを、jedacmpで利用可能です。
+<ul>
+<li>
+-g</li>
+
+<br>
+デバッグフラグ。コンパイラは、デバッグ情報をオブジェクトコードに出力します。
+<li>
+-h</li>
+
+<br>ヘッダーファイル フラグ。コンパイラは、ヘッダーファイル(.jh)を
+生成します。このヘッダーは、別のソースファイルでの外部参照として
+インクルードすることが出来ます。
+<li>
+-D&lt;defines></li>
+
+<br>cppでの-Dと同様。マクロを定義します。
+<li>
+-I&lt;path></li>
+
+<br>cppでの-Iと同様。#includeのサーチパスを指定します。
+<li>
+-X</li>
+
+<br>
+ユーティリティコンパイルフラグ。このフラグは、Jedaのシステム関数やシステム
+クラスを定義してある、ユーティリティ定義ファイルをコンパイルする場合にのみ
+使用します。
+<li>
+-U &lt;file_name></li>
+
+<br>
+ユーティリティ定義ファイルを指定します。デフォルトで、jedacmpは、
+$JEDA_HOME/include/jeda_utils.jh を使用します。ユーザーが、独自の
+システム関数やシステムクラスを追加した場合、ユーザーの定義ファイルを
+このオプションで指定します。
+このオプションを複数回使用して、複数のファイルが指定できます。
+</ul>
+</blockquote>
+
+<h2>
+15.6 Jedaリンカー (jedalnk)</h2>
+
+<blockquote>
+Jedaリンカー(jedalnk)は、Jedaのオブジェクトファイル(複数も可)(.jo)を
+読み込み、Cソースファイル(.jeda.c)とVerilogモジュールファイル(.jeda.v)
+を生成します。リンカーはオブジェクトファイル間の参照情報が正しいかの
+チェックを行ないます。Verilogのモジュールファイルには、"jeda_module"と言う
+名前のモジュールが出力され、このモジュールがVerilogの世界でJedaのコード
+のアクティビティを表現します。
+<br>コマンドシンタックスは、
+<blockquote><font face="Courier New,Courier">jedalnk [options] &lt;obj_name>.jo
+[&lt;obj_name.jo>..]</font></blockquote>
+When &lt;output_name> is omitted, the first &lt;source_name> is used.
+<br>以下のオプションがjedalnkで使用可能です。
+<ul>
+<li>
+-JL_G</li>
+
+<br>デバッグフラグ。リンカーは、Cソースにデバッグのための追加コードを
+出力します。
+<li>
+-JL_O &lt;level></li>
+
+<br>オプティマイズ フラグ。 インプリメントされてません。
+<li>
+-JL_T</li>
+
+<br>２値モード。インプリメントされてません。
+<li>
+-JL_N</li>
+
+<br>ノーチェックフラグ。インプリメントされていません。
+<li>
+-JL_V</li>
+
+<br>Verilogテストベンチ テンプレートを出力します。
+ファイル名は、&lt;outname>.jeda_top.vとなります。(詳しくは
+<a href="jeda_temp.html#15.2 Testbench generation option">
+15.2 Jedaリンカーのテストベンチ生成オプション</a>を参照してください)
+<li>
+-JL_o &lt;outname></li>
+
+<br>出力ファイル名を指定します。
+デフォルトで最初のオブジェクトファイル名が使用されます。
+<li>
+-JL_U &lt;util_file_name></li>
+
+<br>追加するユーティリティ定義オブジェクトファイルを指定します。
+標準で $JEDA_HOME/include/jeda_utils.jo が使用されます。
+このオプションで、ユーザー定義ファイルが追加されます。
+</ul>
+</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+</body>
+</html>

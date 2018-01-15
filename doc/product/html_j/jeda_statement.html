@@ -1,0 +1,656 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_expression.html">Prev</a>
+| <a href="jeda_class.html">Next</a>
+<h1>
+8. ステートメント
+</h1>
+
+<blockquote>
+ステートメントはJedaコードの最小の実行単位です。
+</blockquote>
+
+<h2>
+<a NAME="8.1 Statement Prefix"></a>
+8.1 ステートメント プリフィックス
+</h2>
+
+<blockquote>
+全てのステートメントは、ラベルとサイクルエレメントを持つことが出来ます。
+<h3>
+<a NAME="8.1.1 Label"></a>
+8.1.1 ラベル
+</h3>
+
+<blockquote>
+ラベルは、breakとcontinueステートメントのためにループの範囲を指定するために
+使用します。
+ラベルは、名前と : (コロン)を用いて定義します。
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; for_label:&nbsp;
+for( i = 0 ; i &lt; 1000 ; i++) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; break
+for_label ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p>
+ラベルは、ループステートメント(while、for、repeat、do、foreverステートメント)
+にのみ有効です。他のステートメントに付加されたラベルは無視されます。
+</blockquote>
+
+<h3>
+<a NAME="8.1.2 Cycle Element"></a>
+8.1.2 サイクルエレメント
+</h3>
+
+<blockquote>
+全てのステートメントには、サイクルエレメントを付加して、指定されたサイクル数
+その実行を遅延することが出来ます。サイクル数が省略されたばあい、１サイクル
+がデフォルトで使用されます。サイクルエレメントを付加したステートメントは、
+与えられたサイクル数、クロック信号の与えられたエッジに同期します。
+"@1(posedge clock)"が、clock信号のposedge(立ち上がりエッジ)で実行されると、
+次の立ち上がりエッジまで移動します(全サイクル遅延)。もし、このステートメント
+が、clock信号のnegedge(立ち下がりエッジ)で実行されると、次の立ち上がりエッジ
+まで、半サイクルのみ遅延します。
+<p>
+@0 は特別なケースで、指定されたエッジに実行ポイントがない場合のみ、
+指定されたエッジまで移動します。
+</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>int a, b, c
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>@5 (posedge sig.clk)
+a = 5 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// wait for 5 posedge
+of sigs.clk, then assign 10 to a</font></font>
+<br><font face="Courier New,Courier"><font size=-1>@5 b = 5 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// wait for 5 posedge
+of internal clock, then assign 10 to b</font></font></blockquote>
+</blockquote>
+
+<blockquote>
+もし、ポートへの代入がサイクルエレメントと共に使用された場合、そのポートの
+ドライブ エッジがデフォルトのクロックとして使用されます。
+ノン-ブロッキングの代入オペレータ '&lt;='を用いて、遅延されたドライブを
+完了を待つことなくスケジュールすることが出来ます。このオペレータは、
+ポートへの代入にのみ使用出来ます。
+</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>@5 sigs.a &lt;=
+2'b00 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// use drive edge of
+sigs.a, non-blocking assignment</font></font>
+<p><font face="Courier New,Courier"><font size=-1>@0 sigs.b = 1'b1 ; //
+not wait if it's on the edge</font></font></blockquote>
+</blockquote>
+
+<h3>
+<a NAME="8.1.3 Note on the order of evaluation"></a>
+8.1.3 評価順序に関する注意事項
+</h3>
+
+<blockquote>サイクルエレメントが付加されたステートメントが検知されると、
+以下のルールがその評価に適応されます。
+<blockquote>
+<ul>
+<li>
+ステートメントが代入の場合、右項がまず評価され、その後、サイクル
+エレメントで指定された遅延処理が行われます。
+</li>
+</ul>
+
+<ul>
+<li>
+ステートメントが代入でない場合、サイクルエレメントで指定された遅延処理が
+直ちに実行され、その後ステートメントの実行が行われます。
+</li>
+</ul>
+</blockquote>
+</blockquote>
+
+<blockquote>
+これらのルールによって、ブロッキングの代入とノン-ブロッキングの代入の
+実行結果が等しくなることが保証されます。
+しかし、右項の表現式が遅延要素を持っている場合に、複雑なケースが発生する
+ことがあります。このような場合、右項に含まれる遅延が最初に起こり、次に
+サイクルエレメントの遅延が処理されます。
+</blockquote>
+
+<p><br>
+以下のステートメントが、Jedaでサポートされてます。
+</blockquote>
+
+<h2>
+<a NAME="8.2 Block"></a>
+8.2 ブロック
+</h2>
+
+<blockquote>&nbsp;&nbsp;&nbsp; 
+ブロックは、{ } を用いて、一つ以上のステートメントを一つにまとめた
+ステートメントです。
+<br>&nbsp;&nbsp;&nbsp; 
+一時変数と一時的なenumタイプが、ブロックの先頭で宣言できます。
+<blockquote><font face="Courier New,Courier"><font size=-1>if( i == 0 )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// block statement begin</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// statements in a block</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// block statement end</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.3 Null Statement"></a>
+8.3 空 ステートメント
+</h2>
+
+<blockquote>
+空 ステートメントは、なにもしないステートメントです。このステートメントは、
+遅延を発生させるために、サイクルエレメントと共に使用できます。
+<blockquote><font face="Courier New,Courier"><font size=-1>&nbsp; ; //
+null statement</font></font>
+<p><font face="Courier New,Courier"><font size=-1>@5 ;&nbsp; // cycle element
++ null statement</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.4 IF Else Statement"></a>
+8.4 if else ステートメント
+</h2>
+
+<blockquote>
+if ステートメントは、ステートメントの条件付き実行を行います。
+elseの部分は、オプションです。
+<blockquote><font face="Courier New,Courier"><font size=-1>if( &lt;cond>
+)</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; &lt;statement
+executed when &lt;cond> is true (non-zero)></font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( &lt;conf> )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; &lt;statement
+executed when &lt;cond> is true ></font></font>
+<br><font face="Courier New,Courier"><font size=-1>else</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; &lt;statement
+executed when &lt;cond> is faulse></font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.5 While statement"></a>
+8.5 while ステートメント
+</h2>
+
+<blockquote>
+while ステートメントは、条件が真の間、与えられたステートメントを実行し
+続けます。
+<blockquote><font face="Courier New,Courier"><font size=-1>i = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>while( i &lt; 100 )
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; array[i] = i++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.6 for statement"></a>
+8.6 for ステートメント
+</h2>
+
+<blockquote>
+このステートメントは、C言語でよく見掛けるあの有名なループ機構です。
+<blockquote><font face="Courier New,Courier"><font size=-1>for( i = 0 ;
+i &lt; 100 ; i++ ) array[i] = i ;</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.7 repeat statement"></a>
+8.7 repeat ステートメント
+</h2>
+
+
+<blockquote>
+Verilogスタイルのrepeatステートメントは、対象となるステートメントを
+与えられた回数実行します。
+実行回数の表現式は、最初に評価され、一時的な記憶領域に保持されます。
+したがって、ループ中に回数の指定として使われた変数の値を変更しても、
+実行回数に影響はありません。
+<blockquote><font face="Courier New,Courier"><font size=-1>i = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>repeat( 100 ) array[i]
+= i++ ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>i = 100 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( i ) array[i-1]
+= i-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// changing i wont change
+the loop times</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.8 Do while statement"></a>
+8.8 do while ステートメント
+</h2>
+
+<blockquote>
+do-while ステートメントは、条件が真の間、対象となるステートメントを
+実行し続けます。このステートメントは、whileステートメントと類似していますが、
+条件はループの終了時にチェックされます。したがって、対象ステートメントは、
+少なくとも一度は必ず実行されます。
+<blockquote><font face="Courier New,Courier"><font size=-1>i = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>do {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; array[i] = i++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>} while ( i &lt; 100
+) ;</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.9 Forever statement"></a>
+8.9 forever ステートメント
+</h2>
+
+<blockquote>
+foreverステートメントは、中断されるまで対象となるステートメントを実行
+し続けます。
+<blockquote><font face="Courier New,Courier"><font size=-1>i = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; array[i] = i++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( i > 100 )
+break ;&nbsp; // terminate the forever</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.10 Case statement"></a>
+8.10 case ステートメント
+</h2>
+
+<blockquote>
+caseステートメントは、Verilogスタイルの条件によるステートメントの選択を
+行います。
+<br>(注：Jedaは、C言語のスタイルのswitchステートメントをサポートしていません)
+<blockquote><font face="Courier New,Courier"><font size=-1>case(a) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 0,1,2:&nbsp;
+printf( "a &lt;= 2\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; default: printf(
+"a > 2!!\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.11 Casex statement"></a>
+8.11 casex ステートメント
+</h2>
+
+<blockquote>
+このVerilogスタイルのcasexステートメントは、比較フィールドのx(不定値)の
+領域を無視します。
+<blockquote><font face="Courier New,Courier"><font size=-1>casex(a) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0000:&nbsp;
+printf( "a = 4'b0000\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0001:&nbsp;
+printf( "a = 4'b0001\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0010:&nbsp;
+printf( "a = 4'b0010\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0100:&nbsp;
+printf( "a = 4'b0100\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b1000:&nbsp;
+printf( "a = 4'b1000\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; default: printf(
+"a is in unknown state!!\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.12 Casez statement"></a>
+8.12 casez ステートメント
+</h2>
+
+<blockquote>
+このVerilogスタイルのcasezステートメントは、比較フィールドのz
+(ハイインピーダンス)の領域を無視します。
+<blockquote><font face="Courier New,Courier"><font size=-1>casez(a) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0000:&nbsp;
+printf( "a = 4'b0000\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0001:&nbsp;
+printf( "a = 4'b0001\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0010:&nbsp;
+printf( "a = 4'b0010\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0100:&nbsp;
+printf( "a = 4'b0100\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b1000:&nbsp;
+printf( "a = 4'b1000\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; default: printf(
+"a is in unknown state!!\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.13 Break statement"></a>
+8.13 break ステートメント
+</h2>
+
+<blockquote>
+breakステートメントは、ループステートメント(while、for、do-while、repeat、
+forever)から抜け出すために用いられます。
+ラベルが指定されない場合、もっとも内部のループの実行を中断します。
+もし(有効な)ラベルが指定された場合、このステートメントは、対応するラベルの
+ループステートメントから抜け出します。
+<blockquote><font face="Courier New,Courier"><font size=-1>lbl_0: forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 10000
+) {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+x == 100 ) break ; // exit from repeat loop</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+y == 100 ) break lbl_0 ; // exit from forever loop</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.14 Continue statement"></a>
+8.14 continue ステートメント
+</h2>
+
+<blockquote>
+continueステートメントは、次回のループの実行が行われるよう、制御を
+ループの終点に移動します。ラベルが指定されてない場合、最も内部の
+ループが対象となります。ラベルが指定されると、そのラベルを持つループ
+ ステートメントが対象となります。
+<blockquote><font face="Courier New,Courier"><font size=-1>lbl_0: for(
+i = 0 ; i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 10000
+) {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+x == 100 ) continue ; // continue the repeat loop</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+y == 100 ) continue lbl_0 ; // continue the for loop</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.15 Fork join statement"></a>
+8.15 fork ステートメント
+</h2>
+
+<blockquote>
+forkとjoinの間のステートメントは、スレッドとして並列に実行されます。
+<br>
+forkには、３種類の終了方法があります。
+<ul>
+<li>
+join で終了させると、全てのforkされたスレッドが実行を終了するのを待ちます。
+</li>
+
+<li>
+spoon で終了させると、どれか一つのスレッドが終了するのを待ちます。終了
+していないスレッドは、実行を続けますが、親スレッドはその終了を待ちません。
+</li>
+
+<li>
+knife で終了させると、forkされたスレッドの終了を待たずに次のステートメントへ
+実行を進めます。
+</li>
+<p>&nbsp;
+<p><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>join</font></font>
+<p><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>spoon</font></font>
+<p><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>knife</font></font></ul>
+注：fork/knifeを使用した場合によく見掛ける失敗は、複数のステートメントを
+順に実行しようとして、{ }を忘れることです。この場合、順に実行しようとした
+ステートメントは、すべて並列に実行されるため、結果は混乱したものになります。
+<blockquote><font face="Courier New,Courier"><font size=-1>// forgetting
+{}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "Child
+thread started\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( x == 0 )
+@10 ; // delay 10 cycle</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( x == 0 )
+error( "x == 0 even after 10 cycle\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>knife</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.16 Terminate statement"></a>
+8.16 terminate ステートメント
+</h2>
+
+<blockquote>
+terminateステートメントは、そのスレッドから開始された全てのスレッド
+(全ての子孫スレッド)の実行を中断します。
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>spoon</font></font>
+<p><font face="Courier New,Courier"><font size=-1>terminate ;&nbsp; //
+terminating the one that still running</font></font>
+<br>&nbsp;</blockquote>
+このスレッドの元で、以前に作成されたスレッドは全て中断されることに注意して
+ください。terminateステートメントが実行される場所から、見えない所で
+子スレッドが作成されている場合があるかもしれません。たとえば、関数の
+呼び出し側で作られた子スレッドも中断の対象になります。(関数呼び出しは
+新しいスレッドを作らないことに注意) このような不安定な状況を避けるために、
+子スレッドの作成とterminateステートメントを用いるコードをまとめて、
+スレッドとしてforkすることを推奨します。
+<br>&nbsp;
+<blockquote>&nbsp;
+<br><font face="Courier New,Courier"><font size=-1>main() {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; checker()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; driver()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; zoo() ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void zoo() {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // terminate will
+not effect threads outside this fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // without this
+fork, the terminate statement will terminate checker()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // and driver()
+called from main() above.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+bar() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @100(posedge
+CLOCK) ;&nbsp; // some delay</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; terminate
+; // only terminate foo(), bar()</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.17 Breakpoint statement"></a>
+8.17 breakpoint ステートメント
+</h2>
+
+<blockquote>
+breakpointステートメントは、実行を一時中断して、制御をデバッガに移します。
+<blockquote><font face="Courier New,Courier"><font size=-1>breakpoint ;</font></font></blockquote>
+このステートメントは、ファイル名をもつ文字列を指定することができます。
+このファイルに記述されているコマンドがデバッガの開始時点で実行されます。
+<blockquote><font face="Courier New,Courier"><font size=-1>breakpoint "commands.jdb"
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1></font></font>&nbsp;</blockquote>
+デバッガに関する詳しい説明は
+<a href="jeda_debugger.html">
+Appendix C.Jeda デバッガ</a> 
+を参照してください。
+</blockquote>
+
+<h2>
+<a NAME="8.18 increment and decrement statement"></a>
+8.18 インクリメント と デクリメント ステートメント
+</h2>
+
+<blockquote>
+事前、事後のインクリメント(増加)/デクリメント(減少) 表現式 (++、--)は、
+ステートメントとして使用できます。
+</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>val++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>--i ;</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.19 Assign statement"></a>
+8.19 代入 ステートメント
+</h2>
+
+<blockquote>
+代入ステートメントは、右項の表現式を左項の表現式(変数またはポート)に
+代入します。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>x = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>y = foo() ;</font></font>
+</blockquote>
+Jedaでは、代入は表現式とは見なされないため、以下のステートメントは
+使用できず、文法エラーをひき起こします。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>if( x = 0 )
+print( "boo!\n" ) ; // meant x==0 ??</font></font>
+
+</blockquote>
+</blockquote>
+
+<h3>
+&nbsp;<a NAME="8.19.1 String to Bit Assignment"></a>
+8.19.1 String to Bit Assignment
+</h3>
+
+<blockquote>
+文字列をbitデータに代入することが出来、この代入は文字列をビット配列上の
+バイト境界の位置に転送します。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>bit [8*20-1:0]
+name ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>name = "unkown" ;</font></font>
+<br>&nbsp;
+</blockquote>
+この代入は、Verilogタスク呼び出し機能を用いてVerilog側と文字情報を交換
+する際に有効です。この代入に際して、特定ビットに対するアクセスは許され
+ません。
+<blockquote><font face="Courier New,Courier"><font size=-1>name[7:0] =
+"g" ; // illegal, compile error</font></font></blockquote>
+この逆であるのビット変数を直接文字列に代入することは許されません。
+システム関数bit2stringが文字列を含んでいるbitデータを文字列に変換します。
+<blockquote><font face="Courier New,Courier"><font size=-1>string name_string
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>bit [8*20-1:0] name
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>name = "my_name" ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>name_string = bit2string(
+name ) ;</font></font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<h3>
+&nbsp;<a NAME="8.19.2 Concatenated Assignment"></a>
+8.19.2 連結代入
+</h3>
+
+<blockquote>
+'{ } (クオートつきブラケット)を用いたリストは、代入ステートメントの左項の
+表現式として使用できます。これは、Verilogでの連結データに対する代入と
+同等のものです。リストに含まれるすべての表現式は、bit、int、もしくは
+depth付きのポート／signal変数でなくてはなりません。左項の表現式は、
+bitまたはintタイプでなければなりません。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>output [5:0]
+d_out ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>bit [2:0] bit2 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>..</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void foo() {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; '{d_out.0, bit2}
+= 9'b111101010 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;
+</blockquote>
+
+</blockquote>
+
+<h3>
+&nbsp;<a NAME="8.19.3 Non Blocking Assignment"></a>
+8.19.3 ノンブロッキング 代入
+</h3>
+
+<blockquote>
+ノンブロッキング代入は、'&lt;=' を代入オペレータとして用いることで記述します。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>@5 d_out.0 &lt;=
+6'b111000 ;</font></font></blockquote>
+</blockquote>
+
+<h3>
+&nbsp;<a NAME="8.19.4 Note on the Order of Evaluation"></a>
+8.19.4 実行順序に関する注意事項
+</h3>
+
+<blockquote>
+以下のルールが、代入ステートメントの評価の順序に適応されます。
+<ul>
+<li>
+もし、サイクルエレメントがこの代入ステートメントに付加されていた場合、
+右項の表現式がまず評価され、その後、サイクルエレメントによる遅延の
+処理が行われます。
+</li>
+</ul>
+このルールによって、ブロッキングとノンブロッキングの代入の実行結果が等しくなる
+ことが保証されます。しかし、右項の表現式が遅延要素を持っている場合に、複雑なケースが発生する
+ことがあります。このような場合、右項に含まれる遅延が最初に起こり、次に
+サイクルエレメントの遅延が処理されます。
+</blockquote>
+
+<h2>
+<a NAME="8.20 Function call statement"></a>
+8.20 関数呼び出しステートメント
+</h2>
+
+<blockquote>
+関数は、ステートメントとして呼び出すことが出来ます。もし、関数が値を
+返す場合、その値は捨てられます。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>int foo( int
+x ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>main() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; i = foo( 0 ) ;&nbsp;
+// function call as an expression</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; foo(0) ;&nbsp;
+// function call as a statement</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+</blockquote>
+デフォルトの引数を関数呼び出しに使用する方法については、
+<a href="jeda_func_dcl.html#6.3 Default Argument">
+6.3 デフォルト引数
+</a>
+を参照してください。
+</blockquote>
+
+</body>
+</html>

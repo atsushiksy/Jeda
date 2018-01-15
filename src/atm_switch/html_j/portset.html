@@ -1,0 +1,66 @@
+<html>
+<head>
+</head>
+<body>
+<a href="directory.html">prev</a> : <a href="index.html">index</a> : <a href="cell_n_queue.html">next</a>
+<p><font size=+1>5. Portset の作成</font>
+<ul>
+ブロックレベルの設計検証では、通常、DUTのポートに完全に１対１で対応した
+ポートが使用されます。また、複数のブロックをもつ設計検証での名前の競合など
+を避けるために、portsetを使用することが常に推奨されます。
+<br>
+Jedaには、シンプルなテンプレート ジェネレータ プログラム(jedatemp)が
+付随していて、Verilogのポート宣言をスキャンしてportset宣言を自動作成する
+ことができます。
+このテンプレート ジェネレータは、完全なVerilogパーサーではないので、
+ポート宣言のみをもつ疑似的なVerilogファイルを作成する必要があります。
+<br>
+この空のバージョンのsquatモデルは、<a href="../verilog/squat_dummy.v">
+squat_dummy.v</a>です。
+このファイルが、'jedatemp'を実行するのに使用されます。
+<br>
+以下のコマンドラインが、jedatempを実行します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>jedatemp -c clk -m squat
+-i ../verilog/squat_test_inc.vh squat_dummy.v</font></font></ul>
+
+<p><br>
+このコマンドにより、以下のファイルが作成されます。(これらは、既に作成され
+リリースにふくまれています。)
+<br>&nbsp;
+<ul>
+<li>
+<a href="../verilog/squat_port.jh">squat_port.jh</a>&nbsp; -- portset宣言</li>
+
+<li>
+<a href="../verilog/squat_test_template.j">squat_test_template.j</a> -- テストベンチのテンプレート</li>
+
+<li>
+<a href="../verilog/squat_test.v">squat_test.v</a> -- jeda_module と DUT を含むVerilogのテストベンチ</li>
+</ul>
+
+<p><br>
+Verilogのインクルードファイル<a href="../verilog/squat_test_inc.vh">squat_test_inc.vh</a> が宣言され、<a href="../verilog/squat_test.v">squat_test.v</a>の
+最終部に含まれます。
+このファイルは、実行ダンプを生成するためのものです。ダンプを生成する部分の
+コードはコメント化されているので、好ましいダンプを作成するために
+このファイルを修正する必要があります。
+<p>
+'jedatemp'によって作成されたポートセット宣言ファイルsquat_port.jhは、
+参照クロックなどが正しく設定されていない、不完全なものです。
+これらの修正を行なった最終的なものが、includeディレクトリ内の
+<a href="../include/squat_port.jh">squat_port.jh</a>です。
+すべてのUTOPIAポート信号は、各ポートの適切なクロック信号を参照するように
+以下のように変更されています。
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; output&nbsp; [7:0]
+Rx_data_0 DRIVE_SPEC&nbsp; @ squat.Rx_clk_0&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output&nbsp;
+[7:0] Rx_data_1 DRIVE_SPEC&nbsp; @ squat.Rx_clk_1&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output&nbsp;
+[7:0] Rx_data_2 DRIVE_SPEC&nbsp; @ squat.Rx_clk_2&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output&nbsp;
+[7:0] Rx_data_3 DRIVE_SPEC&nbsp; @ squat.Rx_clk_3&nbsp; ;</font></font>
+<br>&nbsp;</ul>
+<a href="directory.html">prev</a> : <a href="index.html">index</a> : <a href="cell_n_queue.html">next</a>
+</body>
+</html>

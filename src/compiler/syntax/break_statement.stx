@@ -1,0 +1,11 @@
+
+break_statement:
+  opt_statement_prefix 'break' opt_exit_label semicolon
+  ;
+
+opt_exit_label:
+  /* empty */
+  |
+  Identifier
+  ;
+  

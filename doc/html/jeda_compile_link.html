@@ -1,0 +1,335 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_sys_class.html">Prev</a>
+| <a href="jeda_temp.html">Next</a>
+<h1>
+15. Compile, Link and Execution</h1>
+
+<blockquote>This chapter explains how to compile Jeda code, link, and execute
+the code with Verilog simulator.</blockquote>
+
+<h2>
+15.1 General Flow</h2>
+
+<blockquote>Jeda compiler (jedacmp) compiles Jeda source code(.j) to Jeda
+object file (.jo). Jeda linker (jedalnk) links multiple Jeda object files
+(.jo) to a C code (.jeda.c). This C code is compiled with C compiler to
+an object file. Then, this object file is linked with runtime library to
+a dynamic library form (.dl). This process can be done with a perl script
+"jeda" (explained below).
+<br>When Verilog simulator is executed, the Jeda PLI code (linked to Verilog
+simulator) searches the plus argument "+jeda_code=&lt;file_name>", and
+loads the file &lt;file_name> as the Jeda code to be run.</blockquote>
+
+<h2>
+15.2 JEDA_HOME Environment Variable</h2>
+
+<blockquote>To run Jeda compiler and linker, the environment variable JEDA_HOME
+must be set to the installed directory. Also, $JEDA_HOME/bin must be added
+as the command search path. See Appendix B Installation for further information.</blockquote>
+
+<h2>
+15.4 Jeda Script&nbsp; (jeda)</h2>
+
+<blockquote>Perl Script 'jeda' is normally used to handle the process of
+compile, link, c-compile, c-link.
+<br>Command syntax is:
+<blockquote><font face="Courier New,Courier">jeda [options | filename]..</font></blockquote>
+The options are:
+<ul>
+<li>
+-out &lt;name></li>
+
+<br>define output name, actual output file will have proper&nbsp; suffix.
+(default: prefix of the first file name)
+<li>
+-jc</li>
+
+<br>jeda compile only to create jeda object file
+<li>
+-dl</li>
+
+<br>create dynamic library file (.dl)
+<li>
+-exe</li>
+
+<br>create standalone executable
+<li>
+-cc &lt;cc-path></li>
+
+<br>specify cc command path (default 'gcc')
+<li>
+-debug</li>
+
+<br>just print out system command sequence
+<li>
+-D&lt;defines></li>
+
+<br>defines macro for jeda compile and c compile
+<li>
+-I&lt;path></li>
+
+<br>defines include file search path for jeda &amp; c compile
+<li>
+-g</li>
+
+<br>debug mode compile for jeda &amp; c
+<li>
+-h</li>
+
+<br>auto-header generation on jeda compiler
+<li>
+-U &lt;util></li>
+
+<br>specify the user defined util file. &lt;util>.jh is used for compiler,
+and &lt;util>.jo is used for linker. When user defined system functions/classes
+are added, additional user's definition files should be specified. This
+option can be specified multiple times to specify multiple user definition
+files.
+<li>
+-JL_&lt;flag></li>
+
+<br>option for jeda linker.</ul>
+Jeda script identifies the file type from the suffix of the files and determine
+what is needed for the compile/link process. The following suffixes are
+identified:
+<br>&nbsp;
+<ul>
+<li>
+.j</li>
+
+<br>Jeda source file. j-compile, j-link, c-compile, c-link
+<li>
+.jo</li>
+
+<br>Jeda object file. j-link, c-compile, c-link
+<li>
+.c</li>
+
+<br>C source file. c-compile, c-link
+<li>
+.o</li>
+
+<br>C object file. c-link
+<li>
+.a</li>
+
+<br>Archive file. c-link
+<li>
+.so</li>
+
+<br>Shared object file. c-link
+<li>
+.dl</li>
+
+<br>Dynamic library file. c-link</ul>
+</blockquote>
+
+<blockquote>Example:
+<br>&nbsp;&nbsp;&nbsp; 1) compile jeda source (foo.j) and generate jeda
+object(foo.jo)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">jeda
+foo.j</font>
+<p>&nbsp;&nbsp;&nbsp; 2) compile foo.jd and link with bar.jdo to create
+C source foo.jeda.c
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">jeda
+foo.j bar.jo</font>
+<p>&nbsp;&nbsp;&nbsp; 3) compile foo.j and link with bar.jo to zumoo.jeda.c,
+compile bee.c,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; then link all with zoolib.a to
+create zumoo.dl
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">jeda
+-dl -out zumoo foo.j bar.jo bee.c zoolib.a</font>
+<p>&nbsp;&nbsp;&nbsp; 4) link foo.jo, bar.jo to zomoo.jeda.c, then create
+zumoo.dl
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Courier New,Courier">jeda
+-dl -out zumoo foo.jo bar.jo</font></blockquote>
+
+<h2>
+15.4 Run Jeda code in Verilog</h2>
+
+<ul>In order to run Jeda code with Verilog, the jeda_module (found in &lt;out_name>.jeda.v)
+must be instantiated in the Verilog code. This jeda_module will be identical
+when the global variables, static variables in various function/classes,
+port/portset definition, connectionset definition, and verilog class (verilog
+task definition) are identical. If compiled version of Verilog (e.g. Verilog-NC)
+is used, the user can pre-compile the jeda_module if the definitions of
+them are identical. Then, different execution code can be loaded with +jeda_code=&lt;jeda_dl_name>
+plus argument at the verilog execution time.
+<p>The following plus arguments are supported to control the Jeda's behavior
+at run time.
+<br>&nbsp;
+<ul>
+<li>
++jeda_finish_on_end</li>
+
+<br>This flag will finish the simulation when Jeda main reaches the end.
+<br>&nbsp;
+<li>
++jeda_stop_on_end</li>
+
+<br>This flag will stop the simulation (and move to the verilog prompt)
+when Jeda main reaches the end.
+<br>&nbsp;
+<li>
++jeda_continue_on_end</li>
+
+<br>This flag will continue the simulation when Jeda main reaches the end.
+<br>&nbsp;
+<li>
++jeda_finish_on_error</li>
+
+<br>This flag will finish the simulation when verification error (user
+error() call) or runtime error is detected.
+<br>&nbsp;
+<li>
++jeda_stop_on_error</li>
+
+<br>This flag will stop the simulation when verification error (user error()
+call) or runtime error is detected.
+<br>&nbsp;
+<li>
++jeda_stop_on_first_error</li>
+
+<br>This flag will stop the simulation immediately when it detect an error.
+This may messes up the execution timing if the simulation is continued.
+<br>&nbsp;
+<li>
++jeda_debug_on_error</li>
+
+<br>This flag will invoke the Jeda debugger when an error is detected.
+To enable this option, -g flag must be used on the code compilation.
+<br>&nbsp;
+<li>
++jeda_continue_on_error</li>
+
+<br>This flag will continue the execution when an error is detected.
+<br>&nbsp;
+<li>
++jeda_no_debugger_on_ctlc</li>
+
+<br>This flag will disable the Ctl-C signal hander for the Jeda debugger.
+In such case, Ctl-C signal will be handled by Verilog simulator.
+<br>&nbsp;
+<li>
++jeda_debug_on_warning</li>
+
+<br>This flag will invoke the Jeda debugger when a warning is detected.</ul>
+</ul>
+
+<blockquote>&nbsp;
+<br>&nbsp;
+<p><b>Jeda script invokes jedacmp, jedalnk, gcc to create various level
+of output. Normally, it is not needed to call jedacmp or jedalnk directly.
+The following section explains the Jeda compiler and linker command syntax
+for extensive usage.</b></blockquote>
+
+<h2>
+15.5 Jeda Compiler (jedacmp)</h2>
+
+<blockquote>Jeda Compiler (jedacmp) reads the Jeda source code (.j) and
+generates an intermediate object code (.jo). This intermediate code is
+a text file that contains the Jeda virtual machine assembly code as the
+result of compilation.
+<br>Command syntax is:
+<blockquote><font face="Courier New,Courier">jedacmp [options] &lt;source_name>.j
+[&lt;output_name>]</font></blockquote>
+When &lt;output_name> is omitted, &lt;source_name>.jo (and &lt;source_name.jh
+for header file) is used.
+<br>The following options are supported by jedacmp:
+<ul>
+<li>
+-g</li>
+
+<br>Debug flag. Compiler will output the debug information to the object
+file.
+<li>
+-h</li>
+
+<br>Header flag. Compiler will output header file (.jh). This header can
+be included by other source that refers the contents of this source.
+<li>
+-D&lt;defines></li>
+
+<br>Same as -D for cpp. Define a macro.
+<li>
+-I&lt;path></li>
+
+<br>Same as -I for cpp. Define the search path for #include
+<li>
+-X</li>
+
+<br>Utility compile flag. Use this flag when compiling Jeda utility definition
+file. This is only used when user defined system functions/classes are
+added.
+<li>
+-U &lt;file_name></li>
+
+<br>Specify the user defined utility definition file. Jedacmp always uses
+$JEDA_HOME/include/jeda_utils.jh as the definition file. When user defined
+system functions/classes are added, additional user's definition files
+should be specified. This option can be specified multiple times to specify
+multiple user definition files.</ul>
+</blockquote>
+
+<h2>
+15.6 Jeda Linker (jedalnk)</h2>
+
+<blockquote>Jeda Liner (jedalnk) reads the Jeda object file(s) (.jo) and
+generates C program file (.jeda.c) and Verilog module file (.jeda.v). The
+linker checks the consistency between object files. Verilog module file
+contains a module "jeda_module" that represent the Jeda activity in the
+Verilog world.
+<br>Command syntax is:
+<blockquote><font face="Courier New,Courier">jedalnk [options] &lt;obj_name>.jo
+[&lt;obj_name.jo>..]</font></blockquote>
+When &lt;output_name> is omitted, the first &lt;source_name> is used.
+<br>The following options are supported by jedalnk:
+<ul>
+<li>
+-JL_G</li>
+
+<br>Debug flag. Linker will output the debug information to the object
+file.
+<li>
+-JL_O &lt;level></li>
+
+<br>Optimize flag. Not implemented yet.
+<li>
+-JL_T</li>
+
+<br>Two value flag. Not implemented yet
+<li>
+-JL_N</li>
+
+<br>No check flag. Not implemented yet
+<li>
+-JL_V</li>
+
+<br>Create Verilog testbench template file &lt;outname>.jeda_top.v (See
+<a href="jeda_temp.html#15.2 Testbench generation option">16.2
+Testbench generation option in Jeda Linker</a> for detailed information)
+<li>
+-JL_o &lt;outname></li>
+
+<br>Specify output name. By default, the first &lt;obj_name> is used.
+<li>
+-JL_U &lt;util_file_name></li>
+
+<br>Specify the user defined util object file. By default, Jedalnk uses
+$JEDA_HOME/include/jeda_utils.jo. When user defined system functions/classes
+are added, additional user's definition files should be specified. This
+option can be specified multiple times to specify multiple user definition
+files.</ul>
+</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+</body>
+</html>

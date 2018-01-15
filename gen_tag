@@ -1,0 +1,4 @@
+#setenv CVSROOT /net/kinggidra/export/room/jeda/cvsroot
+cvs -q tag $1
+echo $1 >> tag_record.data
+

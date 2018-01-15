@@ -1,0 +1,50 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<blockquote><b><font size=+4>
+Jedaの設計検証 使用例: ATM スイッチ
+</font></b></blockquote>
+
+<blockquote>&nbsp; 
+この例では、Jedaを使用して、テストベンチを構成するためのプロセスを、
+順を追って説明します。
+DUT(Device Under Test)として、本例で用いられているのは、ATMスイッチのモデル
+です。このVerilogモデルは、Janick Bergeron氏のVerification Guildプロジェクト
+より、借用しました。
+<br><a href="http://www.janick.bergeron.com/guild/project.html">(http://www.janick.bergeron.com/guild/project.html)</a>
+<p>
+本例は、私が、ブロックレベルの設計検証の際に、標準的に行なう手順をベースに
+しています。実際の最先端ASICの開発でも、ここに示すのと同様の手順、ディレクトリ
+構成、Makefileなどを使用して、設計検証をおこなっています。
+<p><a NAME="rx_bug"></a>
+ここに示すJedaのテストベンチは、最初の転送テストで、utopia1_atm_rx.vのモデル
+のバグを検出しました。
+<br>(このバグをJanick Bergeron氏にレポートし(<a href="../html/mail_to_bergeron_1.txt">
+mail1</a>  <a href="../html/mail_to_bergeron_2.txt">mail2 </a>) 、<a href="../html/responce_from_bergeron_1.txt">Verif Guild - Vol 3, no 04</a>に返答を受け取りました。)
+<p>
+全体のコードの開発とデバッグ (JedaとVerilog両方)をほぼ二日で行ないました。
+(そして、このドキュメントを書くのに何日もかかりました)
+このことは、Jedaを使用して、システマティックに、有効なテストベンチを構築する
+ことが出来るという、良いデモンストレーションだと思います。(そして、私の
+ドキュメント記述能力不足についても)
+<br>&nbsp;
+<p><font size=+1><a href="verilog_model.html">1. Verilogモデルとその仕様</a></font>
+<p><font size=+1><a href="verif_environment.html">2. 設計検証の環境</a></font>
+<p><font size=+1><a href="test_plan.html">3. テストプラン</a></font>
+<p><font size=+1><a href="directory.html">4. ディレクトリ構成とMakefile</a></font>
+<p><font size=+1><a href="portset.html">5. Portset の作成</a></font>
+<p><font size=+1><a href="cell_n_queue.html">6. セルとセルキューのクラス</a></font>
+<p><font size=+1><a href="manage_if_driver.html">7. マネージメント インターフェース ドライバー</a></font>
+<p><font size=+1><a href="cell_driver_receiver.html">8. UTOPIA セル ドライバーとレシーバー</a></font>
+<p><font size=+1><a href="cell_gen_checker.html">9. セル ジェネレータとチェッカー</a></font>
+<p><font size=+1><a href="switch_tester.html">10. スイッチ テスター クラス</a></font>
+<p><font size=+1><a href="direct_tests.html">11. ダイレクト テスト</a></font>
+<p><font size=+1><a href="random_distribution.html">12. 乱数分布クラス</a></font>
+<p><font size=+1><a href="random_test.html">13. ランダム テスト</a></font>
+<p><font size=+1><a href="run_simulation.html">14. シミュレーションの実行</a></font></blockquote>
+
+</body>
+</html>

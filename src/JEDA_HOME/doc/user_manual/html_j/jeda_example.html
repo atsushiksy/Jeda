@@ -1,0 +1,327 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_temp.html">Prev</a>
+| <a href="jeda_extension.html">Next</a>
+<h1>
+17. 実行例
+</h1>
+
+<blockquote>
+本章では、Dタイプ フリップフロップ モジュールにJedaコードを記述する
+例を示します。
+</blockquote>
+
+<h2>
+<a NAME="17.1 Template Generation"></a>
+17.1 テンプレートの生成
+</h2>
+
+<blockquote>
+ここでは、シンプルなDタイプ フリップフロップを対象とします。
+以下が、Verilogのコード(ファイル名 ff.v)です。
+<blockquote><font face="Courier New,Courier"><font size=-1>module ff (clk,
+D, E, R_, Q, Q_) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input clk ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input D ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input E ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input R_ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output Q ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output Q_ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; reg Q ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; initial begin</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; Q
+= 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; end</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; assign Q_ = ~Q
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; always @( R_ )
+if( R_ === 0 ) #1 Q = 0 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; always @(posedge
+clk) if (R_ !== 0 &amp;&amp; E === 1 ) #1 Q = D ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>endmodule</font></font></blockquote>
+このフリップフロップをDUTとし、対応するjeda_moduleがDUTに適切に接続された
+Verilogテストベンチを作成する必要があります。
+<br>
+ここで、テンプレート ジェネレータ(jedatemp)を使用して、テンプレート
+ファイルを作成します。次のコマンドでjedatempを起動します。
+<blockquote><font face="Courier New,Courier">jedatemp -m ff -c clk ff.v</font></blockquote>
+このコマンドは、以下の３種類のファイルを生成します。
+<ul>
+<li>
+ff_port.jh</li>
+
+<br>ポートセットの定義ファイルで、内容は以下の通り。
+<ul>&nbsp;
+<br><font face="Courier New,Courier"><font size=-1>//////////////////////////////////////////////////////</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// portset file for
+module ff</font></font>
+<br><font face="Courier New,Courier"><font size=-1>//&nbsp;&nbsp; created
+by jedatemp</font></font>
+<br><font face="Courier New,Courier"><font size=-1>//////////////////////////////////////////////////////</font></font>
+<br><font face="Courier New,Courier"><font size=-1>#ifndef DRIVE_SPEC</font></font>
+<br><font face="Courier New,Courier"><font size=-1>#define DRIVE_SPEC drive
+posedge skew 1</font></font>
+<br><font face="Courier New,Courier"><font size=-1>#endif</font></font>
+<br><font face="Courier New,Courier"><font size=-1>#ifndef SAMPLE_SPEC</font></font>
+<br><font face="Courier New,Courier"><font size=-1>#define SAMPLE_SPEC
+sample posedge</font></font>
+<br><font face="Courier New,Courier"><font size=-1>#endif</font></font>
+<br><font face="Courier New,Courier"><font size=-1>portset ff {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output&nbsp;
+clk DRIVE_SPEC&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output&nbsp;
+D DRIVE_SPEC&nbsp; @ ff.clk&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output&nbsp;
+E DRIVE_SPEC&nbsp; @ ff.clk&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output&nbsp;
+R_ DRIVE_SPEC&nbsp; @ ff.clk&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input Q SAMPLE_SPEC&nbsp;
+@ ff.clk&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input Q_ SAMPLE_SPEC&nbsp;
+@ ff.clk&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></ul>
+
+<li>
+ff_test_template.j</li>
+
+<br>Jedaのテスト テンプレート ファイルで、内容は以下の通り。
+<ul>&nbsp;
+<br><font face="Courier New,Courier"><font size=-1>//////////////////////////////////////////////////////</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// Jeda template for
+module ff</font></font>
+<br><font face="Courier New,Courier"><font size=-1>//&nbsp;&nbsp; created
+by jedatemp</font></font>
+<br><font face="Courier New,Courier"><font size=-1>//////////////////////////////////////////////////////</font></font>
+<br><font face="Courier New,Courier"><font size=-1>#include "ff_port.jh"</font></font>
+<p><font face="Courier New,Courier"><font size=-1>main() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // begining of
+the program for module ff</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+
+<li>
+ff_test.v</li>
+
+<br>Verilogテストベンチファイルで、ffとjeda_moduleのインスタンスが含まれます。
+内容は、以下の通り。
+<ul><font face="Courier New,Courier"><font size=-1>//////////////////////////////////////////////////////</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// verilog testbench
+for module ff</font></font>
+<br><font face="Courier New,Courier"><font size=-1>//&nbsp;&nbsp; created
+by jedatemp</font></font>
+<br><font face="Courier New,Courier"><font size=-1>//////////////////////////////////////////////////////</font></font>
+<br><font face="Courier New,Courier"><font size=-1>module ff_test ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; parameter simulation_cycle
+= 100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; wire CLOCK ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; reg CLOCK_reg
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; assign CLOCK
+= CLOCK_reg ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; wire&nbsp;&nbsp;
+ff_clk ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; wire&nbsp;&nbsp;
+ff_D ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; wire&nbsp;&nbsp;
+ff_E ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; wire&nbsp;&nbsp;
+ff_R_ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; wire&nbsp;&nbsp;
+ff_Q ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; wire&nbsp;&nbsp;
+ff_Q_ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; assign ff_clk
+= CLOCK ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // Jeda module</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; jeda_module jeda
+(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .CLOCK(CLOCK),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .ff_clk(ff_clk),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .ff_D(ff_D),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .ff_E(ff_E),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .ff_R_(ff_R_),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .ff_Q(ff_Q),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .ff_Q_(ff_Q_)</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ) ; // end of
+jeda_module</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // module ff
+under test</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ff dut (</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .clk(ff_clk),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .D(ff_D),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .E(ff_E),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .R_(ff_R_),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .Q(ff_Q),</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .Q_(ff_Q_)</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // CLOCK toggling</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; initial begin</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; CLOCK_reg
+= 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; forever
+begin</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#(simulation_cycle/2) CLOCK_reg = ~CLOCK_reg ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; end</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; end</font></font>
+<p><font face="Courier New,Courier"><font size=-1>endmodule</font></font>
+<br>&nbsp;</ul>
+</ul>
+</blockquote>
+
+<h2>
+&nbsp;<a NAME="17.2 Test Code"></a>
+17.2 テスト コード
+</h2>
+
+<blockquote>
+ここで、テンプレートファイルを元に、テストプログラム(ff_test.j)を作成します。
+以下の例では、クロックをドライブし、リセットを開放した後、単にD入力をトグル
+して出力側のデータをプリントアウトします。
+<p><font face="Courier New,Courier"><font size=-1>//////////////////////////////////////////////////////</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// Jeda test code for
+module ff</font></font>
+<br><font face="Courier New,Courier"><font size=-1>//</font></font>
+<br><font face="Courier New,Courier"><font size=-1>//////////////////////////////////////////////////////</font></font>
+<br><font face="Courier New,Courier"><font size=-1>#include "ff_port.jh"</font></font>
+<p><font face="Courier New,Courier"><font size=-1>main() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // begining of
+the program for module ff</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int p ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; printf( " ff test
+started!\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; ff.clk.drive_clock(
+50, 50, 0, 0 ) ;&nbsp; // driving clk with #50, #50 duty</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; p = 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ff.R_.0 = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ff.D.0 = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1(posedge ff.clk)
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ff.R_.0 = 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ff.E.0 = 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 5 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @(posedge
+ff.clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"posedge of ff.clk p = %d ff.Q=%b FF.Q_=%b\n", p, ff.Q.0, ff.Q_.0</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; )
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"cycle %d time %d\n", get_cycle(), get_time() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ff.D.0
+= p ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; p
+^= 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+
+<h2>
+<a NAME="17.3 Compile Jeda Code"></a>
+17.3 Jedaコードのコンパイル
+</h2>
+
+<blockquote>
+ここで、jedaスクリプトを使用して、Jedaコードをコンパイル、リンク、
+C-コンパイル、C-リンクを行ない、ダイナミックライブラリff_test.dlを
+作成します。以下のコマンドを実行します。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">jeda -dl ff_test.j</font></blockquote>
+このコマンドを実行後、以下のファイルが作成されます。
+<ul>
+<li>
+ff_test.jo</li>
+
+<br>Jedaオブジェクトコード(中間コード)
+<li>
+ff_test.jeda.c</li>
+
+<br>Jedaコードのコンパイルの結果のCコード(jedalnkによって作成された)
+<li>
+ff_test.jeda.v</li>
+
+<br>jeda_moduleを含むVerilogファイル
+<li>
+ff_test.jeda.o</li>
+
+<br>ff_test.jeda.cをCコンパイルした結果のオブジェクトファイル
+<li>
+ff_test.dl</li>
+
+<br>
+ff_test.jeda.oとJedaの実行時ライブラリをリンクして生成されたダイナミック
+ライブラリ ファイル
+</ul>
+</blockquote>
+
+<h2>
+&nbsp;<a NAME="17.4 Run Verilog Simulation"></a>
+17.4 Verilogシミュレーションの実行
+</h2>
+
+<blockquote>
+VerilogのバイナリがJeda PLIコードとリンクしてあるものと仮定します。
+(Appendix B.インストレーションを参照のこと)
+以下のコマンドでシミュレーションを実行します。
+<blockquote><font face="Courier New,Courier"><font size=-1>verilog ff.v
+ff_test.v ff_test.jeda.v +jeda_code=ff_test.dl</font></font></blockquote>
+実行結果は、以下のようになるはずです。
+<p><font face="Courier New,Courier"><font size=-1>Host command: verilog</font></font>
+<br><font face="Courier New,Courier"><font size=-1>Command arguments:</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ff.v</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ff_test.v</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ff_test.jeda.v</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; +jeda_code=ff_test.dl</font></font>
+<p><font face="Courier New,Courier"><font size=-1>VERILOG-XL 2.7.s024 log
+file created Apr 10, 2001&nbsp; 09:33:13</font></font>
+<br><font face="Courier New,Courier"><font size=-1>VERILOG-XL 2.7.s024&nbsp;&nbsp;
+Apr 10, 2001&nbsp; 09:33:13</font></font>
+<p><font face="Courier New,Courier"><font size=-1>** Various Vender info.
+ommitted</font></font>
+<p><font face="Courier New,Courier"><font size=-1>Compiling source file
+"ff.v"</font></font>
+<br><font face="Courier New,Courier"><font size=-1>Compiling source file
+"ff_test.v"</font></font>
+<br><font face="Courier New,Courier"><font size=-1>Compiling source file
+"ff_test.jeda.v"</font></font>
+<br><font face="Courier New,Courier"><font size=-1>Highest level modules:</font></font>
+<br><font face="Courier New,Courier"><font size=-1>ff_test</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;ff test started!</font></font>
+<br><font face="Courier New,Courier"><font size=-1>posedge of ff.clk p
+= 1 ff.Q=0 FF.Q_=1</font></font>
+<br><font face="Courier New,Courier"><font size=-1>cycle 4 time 350</font></font>
+<br><font face="Courier New,Courier"><font size=-1>posedge of ff.clk p
+= 0 ff.Q=1 FF.Q_=0</font></font>
+<br><font face="Courier New,Courier"><font size=-1>cycle 5 time 450</font></font>
+<br><font face="Courier New,Courier"><font size=-1>posedge of ff.clk p
+= 1 ff.Q=0 FF.Q_=1</font></font>
+<br><font face="Courier New,Courier"><font size=-1>cycle 6 time 550</font></font>
+<br><font face="Courier New,Courier"><font size=-1>posedge of ff.clk p
+= 0 ff.Q=1 FF.Q_=0</font></font>
+<br><font face="Courier New,Courier"><font size=-1>cycle 7 time 650</font></font>
+<br><font face="Courier New,Courier"><font size=-1>posedge of ff.clk p
+= 1 ff.Q=0 FF.Q_=1</font></font>
+<br><font face="Courier New,Courier"><font size=-1>cycle 8 time 750</font></font>
+<br><font face="Courier New,Courier"><font size=-1>Type ? for help</font></font>
+<br><font face="Courier New,Courier"><font size=-1>C1 > $finish ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>C1: $finish at simulation
+time 751</font></font>
+<br><font face="Courier New,Courier"><font size=-1>0 simulation events
+(use +profile or +listcounts option to count) + 53 accelerated events</font></font>
+<br><font face="Courier New,Courier"><font size=-1>CPU time: 0.5 secs to
+compile + 0.1 secs to link + 0.0 secs in simulation</font></font>
+<br><font face="Courier New,Courier"><font size=-1>End of VERILOG-XL 2.7.s024&nbsp;&nbsp;
+Apr 10, 2001&nbsp; 09:34:08</font></font>
+<br>&nbsp;</blockquote>
+
+</body>
+</html>
+
+
+
+
+

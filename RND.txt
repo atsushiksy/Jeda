@@ -1,0 +1,191 @@
+Random pattern generation mechanism and randcase statement
+
+1. Abstract
+  This idea is to provide a mechanism to generate individual random sequence
+  per calling point with constraint mechanism, that user can use for variable
+  initialization. 
+  
+    class chip_reg_access {
+      bit [31:0] address
+         = RND( {32'h00c00000, 32'h00c00008, 32'h00c00010} ) ;
+      bit rw = RND( {1'b1 @ 70, 1'b0 @ 30} ) ; // 70% read, 30% write
+      .
+      .
+    }
+    
+  In the case above, an individual random generation sequence is allocated
+  at each RND() call point. Each RND() sequence is initialized with different
+  seed at the beginning of the simulation.
+  
+  The same static random sequence mechanism is used to implement 'randcase'
+  statement. The random sequence of each randcase statement is individual.
+  
+    randcase {
+      10:  data = 0 ;
+      20:  data = 1 ;
+      70:  data = 3 ;
+    }
+    
+2. Static Random Expression
+  Two special random generation operators are added as expression.
+  
+    RND() : produces a random pattern. the same value may repeat
+    
+    CYC() : produces a cyclic random pattern. The same value will not repeat
+            in a cycle. The random sequence will be changed every cycle.
+    
+  This special expression can take various operators as the argument to control
+  how the random variable sequence are generated.
+  
+2.1 range
+  The range is used to specify the values it can take. The numbers are listed
+  within {}. The column operator ':' can be used to specify the range between
+  two numbers (inclusive). 
+  
+    Example:
+      RND( {1, 5:8, 10} )    -- 1, 5, 6, 7, 8, 10
+      
+  The number can be specified with weight, the probability of the each value.
+  
+    Example:
+       RND( {1 @10, 2 @20, 0 @70} )
+       
+  The weigh is specified with '@' operator or '@@' operator. For a single 
+  value, '@' and '@@' are the same.
+  
+    @  -- specify the weight as a total for the given numbers
+    
+       ' 5:7 @ 30 '  is the same as  '5 @ 10, 6 @ 10, 7 @ 10'
+       
+   @@  -- specify the weight of each numbers
+   
+       ' 5:7 @@ 30 '  is the same as  '5 @ 30, 6 @ 30, 7 @ 30'
+      
+   Weight operator can only be used in RND() expression, and all the values 
+   within the range must have its weight.
+   
+2.2 bit size
+   The bit size of RND() and CYC() are usually determined by the context.
+   When it is used within the simple assignment to the fixed size destination,
+   it becomes the size of the destination. 
+   But user can specify the size with 'size=' argument:
+   
+     Example:
+     
+       bit [7:0] command0 = CYC() ; // non repeating 8 bit sequence
+       bit [7:0] command1 = CYC( size=4 ) ; // non repeating 4 bit sequence
+       
+   The second case in the example, upper 4bit of the command1 will always be
+   zero.
+  
+   When a bit constant is used, then the bit size becomes the size of the 
+   largest constant.
+   
+     CYC( {22'h0, 22'h1, 33'h1ffffffff} )  -- 33-bit pattern
+     
+
+*** Note that the bit size of RND/CYC() is limited to 96.
+   
+   When the size is not deterministic in the context, it becomes integer
+   and produce non-zero 32-bit integer random. (32th bit will always be 0.)
+
+2.3 condition
+   Condition can be used to limit the range of the random variable.
+   Condition is given as <cond_op> <expression>, where
+     <cond_op> :  < > <= >= != =?= !?=
+   Multiple condition is taken as logical 'AND' conditions.
+   
+     Example
+     
+       x = RND( {1:100} ) ;
+       y = RND( {1:100}, != x ) ;
+       z = RND( {1:100}, != x, != y ) ;
+       
+  
+2.4 limit of iteration
+    When the condition is given to the RND()/CYC(), then first it produce a 
+    random value, then check if the value matches the given condition. 
+    This process is looped until it finds the value that matches the condition.
+    The limit number of iteration can be given as 'limit=N'. 
+    
+       z = RND( {1:100}, < y, limit=50000 ) ;
+       
+    Without limit, RND loops 2^^32 times. CYC loops 2^^N where N is the bit 
+    width and no range is specified. When the range is specified in CYC, it 
+    loops number of element in the range.
+    
+2.5 name
+    The random sequence is usually created individually at the calling point.
+    But two calls can share the same sequence by specifying the name of the
+    random sequence. Range of the sequence must be matched, or only one place
+    has it. Two calls for the same name can have different conditions.
+    
+      Example:
+      
+         if( t > 500 ) p = RND( {1:5000}, name = "prob", < t ) ;
+         else p = RND( name = "prob", > t ; < 500 ) ;
+  
+    
+3. Initialization of the static random sequences.
+  The initialization (seed) of the static random sequences are done at the 
+  beginning of the simulation by the internal random function. Thus, each 
+  random sequence has different seed value at the beginning. 
+  The seed of the internal random function is normally a constant,
+  so the random sequences will be the same under the same condition.
+  This internal random function can be initialized with the plus argument:
+  
+    1) +JEDA_RANDOMIZE  
+      This plus argument will randomize the internal sequence with a number
+      calculated from time and the process number. This mechanism is useful
+      to run random regression.
+      
+    2) +JEDA_RND_SEED=<number>
+      This plus argument set <number> as the seed of the internal random 
+      function. This is useful to run the simulation under the same seed
+      value.
+      
+   Here's the pseudo code for the initialization:
+   
+   {
+     string seedstr ;
+     int seed ;
+     random_mt init_rnd ;
+     
+     if( get_plusarg( "JEDA_RANDOMIZE" ) ) {
+       seed = generate_random_value_from_time_and_process_id() ;
+     }
+     seedstr = get_plusarg( "JEDA_RND_SEED" ) ;
+     if( seedstr != null ) {
+       seed = atoi( seedstr ) ;
+     }
+     init_rnd = new( seed ) ;
+     
+     for( i = 0 ; i < total_number_of_rand ; i++ ) {
+       rnd_array[i].initialize( init_rnd.random() ) ;
+     }  
+   }
+   
+4. Random Algorithm
+  RND operator produces the random value with MT algorithm. 
+  
+  CYC operator produces the random value from maximum sequence LSFR algorism.
+  0 (zero) is injected randomly at every iteration.
+  
+
+5 randcase
+  randcase picks one of the statement in the randcase block with given weight.
+  
+     randcase {
+       5: x = 100 ;
+       95: x = 0 ;
+     }
+     
+  This is the same as:
+  
+    case ( RND( {0@5,1@95} ) ) {
+      0: x = 100 ;
+      1: x = 0 ;
+    }
+
+  Each randcase statement uses an individual random sequence, initialized with
+  the mechanism above.     

@@ -1,0 +1,37 @@
+Bug report 
+*********************************************
+Number   : 4 
+Severity : Crashing.
+Date     : 04/08/2003
+reported : Mike Yin, Be One Lab Inc.
+*********************************************
+
+Bug description:
+
+
+[mike@b1lab0 0408a]$ jedax -exe jvc_mpeg2_env.j
+file: jvc_mpeg2_env.j
+/var/tools/jeda-x.i86_linux.3.1.p6/bin/jedacmp   jvc_mpeg2_env.j
+OUT_FILE: jvc_mpeg2_env.jo
+ 0 compile errors
+/var/tools/jeda-x.i86_linux.3.1.p6/bin/jedalnk  -JL_o jvc_mpeg2_env  -JL_S  jvc_mpeg2_env.jo
+OUT_C_FILE: jvc_mpeg2_env.jeda.c
+Loading file "jvc_mpeg2_env.jo"
+OUT_VERILOG_FILE: jvc_mpeg2_env.jeda.v
+ 0 link errors
+C compile: gcc -I/var/tools/jeda-x.i86_linux.3.1.p6/include -c -O2  -D_REENTRANT  -fPIC  jvc_mpeg2_env.jeda.c -o jvc_mpeg2_env.jeda.o
+Link command: gcc -D_REENTRANT -o jvc_mpeg2_env  jvc_mpeg2_env.jeda.o /var/tools/jeda-x.i86_linux.3.1.p6/lib/smain.o /var/tools/jeda-x.i86_linux.3.1.p6/lib/jedaexe.a -lpthread -lnsl -lm -ll -lc -ltermcap
+[mike@b1lab0 0408a]$ ./jvc_mpeg2_env
+mpeg2 vodeo VC design by jeda tool according to ISO/IEC 13818-2:1995(E)
+default parameter configure is generating
+Segmentation fault  
+                         
+
+To repro:
+all the .j files have been included to repro this bug.
+
+It is strange that it seems the error is related to line 113 in file jvc_mpeg2_h.j.
+line 779 : // bit[2:0]   slice_vertical_position_extension[max_picture_num][max_slice_num];
+
+a) if this line is uncommented, this error DOES NOT appear and program runs fine.
+b) if this line is commented, the crush occurs.

@@ -1,0 +1,13 @@
+One can create Jeda source code and run it in standalone mode, without linking
+to simulation. Here is an example:
+
+Compile it and generate executable 'ex_or' :
+
+%jedax -exe  ex_or.j
+
+%ex_or
+
+-- result --
+010
+0
+1

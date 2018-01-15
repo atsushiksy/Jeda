@@ -1,0 +1,20 @@
+
+block:
+  '{'
+    opt_var_enum_definitions
+    opt_statements
+  '}'
+  ;
+
+opt_statements:
+  /* empty */
+  |
+  statements
+  ;
+
+statements:
+  statement
+  |
+  statements statement
+  ;
+

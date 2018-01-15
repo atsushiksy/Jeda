@@ -1,0 +1,1 @@
+../../gcc-2.95.2/gcc/../libiberty/obstack.c

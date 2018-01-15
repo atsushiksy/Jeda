@@ -1,0 +1,68 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(bin/jedax.in)
+
+# Check the hardware type
+case "`uname -m`" in
+i*86)		base_machine=i386  ;;
+sun4u)		base_machine=sparc  ;;
+esac
+AC_SUBST(base_machine)
+
+dnl Checks for programs.
+
+dnl Checks for wish
+AC_CHECK_PROG(HAVE_WISH, wish, yes, no)
+
+if test "$HAVE_WISH" != yes ; then
+  AC_MSG_WARN( Can't find wish binary. Debug window won't work in this environment. )
+fi
+
+AC_CHECK_PROG(HAVE_GCC, gcc, yes, no)
+if test "$HAVE_GCC" != yes ; then
+  AC_MSG_ERROR( Can't find gcc binary! )
+fi
+
+AC_CHECK_PROG(NAME_OF_MAKE, gmake, gmake, make)
+
+dnl Check perl path
+
+AC_MSG_CHECKING(path for perl)
+AC_PATH_PROG(PATH_2_PERL, perl)
+AC_MSG_RESULT($PATH_2_PERL)
+
+AC_CHECK_LIB(socket, socket)
+
+AC_CHECK_LIB(termcap, tputs,,AC_MSG_ERROR( Can't find termcap library! ))
+
+dnl Checks for libraries.
+dnl Replace `main' with a function in -lc:
+AC_CHECK_LIB(c, main)
+dnl Replace `main' with a function in -ll:
+AC_CHECK_LIB(l, main)
+dnl Replace `main' with a function in -lm:
+AC_CHECK_LIB(m, main)
+
+dnl Replace `main' with a function in -lnsl:
+AC_CHECK_LIB(nsl, main)
+
+dnl put pthread at the end, will put -lpthread first
+AC_CHECK_LIB(pthread, pthread_create,,AC_MSG_ERROR( Can't find pthread library! ))
+
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+
+dnl Checks for library functions.
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(getcwd regcomp socket strcspn strdup strstr)
+
+AC_SUBST(PATH_2_PERL)
+AC_SUBST(LIBS)
+AC_SUBST(NAME_OF_MAKE)
+
+AC_OUTPUT( bin/jedax )
+
+chmod +x bin/jedax

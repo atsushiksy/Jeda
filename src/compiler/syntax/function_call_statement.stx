@@ -1,0 +1,9 @@
+
+function_call_statement:
+  opt_statement_prefix function_call_expression semicolon 
+  ;
+
+return_statement:
+  'return' opt_expression semicolon
+  ;
+

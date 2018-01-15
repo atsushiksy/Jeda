@@ -1,0 +1,385 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_prog_struct.html">prev</a>
+| <a href="jeda_data_dcl.html">Next</a>
+<h1>
+4. 基本データタイプと様々な配列フォーム
+</h1>
+
+<h2>
+<a NAME="4.1 Basic Data Type"></a>
+4.1 基本データタイプ
+</h2>
+
+<blockquote>
+以下のデータタイプがJedaでサポートされています。
+<ul>
+<li>
+<b>int&nbsp;&nbsp;</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+-- 32ビット整数
+</li>
+
+<li>
+<b>bit&nbsp;</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+-- Verilogと同等の、x、z値を取ることができるビット。
+bit [7:0] のようにベクター化することができる。ベクターは big-endian (例 [7:0]) 
+またはsmall-endian (例 [0:7])のどちらでも宣言可能。また、最下位ビットは、ゼロでなくても可 (例 [9:2], [2:9])
+<li>
+<b>string&nbsp;&nbsp; </b>-- 文字列</li>
+
+<li>
+<b>float&nbsp;&nbsp;&nbsp;&nbsp; </b>-- 単精度浮動小数点変数</li>
+
+<li>
+<b>double</b> -- 倍精度浮動小数点変数</li>
+
+<li>
+<b>signal&nbsp;&nbsp; </b>-- ポート(シミュレータへのインターフェース)へのポインタ</li>
+</ul>
+注：enumとクラスはユーザが定義したデータタイプとして宣言出来ます。
+</blockquote>
+
+<h2>
+<a NAME="4.2 Array forms"></a>
+4.2 各種配列フォーム
+</h2>
+
+<blockquote>
+ユーザーが定義したタイプを含む全てのデータタイプは、様々な配列フォームとして
+宣言することが出来ます。Jedaでは、配列の情報にアクセスするための組み込み
+メンバー関数を使用することが出来ます。
+<ul>
+<li>
+配列&nbsp; 
+-- 対象となるデータタイプの情報の連続した領域を確保します。配列は、[n] 
+( nは、定数 )を用いて宣言します。
+
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; int a[5] ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; a[3] = 0 ;</font>
+<p>注：Verilogと異なり、ビットベクターの一部分のビットは、直接次のように
+アクセスできます。
+Note: 
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; bit [63:0] aa[5]
+;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; aa[3][4:0] = 5'b01100
+;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; if( aa[4][0] ==
+1'b0 ) printf( "Boo!\n" ) ;</font>
+<br>&nbsp;
+<p>&nbsp;
+次の関数が、配列の情報をアクセスするために使用出来ます。
+<ul>
+<li>
+int num_element()&nbsp; -- 配列のサイズを返します。
+</li>
+</ul>
+&nbsp;&nbsp;&nbsp; e.g.
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( aa.num_element() &lt; 5 ) printf( "array size of a is too small!!\n"
+) ;</font>
+<br>&nbsp;
+<li>
+多次元配列
+&nbsp; 
+-- 対象となるデータタイプの多次元の連続した領域を確保します。多次元配列は、
+ [n0]..[nk] のように宣言されます。
+</li>
+</ul>
+
+<blockquote><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; int a[5][4][3]
+;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp; a[3][2][1] = 0 ;</font></blockquote>
+
+<blockquote>
+以下の関数が、多次元配列の情報をアクセスするために使用できます。
+</blockquote>
+
+<ul>
+<ul>
+<li>
+int num_element()&nbsp; 
+-- 配列全体のサイズを返します。
+</li>
+</ul>
+
+<ul>
+<li>
+<font face="Courier New,Courier">int dimension() 
+-- 配列の次元数を返します。
+</font></li>
+</ul>
+
+<ul>
+<li>
+<font face="Courier New,Courier">int dim_size( int n ) 
+-- n次元目の配列のサイズを返します。
+</font></li>
+
+<br>&nbsp;</ul>
+
+<li>
+アソシエイティブ配列
+&nbsp; 
+-- 必要に応じて動的に領域が確保される配列で、[] を用いて宣言されます。
+宣言された時点で、配列の中身は空で、データが代入された時点でそのエントリ
+に対応する領域が確保されます。アソシエイティブ配列の要素へのアクセスは
+通常の配列と同様に行います。
+</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p><font face="Courier New,Courier">&nbsp;&nbsp; int b[] ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp; b[94849] = 534 ;</font>
+<p>&nbsp;
+次のメンバー関数が、アソシエイティブ配列の情報をアクセスするために
+使用出来ます。
+<ul>
+<li>
+int num_element()&nbsp; 
+-- アソシエイティブ配列に保持されている要素の数を返します。
+</li>
+</ul>
+
+<ul>
+<li>
+int &lt;> index_list()&nbsp; 
+-- アソシエイティブ配列に保持されている全ての要素のインデックスを、整数の
+リストとして返します。インデックスの順番は、ランダムです。( list.sort()関数
+によってソートすることが出来ます。)
+</li>
+</ul>
+
+<ul>
+<li>
+int check_index( int index ) 
+-- 与えられたインデックスが配列の中に存在するかをチェックし、存在すれば 1、
+なければ 0 を返します。
+</li>
+</ul>
+
+<ul>
+<li>
+void delete_index( int index ) 
+-- 与えられたインデックスに対応する要素を消去します。
+</li>
+</ul>
+
+<ul>
+<li>
+void flush_all() 
+-- 配列内の全ての要素を消去します。
+</li>
+</ul>
+
+<br>&nbsp;
+<li>
+文字列インデックス アソシエイティブ配列
+&nbsp; 
+-- アソシエイティブ配列と同様に動作しますが、インデックスに文字列を使用します。
+この配列は、[*] を用いて宣言します。
+</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<p><font face="Courier New,Courier">&nbsp; int c[*] ;</font>
+<br><font face="Courier New,Courier">&nbsp; c["boobie"] = 54 ;</font>
+<p>
+以下のメンバー関数が文字列インデックス アソシエイティブ配列の情報にアクセス
+するために使用できます。
+<br>&nbsp;
+<ul>
+<li>
+int num_element()&nbsp; 
+-- 配列の要素の数を返します。
+</li>
+</ul>
+
+<ul>
+<li>
+string &lt;> index_list()&nbsp; 
+-- アソシエイティブ配列に保持されている全ての要素のインデックスを、文字列の
+リストとして返します。インデックスの順番は、ランダムです。( list.sort()関数
+によってソートすることが出来ます。)
+</li>
+</ul>
+
+<ul>
+<li>
+int check_index( string index ) 
+-- 与えられたインデックスが配列の中に存在するかをチェックし、存在すれば 1、
+なければ 0 を返します。
+</li>
+</ul>
+
+<ul>
+<li>
+void delete_index( string index ) 
+-- 与えられたインデックスの要素を消去します。
+</li>
+</ul>
+
+<ul>
+<li>
+void flush_all() 
+-- 全ての要素を消去します。
+</li>
+</ul>
+
+<li>
+List&nbsp; 
+-- 対象となるデータタイプのリストは、<> によって宣言出来ます。
+宣言された段階でリストは空の状態です。
+リスト内の要素は、宣言されたデータタイプと同じものでなくてはなりません。
+したがって、異なったデータタイプの要素、例えば string と int などは、
+同じリストに保持することは出来ません。
+新しい要素のリストへの追加アクセスは、リストの先頭もしくは最終要素のみに限定され、
+メンバー関数push(), bpush()によって行われます。要素の読み出しも、通常リストの先頭もしくは最終要素に対して、メンバー関数pop(), bpop()にて行なわれます。リスト内の要素は、配列のように [index]でアクセスすることが出来ます。これは、読み取る場合にのみ限定され、代入の左側で使用することは出来ません。リスト内の任意の要素は、関数remove( index )によって削除することが出来ます。
+
+</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p><font face="Courier New,Courier">&nbsp; int d&lt;> ;</font>
+<br><font face="Courier New,Courier">&nbsp; d.push(546) ;</font>
+<br><font face="Courier New,Courier">&nbsp; i = d.pop() ;</font>
+<br><font face="Courier New,Courier">&nbsp; d.push( 10 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; d.push( 50 ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; i = d[0] ;&nbsp;&nbsp;&nbsp;&nbsp;
+// index access</font>
+<br><font face="Courier New,Courier">&nbsp; d.remove( 1 ) ;</font>
+<p>
+リストデータは、 '{ } オペレータを用いて作ることが出来ます。
+このオペレータは、一度に複数のエントリを代入するために用いられます。
+<p><font face="Courier New,Courier">&nbsp;d = '{ 256, 568, 948, 224 } ;</font>
+<p>
+Jedaでは、リスト型のデータは、
+<a href="jeda_concurrent.html#10.9 List as Mailbox">
+メールボックス
+</a>
+や
+<a href="jeda_concurrent.html#10.10 List as Region">
+リージョン
+</a>
+として使用することができます。
+以下の関数が、リストのデータ要素にアクセスするために使用できます。
+以下の説明で、リストの先頭要素と、リストの最も右の要素は同じものです。
+また、リストの最終要素と、リストの最も左の要素は同じものです。
+<br>&nbsp;
+<br>&nbsp;
+<ul>
+<li>
+push( <i>data</i> )&nbsp;&nbsp; 
+-- リストと同じデータタイプのdataを、リストの先頭に付加します。
+</li>
+</ul>
+
+<ul>
+<li>
+pop()&nbsp; 
+-- リストの先頭の要素をリストから取り出して返します。もし、リストが空の場合、
+0 (int, bit, float, double の場合)、または null (その他のデータ型)を返します。
+</li>
+</ul>
+
+<ul>
+<li>
+bpush( <i>data</i> ) 
+-- リストと同じデータタイプのdataを、リストの最後に付加します。
+</li>
+</ul>
+
+<ul>
+<li>
+bpop()&nbsp; 
+-- リストの最後の要素をリストから取り出して返します。もし、リストが空の場合、
+0 (int, bit, float, double の場合)、または null (その他のデータ型)を返します。
+</li>
+
+<li>
+remove( int index )&nbsp; -- 先頭からindex番目の要素を削除します.
+</li>
+
+</ul>
+
+<ul>
+<li>
+send( <i>data</i> ) 
+-- 
+(<a href="jeda_concurrent.html#10.9 List as Mailbox">MAILBOX</a>) 
+この関数は、push( data )と全く同じ動作をします。
+メールボックスにdataを送るのに使用します。
+</li>
+</ul>
+
+<ul>
+<li>
+receive() -- 
+(<a href="jeda_concurrent.html#10.9 List as Mailbox">MAILBOX</a>)
+この関数は、もしリストが空でない場合、bpop()と全く同じ動作をします。
+もしリストが空の場合、呼び出したスレッドは、データが受け取れる状態となるまで
+fifoキュー(待ち行列)内で、サスペンド(実行の一時中断)されます。もし、
+タイムアウトが検出された場合、0 もしくは nullが返されます。
+</li>
+
+<li>
+timeout( int <i>cycle </i>) 
+--&nbsp; (<a href="jeda_concurrent.html#10.9 List as Mailbox">MAILBOX</a>
+ <a href="jeda_concurrent.html#10.10 List as Region">REGION</a>) 
+receive()関数とenter()関数のためのタイムアウトを設定します。タイムアウトは、
+CLOCK信号のサイクル数で指定します。0 (ゼロ)がセットされた場合、タイムアウト
+は発生しません。
+</li>
+</ul>
+
+<ul>
+<li>
+int enter( <i>data</i> [, <i>data1</i>..] ) -- (<a href="jeda_concurrent.html#10.10 List as Region">REGION</a>)
+この関数は、リストデータをリージョン(クリティカルな領域の制御)として使用する
+ために用います。
+もし、関数に与えられた引数全てがリスト内に存在しない場合、それらの
+引数をリストに付加し、直ちに関数から戻ります。
+もし、引数のうち一つでもリストに存在する場合、呼び出したスレッドは、条件が
+整うまで、fifoキュー内で、サスペンドされます。
+この関数は、成功時には 1 、 タイムアウト時には 0 をかえします。
+</li>
+</ul>
+
+<ul>
+<li>
+int check_enter( <i>data</i> [, <i>data1</i>..] ) -- (<a href="jeda_concurrent.html#10.10 List as Region">REGION</a>)
+この関数は、enter()と同等ですが、もしenter条件が整わない場合、直ちに 0 を返し
+サスペンドされることはありません。
+</li>
+</ul>
+
+<ul>
+<li>
+void exit( <i>data</i> [, <i>data1</i>.. ] ) -- (<a href="jeda_concurrent.html#10.10 List as Region">REGION</a>)
+この関数は、全ての引数をリストの要素から消去します。
+</li>
+</ul>
+
+<ul>
+<li>
+int num_element() 
+-- リスト内の要素の数を返します。
+</li>
+</ul>
+
+<ul>
+<li>
+sort() -- 
+リストの要素をソートします。この関数は、int、bit、stringのリストに対してのみ
+使用できます。
+</li>
+</ul>
+</ul>
+</blockquote>
+
+</body>
+</html>

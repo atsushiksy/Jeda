@@ -1,0 +1,55 @@
+<html>
+<head>
+</head>
+<body>
+<a href="random_test.html">prev </a>: <a href="index.html">index</a>
+<h1>
+<font size=+1>14. シミュレーションの実行
+</font></h1>
+
+<blockquote>
+シミュレーションを実行するためには、１)Jedaファイルをコンパイルする。 
+２)Verilogシミュレータを起動する。 の二つを適切に行なう必要があります。
+<br>
+以前に説明したように、コンパイルとシミュレーションの実行は、runディレクトリ
+にて行なわれることを想定しています。まず、このrunディレクトリに移動して
+ください。
+<p>
+ここで、make(または、gmake。GNUのmakeを起動する)を実行すると全てのJeda
+ファイルはコンパイルされ、ダイナミックロードライブラリ&lt;test>.dlが
+testsディレクトリ内のすべての&lt;test>.jに対して生成されます。
+以下のコマンドを実行してください。
+<blockquote><font face="Courier New,Courier"><font size=-1>make</font></font></blockquote>
+Makefileは、-g オプションをJedaコンパイラ／リンカーに使用して、デバッガーを
+利用可能にしています。もし、リグレッションのために、シミュレーションを
+実行する場合、このオプションをなくしたほうが、実行性能が上がります。
+これは、以下のようにJEDA_FLAGを再定義することにより可能です。
+<blockquote><font face="Courier New,Courier"><font size=-1>make JEDA_FLAG=''</font></font></blockquote>
+このディレクトリには、全ての必要なVerilogのファイルが vfiles というファイル
+にリストされています。
+このファイルの内容は、次のようです。
+<blockquote><font face="Courier New,Courier"><font size=-1>../verilog/squat_test.v</font></font>
+<br><font face="Courier New,Courier"><font size=-1>../verilog/squat.v</font></font>
+<br><font face="Courier New,Courier"><font size=-1>../verilog/utopia1_atm_rx.v</font></font>
+<br><font face="Courier New,Courier"><font size=-1>../verilog/utopia1_atm_tx.v</font></font></blockquote>
+このディレクトリにあるスクリプト run が、どのようにシミュレーションを実行
+するかを示しています。ここで、Verilogシミュレータの名前はverilogであると
+想定しています。このスクリプトは、Verilog-XLで動作します。中身は次のようです。
+<blockquote><font face="Courier New,Courier"><font size=-1>verilog -f vfiles
+../tests/$1.jeda.v +jeda_debug_on_error \</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; +jeda_code=../tests/$1.dl
+$2 $3 $4 $5 $6 $7 $8 $9</font></font></blockquote>
+特定のテストを実行するためには、テスト名を引数としてrunスクリプトに与えます。
+例えば、以下のコマンドラインはmanage_if_testを実行します。
+<blockquote><font face="Courier New,Courier"><font size=-1>run manage_if_test</font></font></blockquote>
+
+テスト名の後に、プラス引数を付加することもできます。
+<br>
+プラス引数<font face="Courier New,Courier"><font size=-1>'+jeda_debug_on_error'</font></font>
+で、シミュレーションが検証エラー(ユーザーのerror()コール)を検知した場合に
+デバッガーを起動することができます。もう一つの有効なプラス引数は、
+<font face="Courier New,Courier"><font size=-1>'+jeda_debug_on_warning'</font></font>で、これにより警告レベルの問題が発生した場合(たとえば空のアソシエイティブ配列へのアクセス)にも、デバッガーが起動されます。
+</blockquote>
+<a href="random_test.html">prev </a>: <a href="index.html">index</a>
+</body>
+</html>

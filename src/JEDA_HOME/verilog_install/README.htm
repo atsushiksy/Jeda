@@ -1,0 +1,161 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+    
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+    
+  <meta name="GENERATOR"
+ content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+  <title></title>
+</head>
+<body>
+  
+<h1><br>
+ </h1>
+Copyright (C) 2003 Jeda Technologies, Inc<br>
+<br>
+  
+<h2>Here are &nbsp;the steps to get started:<br>
+</h2>
+<blockquote>
+  <blockquote></blockquote>
+ </blockquote>
+  
+<ol>
+  <li>
+    <h2> Installing from binary release</h2>
+  </li>
+</ol>
+<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+If you get a pre-compiled binary release file:<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;jeda.&lt;system/OS&gt;.&lt;version_revision&gt;.tar.gz 
+</p>
+  
+<blockquote>
+  <p>Expand the binary at proper location: <br>
+  <font face="Courier New,Courier">&nbsp;&nbsp; gzip -cd jeda.&lt;system/OS&gt;.&lt;version_revision&gt;.tar.gz 
+| tar xvpf -</font> </p>
+  <p>The binary files will be expanded under a directory: <br>
+  <font face="Courier New,Courier">&nbsp; jeda.&lt;system/OS&gt;.&lt;version_revision&gt;</font> 
+  </p>
+  <p><font face="Courier New,Courier">Now, you </font>need to set $JEDA_HOME 
+to the directory . For csh, type : </p>
+  <blockquote>setenv JEDA_HOME jeda.&lt;system/OS&gt;.&lt;version_revision&gt;</blockquote>
+ and add $JEDA_HOME/bin to your search path.<br>
+</blockquote>
+  
+<ol start="2">
+  <li>
+    <h2> Installing Jeda PLI to Verilog Simulators</h2>
+  </li>
+</ol>
+  
+<ul>
+Jeda used one PLI task "$JEDA_task" in Jeda_module to setup the link between
+jeda code and Verilog environment. To acomplish this, Jeda PLI object must
+be linked with Verilog code. There are different Verilog simulators available
+from different venders. With any simulator, what we need is to add PLI table
+for $JEDA_task, and link verilog with $JEDA_HOME/lib/jeda_pli.o.
+</ul>
+    
+<ul>
+  <blockquote>
+    <p></p>
+  </blockquote>
+  <li> Installing to Verilog-XL</li>
+  <br>
+When you run 'vconfig' to create 'cr_vlog' script, you need to specify: 
+  <ol>
+ <li> Proper 'veriuser.c' that includes jeda_pli_func_ext.h and jeda_pli_func_def.h.</li>
+  <li> Add $JEDA_HOME/lib/jeda_pli.o to be the file to be linked</li>
+ 
+  </ol>
+ After 'cr_vlog' script is created, add the following line within the compile 
+veriuser.c command line&nbsp; to notify the location of the included files: 
+  <br>
+&nbsp;&nbsp;&nbsp; -I$JEDA_HOME/include <br>
+Also add '-lpthread' to the link command line. 
+  <p>If you are using GNU version of 'ld' (loader, mostly true on Linux system), 
+you need to add -export-dynamic option to the link command line. </p>
+  <p>Then run ./cr_vlog to create the Verilog simulator. <br>
+&nbsp; </p>
+  <li> Installing to Verilog-NC</li>
+  <br>
+NC comes with the makefile 'Makefile.nc' (usually under &lt;install_dir&gt;/tools/inca/files/). 
+Create a copy of the Makefile, and modify: 
+  <ol>
+ <li> Change veriuser.c to the proper one that includes Jeda PLI files.</li>
+  <li> Add '-I$JEDA_HOME/include' to the compile line.</li>
+  <li> Link ncsim and ncelab with $JEDA_HOME/lib/jeda_pli.o</li>
+  <li> Add '-lpthread' to the link command line of $(NCELAB) and $(NCSIM)</li>
+ 
+  </ol>
+  
+  <p><br>
+If you are using GNU version of 'ld' (loader, mostly true on Linux system),
+you need to add -export-dynamic option to the link command line. </p>
+  <p>Then, run 'make' to create 'ncelab' and 'ncsim' with Jeda PLI.<br>
+  </p>
+  <p>See XL and NC dirs for examples.<br>
+  <br>
+  </p>
+</ul>
+  
+<ul>
+  <li>
+    <h3> Installing to VCS</h3>
+  </li>
+</ul>
+  
+<ul>
+When run VCS to create 'simv' (the compiled simulation image), you need to
+specify: 
+  <ol>
+ <li> The Jeda PLI table with '-P $JEDA_HOME/include/pli.tab'</li>
+  <li> Link with Jeda PLI object '$JEDA_HOME/lib/jeda_pli.o'</li>
+  <li> Add ' -Xstrict=0x01 -syslib "-lpthread" ' to link pthread lib.</li>
+ 
+  </ol>
+ Example: <br>
+&nbsp;&nbsp;&nbsp; vcs&nbsp; -f vfiles \ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -P $JEDA_HOME/include/pli.tab 
+\ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $JEDA_HOME/lib/jeda_pli.o 
+\ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Xstrict=0x01 -syslib
+"-lpthread" 
+  <p><b>Note for GNU loader:</b> <br>
+&nbsp; If you are using GNU version of 'ld' (loader, mostly true on Linux
+system), you need to specify <br>
+&nbsp;&nbsp;&nbsp;&nbsp; -LDFLAGS "-export-dynamic" <br>
+&nbsp; option to add -export-dynamic option to the loader. Without this flag,
+dynamic loading will cause the link error. </p>
+  <p>Example: <br>
+&nbsp;&nbsp;&nbsp; vcs&nbsp; -f vfiles \ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -P $JEDA_HOME/include/pli.tab 
+\ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $JEDA_HOME/lib/jeda_pli.o 
+\ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Xstrict=0x01 -syslib
+"-lpthread" \ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -LDFLAGS "-export-dynamic"<br>
+  </p>
+  <p>See VCS dir.<br>
+  </p>
+  <p><br>
+  </p>
+</ul>
+<ol start="3">
+  <li>
+    <h2>Run verilog examples</h2>
+  </li>
+</ol>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;cd examples dir and get
+started with examples.&nbsp;  
+<ul>
+&nbsp;
+</ul>
+  <br>
+</body>
+</html>

@@ -1,0 +1,780 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_port.html">Prev</a>
+| <a href="jeda_aspect.html">Next</a>
+<h1>
+11. Concurrent Programming</h1>
+
+<blockquote>In this chapter, thread execution mechanism and system class
+objects that are related to thread control will be explained.</blockquote>
+
+<h2>
+<a NAME="11.1 Fork mechanism"></a>11.1 Fork mechanism</h2>
+
+<blockquote>Unlike Verilog, every execution in Jeda is traceable from the
+main() function. A thread that stays in the system and execute the procedure
+in the concurrent manner is forked from a location of the code that is
+reachable from the main(). Like Verilog, fork/join pair will wait until
+all the child thread finish the execution.
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 100 )
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread1\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 100 )
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread2\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>join</font></font></blockquote>
+The major difference of the fork mechanism (from that of Verilog) is that
+Jeda code can 'knife' the thread, and go forward without the end of the
+child thread.
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // thread 1</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+if( (i&amp;1) == 0 ) i++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // thread 2</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+if( (i&amp;1) == 1 ) i++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife // move
+forward without child</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+There's another version, fork/spoon pair, that wait until one of the forked
+thread finishes the execution (just take one scoop on the spoon).
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( n ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread1\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( m ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread2\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>spoon</font></font>
+<br>&nbsp;</blockquote>
+The parent goes forward when one child finished, and remained child thread(s)
+will continue executing.
+<br>If the remained thread(s) are not needed anymore, 'terminate' statement
+can be used as above example.</blockquote>
+
+<h2>
+<a NAME="11.2 Terminate"></a>11.2 Terminate</h2>
+
+<blockquote>The terminate statement will terminate all the descendant threads
+forked from the thread, including thread that are forked in a function
+called by the thread. The termination includes the nested child thread
+(a forked thread from a forked thread) as well.
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( n ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread1\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( m ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+printf( "this is thread2\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>spoon</font></font>
+<p><font face="Courier New,Courier"><font size=-1>terminate ; // terminate
+the one that remains</font></font></blockquote>
+Note that the terminate statement will kill all the descendant threads.
+To control the level of termination, nested thread should be created.
+<blockquote><font face="Courier New,Courier"><font size=-1>void main()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bit x = 0 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // we fork a thread
+that we don't want to terminate.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+sig.0 = x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; x
+= ~x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; receive_loop()
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork&nbsp;
+// fork to create thread to limit the termination</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( @1,100(busy_1.0 == 1) ) printf( "busy_1 detected\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( @1,100(busy_2.0 == 1) ) printf( "busy_2 detected\n") ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+spoon</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+terminate ;&nbsp; // terminate the remained checker</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+As a function call does not create a new thread, even child-threads that
+are forked by the caller of the function will be terminated. (<a href="jeda_statement.html#8.16 Terminate statement">See
+8.16 Terminate statement</a>). It is highly suggested to block with fork
+{ } join whenever the terminate statement is used.</blockquote>
+
+<h2>
+<a NAME="11.3 Thread Execution"></a>11.3 Thread Execution</h2>
+
+<blockquote>The thread execution is done in pseudo concurrent manner, that
+is, there's only one thread actually running at a given time. Also, the
+thread execution is done in non preemptive manner, that is, a thread that
+is running will not give up it's execution until it reaches to a code that
+suspends the thread itself.
+<br>This execution mechanism guarantees that data accesses are always atomic
+and no special mechanism are needed to protect shared variables. This is
+because the thread that is active will not give up the execution until
+it completes the operation, and there's no other thread that can modify
+the data.
+<p>But this non preemptive execution can cause a problem when thread is
+created in a loop with argument of loop variable.
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+The fork statement will fork the child_thread() function to be executed.
+But this only mean that those 100 of child threads are 'scheduled to be
+executed'. The parent thread will not stop executing the loop, and when
+any of those 100 of the child_thread are actually executed, the loop variable
+i will reach 100, and all the function call of child_thread( i ) will get
+i = 100 as its argument.
+<p>There are two mechanism to avoid this situation as explained below.
+<br>&nbsp;</blockquote>
+
+<h2>
+<a NAME="11.4 Clone Variable"></a>11.4 Clone Variable</h2>
+
+<blockquote>One solution to avoid the situation above is to declare the
+loop variable i as 'clone'
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; clone int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+Usually all the forked threads shares the same local variable space. But
+'clone' variable will be cloned at thread allocation. The contents is copied
+to a new space and not shared. So when each fork is executed in the loop,
+the value of i is kept in the child thread's local stack with the value
+at the thread creation.
+<br>This mechanism is also useful when two thread need to update it's local
+variable independently during the execution. (Or you may accidentally coded
+in that way, and find the problem, and want to fix it with minimum changes
+in your code).
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; i = 100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; while(
+i ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@1 if( signal1.0 == 1 ) i-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; while(
+i ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+@1 if( signal2.0 == 1 ) i-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; spoon</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="11.5 thread_pause()"></a>11.5 thread_pause()</h2>
+
+<blockquote>Second solution is to use thread_pause() function.
+<br>The system function thread_pause() temporary give up the execution
+of the current thread, and put it in the last place of the thread scheduler's
+ready queue. Thus, all the ready threads that is waiting in the ready queue
+will be executed, then the current thread's execution will be resumed.
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; clone int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; thread_pause()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+In the example above, thread_pause() call guarantees that the forked child_thread()
+starts its execution before the loop variable i is incremented.</blockquote>
+
+<h2>
+<a NAME="11.6 thread_join()"></a>11.6 thread_join()</h2>
+
+<blockquote>The system function thread_join() wait for the completion of
+all the descendant thread generated from the current thread.
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<p><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clone
+int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; thread_join()
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>join</font></font></blockquote>
+This function takes an optional integer argument to set the time limit
+(as the number of CLOCK cycle). When the time out happens, it returns 0
+(otherwise returns 1). The following code has the timelimit and check.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<p><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clone
+int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; if( !thread_join(
+5000 ) ) error( "thread_join() failed\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>join</font></font></blockquote>
+As this function wait for all the threads under the current thread, nesting
+a thread can limit the thread to be joined. The following example only
+wait for the last 10 of the child_thread execution.
+<blockquote><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; clone int i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; for( i = 0 ;
+i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ;&nbsp; // don't join with them</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; thread_pause()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // only wait for
+the child thread below</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 10 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread( i ) ; // join only with them</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; thread_join()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+As explained in 11.2 Terminate, function call does not create a new thread,
+and thread_join() without fork { } join will check other threads created
+by caller of the function. To avoid such confusion, it is highly suggested
+to block the thread_join() with fork { } join.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier"><font size=-1>void main()
+{</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; checker()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; driver()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; tester() ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void tester() {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; foo()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bar()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; @300( posedge
+CLOCK ) ; // some delay</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; thread_join()
+;&nbsp; // this will wait for checker() and driver() called by main() as
+well.</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+</blockquote>
+The following section in this chapter explains various system class object
+for the thread execution control.
+<h2>
+<a NAME="11.7 Event"></a>11.7 Event</h2>
+
+<blockquote>Event is a system class object that can be used for thread
+synchronization. The following member functions are supported:
+<ul>
+<li>
+void trigger()</li>
+
+<br>Generate a trigger. This trigger will be active within the current
+simulation time slot (unless it's cleared). This guarantees that receiver
+(if any) will get the trigger regardless of the order of the execution
+of the thread.
+<li>
+void trigger_on()</li>
+
+<br>Generate a trigger and keep it at on state. This trigger remains active
+until it is cleared.
+<li>
+void trigger_off()</li>
+
+<br>Clear the trigger state. It clears the triggered state set by trigger(),
+or trigger_on().
+<li>
+void trigger_pulse()</li>
+
+<br>Generate an impulse trigger. This trigger is only effective to the
+thread that is already waiting in the event variable. If there's no thread,
+the trigger disappear immediately.
+<li>
+int sync()</li>
+
+<br>wait for a trigger. The thread will be resumed when a trigger is sent
+to the event variable. It returns 1 upon receiving the trigger. It returns
+0 when timeout occurs.
+<li>
+int sync_clear()</li>
+
+<br>wait for a trigger. When it is resumed, it clears the trigger so that
+only this thread receives the trigger. This call can be used to create
+a handshake mechanism.
+<li>
+int check()</li>
+
+<br>This function checks and returns 1 if the trigger in the event is active,
+otherwise returns 0.
+<li>
+int check_clear()</li>
+
+<br>This function checks and returns 1 if the trigger is active. It clears
+the active trigger when it gets the trigger. It returns 0 if trigger is
+not active.
+<li>
+void timeout( int cycle_count )</li>
+
+<br>This function set the timeout limit in the number of CLOCK cycle. Setting
+0 clears the timeout value.
+<p><font face="Courier New,Courier"><font size=-1>event done ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>done = new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>done.timeout( 1000 )
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1 if( done_sig.0
+== 1 ) done.trigger() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>forever{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; done.sync_clear()
+; // make sure only receive the same trigger once</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "Done
+triggered at cycle %d\n", get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>.</font></font>
+<br>&nbsp;</ul>
+Unlike other object access (which will report an error), when an event
+variable is empty (instance is not declared), then all the functions are
+ignored. Trigger functions do nothing, and sync, check functions return
+immediately with return value 1. Thus, putting null to an event variable
+can skip the synchronize mechanism.
+<br>The following example shows a driver with optional timing control.
+If those event arguments are not used, the driver just go through the sequence
+without synchronizing to the event.
+<blockquote><font face="Courier New,Courier"><font size=-1>void drive_data(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bit [7:0] data,
+event go = null, event done = null</font></font>
+<br><font face="Courier New,Courier"><font size=-1>) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; go.sync() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1 bus_data.0
+= data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; done.trigger()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="11.8 Semaphore"></a>11.8 Semaphore</h2>
+
+<blockquote>Semaphore class object provides the mutex mechanism and synchronization
+mechanism among threads. The following member functions are supported:
+<ul>
+<li>
+void new( int unit = 1 )</li>
+
+<br>Create a semaphore instance with the given unit. Default unit is 1.
+<li>
+int get( int unit = 1 )</li>
+
+<br>This function attempts to get the given unit from the semaphore. If
+there's enough unit within the semaphore, the unit is subtracted, and the
+function immediately returns 1. If there's not enough unit in the semaphore,
+the calling thread will be put into a FIFO queue and suspended until the
+required unit is available. When the timeout is set, and timer goes off
+while waiting, it returns 0.
+<li>
+int check( int unit = 1 )</li>
+
+<br>This function checks the unit in the semaphore. If there's enough unit,
+the function subtract the given unit from the semaphore and returns 1.
+If there's not enough, it returns 0 without waiting.
+<li>
+void put( int unit = 1 )</li>
+
+<br>This function put the given unit to the semaphore. If there's waiting
+thread and unit in the semaphore is enough for the thread waiting at the
+top of the queue, the waiting thread will be released after the unit subtraction.
+<li>
+void timeout( int cycle )</li>
+
+<br>This function set the timeout limit as the number of CLOCK cycle. Setting
+cycle = 0 disables the timeout.</ul>
+Most typical usage of the semaphore is to implement the mutex. The following
+function can be called from multiple threads and still functional as only
+one of the call will be in the critical section.
+<blockquote><font face="Courier New,Courier"><font size=-1>semaphore drv_sem
+= new ; // initial unit = 1</font></font>
+<br><font face="Courier New,Courier"><font size=-1>.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>void safe_drive( bit
+[7:0] data ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; drv_sem.get(
+1 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // entering critical
+section</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1 data_bus.0
+= data ; // driving the bus with data</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; drv_sem.put(
+1 ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+Setting the initial unit to a value > 1, the semaphore can be used to limit
+the active number of thread (or operation) at a given time. This can be
+used to model a multi-service system.
+<blockquote><font face="Courier New,Courier"><font size=-1>semaphore limit_sem
+= new( 8 ) ; // max 8 can go concurrently</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int queue&lt;> ;&nbsp;
+// list of int, a service queue</font></font>
+<p><font face="Courier New,Courier"><font size=-1>// This function send
+a value to queue in random interval u[0,99]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>void random_send_loop()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int dly ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int n = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; dly
+= randmt() % 100 ; // randmt is the Mersenne Twister Random</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @dly
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; queue.send(
+n++ ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>// This function mimic
+the process by random delay of u[0,9]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>void service_proc()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int dly ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; dly = randmt()
+% 10 ; // service rate is u[0,9]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @dly ; // just
+wait</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; limit_sem.put(
+1 ) ; // tell it's done</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void process_loop() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int n ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; n
+= queue.receive() ; // wait until something is sent</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; limit_sem.get(1)
+;&nbsp;&nbsp;&nbsp; // make sure only 8 active service</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; service_proc()
+;&nbsp; // start the process</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+Another application is to wait for all the threads are completed.
+<blockquote><font face="Courier New,Courier"><font size=-1>semaphore finish_sem
+= new( 0 ) ; // initial unit = 0</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void child_thread() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; /* do something
+useful */</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; finish_sem.put(1)
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void main() {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 1000 )
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+child_thread() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; finish_sem.get(1000)
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "All done!\n"
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="11.9 List as Mailbox"></a>11.9 List as Mailbox</h2>
+
+<blockquote>List variable can be used to send data between threads. The
+following member functions are supported for that purpose:
+<ul>
+<li>
+receive()</li>
+
+<br>If the list is not empty, it returns the bottom element from the list.
+If the list is empty, the calling thread will be in the FIFO queue and
+suspended. When timeout is detected, it returns 0 for bit and int type
+list, or null for other types.
+<li>
+send( data )</li>
+
+<br>This function put the data into the top of the list. If there's waiting
+thread, the data will be passed to the thread at the top of the queue,
+and the waiting thread will be resumed.
+<li>
+num_element()</li>
+
+<br>This function returns how many elements are in the list. This can be
+used to avoid the wait if the list is empty.
+<li>
+timeout( int cycle )</li>
+
+<br>This specifies the maxum cycle to be waited.</ul>
+Example:
+<ul><font face="Courier New,Courier"><font size=-1>int in_queue&lt;> ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int out_queue&lt;> ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int max_in = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int max_out = 0 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>..</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void process_loop() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int dly ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; id
+= in_queue.receive() ; // assume someone is sending</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"Got task id %d at %d\n", id, get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; dly
+= randmt() % 10 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @dly
+; // random delay of u[0:9]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; out_queue.send(
+id ) ;&nbsp; // this job is done,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// also assume someone is receiving</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>// this loop record the
+max queue size</font></font>
+<br><font face="Courier New,Courier"><font size=-1>void check_max_loop()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int n ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; forever{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @1
+; //delay one cycle</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; n
+= in_queue.num_element() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+n > max_in ) max_in = n ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; n
+= out_queue.num_element() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+n > max_out ) max_out = n ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>..</font></font>
+<br>&nbsp;</ul>
+</blockquote>
+
+<h2>
+<a NAME="11.10 List as Region"></a>11.10 List as Region</h2>
+
+<blockquote>List variable can be used as a region which is a multivalue
+mutex. The following member functions are supported for that purpose:
+<ul>
+<li>
+enter( data [, data .. ] )</li>
+
+<br>This function takes one or more arguments of its data type. It checks
+of any&nbsp; one of the data is already in the list. If not exist, it put
+all the data argument into the list and returns 1. If any one of the data
+has found, the thread is put in the FIFO queue, and suspended until the
+condition becomes true. When timeout is detected, it returns 0 without
+putting value to the list.
+<li>
+check_enter( data [, data .. ] )</li>
+
+<br>This function is non-waiting version of enter(). This function takes
+one or more arguments of its data type. It checks of any&nbsp; one of the
+data is already in the list. If not exist, it put all the data argument
+into the list and returns 1. If any one of the data has found, it returns
+0 immediately without putting value to the list.
+<li>
+exit( data, [, data ..] )</li>
+
+<br>This function takes one or more arguments of its data type. It removes
+all the data arguments from the list. If any thread is waiting in the queue,
+it checks the entering( data existence) condition of the thread from the
+top of the queue. If the thread with good entering condition found, the
+arguments are added to the list, and waiting thread will be resumed. The
+check will be done to all the waiting threads. Even the waiting queue is
+FIFO base, the order of the threads' release is not always the calling
+order because each entering condition is different.
+<li>
+timeout( int cycle )</li>
+
+<br>This specifies the maxum cycle to be waited.</ul>
+Example:
+<blockquote><font face="Courier New,Courier"><font size=-1>// Random memory
+write read test with a bunch of threads</font></font>
+<br><font face="Courier New,Courier"><font size=-1>bit [31:0] addr_region&lt;>
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>semaphore bus_sem =
+new ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void mem_test( bit [31:0]
+addr, bit [31:0] data ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int dly ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; dly = ( randmt
+% 500 ) + 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @dly ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; addr_region.enter(
+addr ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // make sure
+no one is using this address</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // first writing
+data to memory</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_sem.get()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_addr.0 =
+addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_data.0 =
+data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_rd.0 = 1'b0
+; // wr</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_strb.0 =
+1'b1 ; //</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1 bus_strb.0
+= 1'b0 ; // negate strb next cycle</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_sem.put()
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; dly = (randmt()
+% 500) + 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @dly ;&nbsp;
+// random delay of u[1,500]</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; bus_sem.get()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_addr.0 =
+addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_rd.0 = 1'b1
+; // rd</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_strb.0 =
+1'b1 ; //</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; @1 bus_strb.0
+= 1'b0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( bus_data.0
+!= data ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; error(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Mem error at %h (%h != %h) , wr at&nbsp; %d, rd at %d\n",</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+address, data, bus_data.0, get_cycle() - dly, get_cycle()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; )
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bus_sem.put()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; add_region.exit(
+addr ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>main() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; repeat(1000)
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; memtest(
+urandmt(), urandmt() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; thread_join()
+; // wait all the thread are completed.</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+<blockquote>
+<blockquote>&nbsp;</blockquote>
+</blockquote>
+
+</body>
+</html>

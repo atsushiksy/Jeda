@@ -1,0 +1,375 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_aspect.html">Prev</a>
+| <a href="jeda_sys_class.html">Next</a>
+<h1>
+<a NAME="12. System Functions"></a>
+13. システム関数
+</h1>
+
+<blockquote>
+本章では、Jedaが提供するシステム関数について説明します。
+</blockquote>
+
+<h2>
+<a NAME="13.1 Pseudo Random Generators"></a>
+13.1 疑似乱数発生関数
+</h2>
+
+<ul>
+Jedaでは、２種類の疑似乱数発生関数を使用出来ます。各々の乱数発生関数には、
+符号付き(３１ビット目は常に０)、符号無しのものがあります。
+符号付き、符号無しとも、同一の乱数発生データ構造を共有し、そのシーケンスは
+独立ではありません。
+<ul>&nbsp;
+<li>
+int random( [int seed] )</li>
+
+<br>
+負で無いMeesenne Twister乱数発生関数。この乱数発生関数は、松本 眞氏と西村 拓士氏
+によって開発され、2**19937-1の周期を持ちます。
+詳しい情報は、
+<a href="http://www.math.keio.ac.jp/~matumoto/mt.html">
+http://www.math.keio.ac.jp/~matumoto/mt.html
+</a>
+を参照してください。
+<br>
+<br>
+
+<ul><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>randmt( 5945394 ) ; //
+initialize</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; x = randmt()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "random
+= %d\n", x ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+
+<li>
+int urandom( [int seed] )</li>
+
+<br>random()の符号無しバージョン
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>bit [63:0] data ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>urandmt( 499494 ) ; //
+initialize</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; data = {urandmt(),urandmt()}
+; // create 64-bit random</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+</ul>
+注：符号無しバージョンの乱数は、32ビット目がセットされた値(int型に代入される
+と負の数となる)を生成します。負の値のモジュロ演算は、同じ負の値を返すため、
+この乱数の結果とモジュロ演算と一緒に用いることは避けるべきでしょう。
+<br>&nbsp;
+<ul>
+<ul><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>x = randmt() % 100 ;&nbsp;
+// will get 0 to 99 value</font></font>
+<p><font face="Courier New,Courier"><font size=-1>x = urandmt() % 100 ;
+// will get negative value, not like above</font></font>
+<br>&nbsp;</ul>
+
+<li>
+int rand48( [int seed] )</li>
+
+<br>
+負でない乱数関数。４８ビット整数のlinear congruentialアルゴリズムを使用。
+<br>&nbsp;
+<li>
+int urand48( [int seed] )</li>
+
+<br>rand48()の符号無しバージョン。
+</ul>
+</ul>
+
+<ul>
+上記の２種類の乱数発生関数は、おのおの１つの疑似乱数シーケンスを発生します。
+Jedaには、これとは別に、各インスタンスが独立の乱数シーケンスを発生する、
+乱数発生のシステムクラスがあります。詳しくは、
+<a href="jeda_sys_class.html#13.1 Random Classes">
+13.1乱数発生クラス
+</a> 
+を参照してください。
+</ul>
+
+<h2>
+<a NAME="13.2 Print and Report Functions"></a>
+13.2 プリント と レポート関数
+</h2>
+
+<blockquote>
+Jedaでは、C言語スタイルの printf フォーマットと、次に示す追加フォーマット
+が使用出来ます。
+
+% formats:
+<ul>%h %H&nbsp; -- %x と同等、hex フォーマットでプリントする
+<br>%b %B&nbsp; --&nbsp; binary フォーマットでプリントする</ul>
+以下の関数は、同様のprintfフォーマットを処理します。
+<ul>
+<li>
+void printf( string format [, data..] )</li>
+
+<br>
+この関数は、標準出力にプリントアウトします。
+出力は、Verilogのログにも行なわれます。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>printf( "data = %d\n",
+data ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>printf( "bit data =
+%b\n", data ) ;</font></font></ul>
+
+<li>
+void error( string format [, data..] )</li>
+
+<br>
+この関数は、エラーメッセージを付加して、メッセージを標準出力にプリントアウト
+します。実行は、通常、中断されます。(実行モードによる)
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>if( sig.0 != 3'b000
+) error( "sig.0 is not 3'b000\n" ) ;</font></font></ul>
+
+<li>
+void warning( string format [, data..] )</li>
+
+<br>
+この関数は、警告メッセージを付加して、メッセージを標準出力にプリントアウト
+します。実行は、中断されません。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>if( sig.0 == 3'b101
+) warning( "sig.0 == 3'b101\n" ) ;</font></font></ul>
+</ul>
+assert() 関数は、単純なチェックを作成するのに便利です。
+<blockquote>
+<li>
+void assert( ? )</li>
+
+<br>
+この関数は、タイプに関係ない一つの引数を取り、その引数が真(ゼロ、もしくは
+nullでない)であることをチェックします。もし、真でない場合、
+'assert error'を出力します。従って、assert(x)関数は、次のifステートメント
+と同等です。
+<br>&nbsp; if( !x ) error( "assert error" ) ;
+<blockquote><font face="Courier New,Courier"><font size=-1>assert( sig.0
+= 9'b101 ) ;</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="13.3 String Handling Functions"></a>
+13.3 文字列操作関数
+</h2>
+
+<blockquote>
+以下の関数が、文字列の操作に使用できます。
+</blockquote>
+
+<blockquote>
+<ul>
+<li>
+string sprintf( string format [, data ..] )</li>
+
+<br>
+この関数は、printf()と同じフォーマットを取り、プリント出力の文字列を
+返します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>string name ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>x = randmt() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>name = sprintf( "name_%d",
+x ) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+string substring( string str, int start [, int end] )</li>
+
+<br>
+この関数は、文字列strの、startとendの部分の文字列を返します。
+引数endが省略されると、文字列strの最期となります。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>string pname ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>pname = substring( name,
+0, 3 ) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+int strlen( string str )</li>
+
+<br>
+この関数は、文字列の長さを返します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>x = strlen( name ) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+int atoi( string str )</li>
+
+<br>
+この関数は、整数の文字列を整数に変換します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>x = atoi( "12454" ) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+bit abintobit( string str )</li>
+
+<br>
+この関数は、バイナリの文字列をbit値に変換します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>bit [7:0] y ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>y = abintobit( "10001011"
+) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+bit aocttobit( string str )</li>
+
+<br>
+この関数は、オクタルの文字列をbit値に変換します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>bit [17:0] z ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>z = aocttobin( "174240"
+) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+bit ahextobit( string str )</li>
+
+<br>
+この関数は、ヘックスの文字列をbit値に変換します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>bit [23:0] hh ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>hh = ahextobit( "f948ce"
+) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+string bit2string( bit data )</li>
+
+<br>
+この関数は、ビット値をビットの文字列に変換します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>string bitstr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>bit [31:0] data ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>bitstr = bit2string(
+data ) ;</font></font></ul>
+</ul>
+</blockquote>
+
+<h2>
+<a NAME="13.4 Simulator Related Functions"></a>
+13.4 シミュレータ関連関数
+</h2>
+
+<blockquote>
+以下の関数が、シミュレータの情報を得たり、制御したりするために使用できます。
+</blockquote>
+
+<blockquote>
+<ul>
+<li>
+bit [31:0] get_cycle()</li>
+
+<br>
+この関数は、現在のサイクル値を返します。このサイクル値は、Jedaモジュール
+内の３２ビットカウンタ CycleCountで、CLOCK信号の立ち上がりエッジを
+カウントしています。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>printf( "Current cycle
+is %d \n", get_cycle() ) ;</font></font></ul>
+
+<li>
+bit [63:0] get_time()</li>
+
+<br>
+この関数は、現在のシミュレータ時間を64bit値で返します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>printf( "Current simulation
+time is %d\n", get_time() ) ;</font></font></ul>
+
+<li>
+string get_plusarg( string pattern )</li>
+
+<br>
+この関数は、与えられたpatternと先頭部がマッチするVerilog起動時のプラス引数
+の、マッチした残りの部分の文字列を返します。マッチするプラス引数が無い場合
+nullが返り、完全にマッチする場合には "" (空文字列)が返ります。引数patternは、
+２文字以上である必要があります。
+<br>
+以下の例は、プラス引数を用いて、異なったseedを乱数に使用する方法を
+示しています。
+<br>
+新しいseedを、シミュレーション実行時に +mt_seed=&lt;value> で与えることが
+出来ます。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>string parm ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int seed ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>parm = get_plusarg( "mt_seed="
+) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( parm != null ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; seed = atoi(
+parm ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; randmt( seed
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "randmt
+is initialized with seed %d\n", seed ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+この関数は、マッチするプラス引数が見付からない場合nullを返し、完全に
+一致する場合には、"" (空文字列)を返します。nullと "" (空文字列)は、
+等しくないので、以下のコードによって、pattern文字列と完全に一致する場合を
+検出出来ます。
+<br>&nbsp;
+<ul><font face="Courier New,Courier">if( get_plusarg( "verbose" ) != null
+) verbose = 1 ;</font></ul>
+<br>
+<li>
+void unit_delay( int delay_value )</li>
+
+<br>
+この関数は、与えられたdelay_value分の単位シミュレーション時間分、
+実行を遅延させます。
+</ul>
+
+<ul>
+<ul><font face="Courier New,Courier"><font size=-1>printf( "Current time
+is %d\n", get_time() ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>unit_delay( 100 ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>printf( "Current time
+is %d\n", get_time() ) ;</font></font>
+<br>&nbsp;</ul>
+</ul>
+</blockquote>
+
+<h2>
+<a NAME="13.5 System Exec Function"></a>
+13.5 システム実行関数
+</h2>
+
+<blockquote>
+システム実行関数は、与えられた文字列をコマンドとして起動(forkとexec)します。
+コマンドは、バックグラウンド プロセスとして実行されます。
+</blockquote>
+
+<blockquote>
+<ul>
+<li>
+int system_exec( string command )</li>
+
+<br>
+この関数は、commandをバックグラウンド プロセスとして実行します。
+</ul>
+次章にて、system_exex()とip_socketクラスを用いて、tcl/tkのプロセスを起動し
+通信を行なうコードの例を示しています。
+</blockquote>
+
+</body>
+</html>

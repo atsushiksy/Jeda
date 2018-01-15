@@ -1,0 +1,111 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="portset.html">prev</a> : <a href="index.html">index</a> : <a href="manage_if_driver.html">next</a>
+<p><font size=+1>6. Cell and Cell Queue Classes</font>
+<ul>This chapter shows how to construct a primitive data structure and
+make it into an array of the queue.
+<p>The cell data structure is the key element for the ATM switch verification.
+The cells that is sent to DUT needed to be queued up for checking the correctness.
+As the nature of the verification requirement, it is handy to have an array
+of the queue so that it can be selected by the index. Those primitive data
+structures are found in <a href="../utils/cell_classes_0.j">cell_classes_0.j</a>.
+<br>&nbsp;
+<p>The cell class has the 53-byte data as the ATM cell, and a flag 'err'
+that shows the cell has HEC error and must be dropped.
+<br>It also has a static variable 'syndrom[256]' which is used for HEC
+calculation. This static variable is initialized at the beginning of the
+simulation once within the initial block. The HEC calculation function
+'hec()' is simply implemented as the Verilog model is doing. (Here, I was
+not intend to check the correctness of the implementation.)
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class cell_class {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bit [7:0] data[53]
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int err ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; static bit [7:0]
+syndrom[256] ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; initial {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[7:0] sndrm ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 256 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+sndrm = i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+repeat(8) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( sndrm[7] === 1'b1 )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+sndrm = (sndrm&lt;&lt;1) ^ 8'h07 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+else</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+sndrm = sndrm &lt;&lt; 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+syndrom[i] = sndrm ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// printf( "j syndrom[%d] = %h\n", i, sndrm ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>..</font></font></ul>
+
+<p><br>The member function 'set_hec()' calculates the hec value on the
+given cell and put it on the HEC location.
+<br>The function 'set_hec_err()' jams it and set 'err' flag to indicate
+this is the error cell.
+<p>With this basic cell structure, we can construct the class to be able
+to holds the array of the cell queue. This is done by constructing two
+level classes.
+<p>First, 'single_cell_queue' class has one member 'que', which is a list
+of the cell class. We can use a list as the mailbox which is already a
+FIFO based queue as the Jeda primitive. If we only need a single queue,
+we don't need this level of the class. A single queue can be obtained by
+the list of the data. We packaged this single element as a class to be
+able to make it as an array in the next level.
+<ul>&nbsp;
+<br><font face="Courier New,Courier"><font size=-1>class single_cell_queue
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; cell_class que&lt;>
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+Second, 'cell_queue_array' has an associative array of 'single_cell_queue'
+class, and num_array that shows the size of the array. The constructor
+function 'new()' takes an argument 'num' to set up the size of the array,
+and construct the necessary elements of the member.
+<ul>&nbsp;
+<br><font face="Courier New,Courier"><font size=-1>class cell_queue_array
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; single_cell_queue
+que[] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int num_array
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; void new( int
+num ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; num_array
+= num ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; num ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+que[i] = new ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>..</font></font></ul>
+
+<p><br>The member functions 'send()', 'receive()', and 'num_element()'
+are the same member functions as list data type provides in Jeda. The class
+level just handles the array element selection.</ul>
+<a href="portset.html">prev</a> : <a href="index.html">index</a> : <a href="manage_if_driver.html">next</a>
+</body>
+</html>

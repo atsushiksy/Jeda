@@ -1,0 +1,111 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a><b> | </b><a href="index.html">Prev
+</a><b>|
+</b><a href="jeda_lex_elm.html">Next</a>
+<h1>
+<b>1. Introduction</b></h1>
+
+<blockquote>Jeda is a concurrent programming language designed for modeling
+and verifying electronics chip/system designs.&nbsp; The language provides
+and not limited to:
+<blockquote>
+<ul>
+<li>
+flexible and dynamic concurrent programming mechanism with time/cycle concept</li>
+
+<li>
+object oriented programming</li>
+
+<li>
+various system classes such as <i>semaphore </i>and <i>events</i> to construct
+dynamic concurrent systems efficiently.</li>
+
+<li>
+aspect oriented programming</li>
+</ul>
+</blockquote>
+The language syntax is based on C and Verilog also borrowing some ideas
+from C++, Java and Perl.&nbsp; A Jeda program consists of various functions,
+and it starts the execution from the function "main".&nbsp; Here's an example
+of a simple Jeda code. (I'm not kidding..)
+<p><font face="Courier New,Courier">&nbsp; void main() {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; printf( "Hello
+world!\n" ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<p>The basic data elements that the language supports are:
+<br>&nbsp;&nbsp;&nbsp; int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-- integer
+<br>&nbsp;&nbsp;&nbsp; bit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-- Verilog style multi-value (can hold x &amp; z state) bit.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+It can be vectored as bit [5:0].
+<br>&nbsp;&nbsp;&nbsp; string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- String
+<br>&nbsp;&nbsp;&nbsp; float&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-- Single precision floating variable
+<br>&nbsp;&nbsp;&nbsp; double&nbsp;&nbsp;&nbsp;&nbsp; -- Double precision
+floating variable
+<br>&nbsp;&nbsp;&nbsp; signal&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- Store
+the pointer to the port (interface to Verilog)
+<p>&nbsp;&nbsp; The user defined data type can be declared as 'class'.
+<p>Various array forms are supported over the data element above. The following
+example provides declaration of all the array forms supported in Jeda for
+type int.
+<p>&nbsp;&nbsp;&nbsp; int&nbsp; foo[5] ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Array
+<br>&nbsp;&nbsp;&nbsp; int&nbsp; moo[5][4][2]&nbsp; // Multidimensional
+array
+<br>&nbsp;&nbsp;&nbsp; int&nbsp; bar[] ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Associative array
+<br>&nbsp;&nbsp;&nbsp; int&nbsp; boo[*] ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// string indexed array
+<br>&nbsp;&nbsp;&nbsp; int&nbsp; bee&lt;> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// list
+<p>Jeda provides safeguards to minimize user programming errors. For instance,
+the Jeda compiler&nbsp; employs strict type checks.&nbsp; In languages
+line C and C++, pointers, cast assign are usually the areas programming
+errors occur, thus Jeda does not support them. It&nbsp; checks the data
+consistency at runtime (unless optimized) to detect the programming errors
+that cannot be detected&nbsp; during compile time.
+<p>Jeda implements an automatic garbage collection system.&nbsp; Due to
+availability of this functionality, the user can now create and forget
+the variable elements without worrying about the memory leak(as similarly
+found in Java).&nbsp; The lack of the similar garbage collection mechanism
+makes many languages unsuitable for describing complex logic behavior as
+they&nbsp; require lots of programming effort&nbsp; to keep track&nbsp;
+of memory usage(to avoid memory leaks that could hamper long simulation
+runs). This added burden also&nbsp; affects the one's productivity as time
+is wasted&nbsp; instead of writing system models or verification code.
+<p>Jeda is a "compiled" language in the sense that a user's code is compiled
+into a binary form at the execution time. The Jeda compiler (jedacmp) compiles
+the Jeda code into intermediate object file. Jeda liner (jedalnk) links
+multiple object files and create a C code. This C code is compiled and
+linked with Jeda runtime library to a dynamic library form (.dl) as the
+compiled execution image.
+<p>Jeda runs with Verilog as a PLI code and accesses the Verilog signals
+via a module (Jeda module). This module contains the ports the user specified
+in Jeda code and drive/sample can be&nbsp; done through these ports. The
+user create an instance of this Jeda module in the Verilog environment
+and run Verilog with the Jeda PLI code.
+<p>Jeda PLI code consists of two parts, static part and dynamic part. The
+static part is a common code that is statically linked with Verilog (or
+compiled with VCS). The dynamic part is produced as the result of Jeda
+code compile &amp; link process as mentioned above, and dynamically loaded
+to Verilog at execution time. So, as far as the port signals are identical,
+the user can use the compiled Verilog execution image as is, and run different
+test cases by just specifying the dynamic library with the plus argument
+( +jeda_code=&lt;lib_name> ) .
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

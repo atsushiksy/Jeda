@@ -1,0 +1,22 @@
+#creating branch without CVS directories
+#!/bin/sh -f
+#setenv CVSROOT /home/cvsroot
+#set CVSROOT=/home/cvsroot
+#export CVSROOT
+echo -n $1 >> prod_record.data
+echo -n " " >> prod_record.data
+echo $2 >> prod_record.data
+cd /home/atsushi/work1/
+\rm -r -f $2
+\rm -f $2.tar.gz
+cvs -q export -r $1 -d $2 jeda
+cd $2
+cp -r /home/atsushi/work/jeda/flexlm flexlm
+cp /home/atsushi/work/jeda/src/vpp/vpp-1.2.tar.gz src/vpp
+cp /home/atsushi/work/jeda/src/jedapp/gcc-2.95.2.tar.gz src/jedapp
+cp /home/atsushi/work/jeda/src/readline/readline-4.2.tar.gz src/readline
+cp -r /home/atsushi/work/jeda/src/JEDA_HOME src
+cp /home/atsushi/work/jeda/src/linker/jedax src/linker
+cd /home/atsushi/work1/
+tar cvf $2.tar $2
+gzip $2.tar

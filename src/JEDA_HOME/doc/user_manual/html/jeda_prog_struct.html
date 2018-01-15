@@ -1,0 +1,114 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (X11; U; SunOS 5.7 sun4u) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a><b> | </b><a href="jeda_lex_elm.html">Prev</a><b>
+| </b><a href="jeda_basic_data.html">Next</a>
+<h1>
+<b>3. Program Structure</b></h1>
+
+<blockquote>&nbsp; Jeda program strcuture consists of the following elements.
+<p>&nbsp;&nbsp;&nbsp; port declaration
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specifies individual&nbsp;
+Jeda port to interfaces to simulator(Verilog)
+<p>&nbsp;&nbsp;&nbsp; portset block
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specifies set (collection
+of) of ports to interfaces to simulator(Verilog)
+<p>&nbsp;&nbsp;&nbsp; connectionset block
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specifies connections between
+port in portset and node in simulator
+<p>&nbsp;&nbsp;&nbsp; type definition
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specifies enum and class
+type
+<p>&nbsp;&nbsp;&nbsp; local and global variable declarations
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specifies local and global
+variables
+<p>&nbsp;&nbsp;&nbsp; inital statement
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specifies statements to
+be executed at time zero.
+<p>&nbsp;&nbsp;&nbsp; function definition
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specifies functions. A function
+with name main is the starting point
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; of Jeda code.
+<p>&nbsp;&nbsp;&nbsp; class definition
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specifies classes.
+<p>Here's an example of a complete Jeda program which contains port, portset,
+class and function declarations.
+<br>&nbsp;
+<p><font face="Courier New,Courier">// bare port declaration</font>
+<br><font face="Courier New,Courier">input clock ;</font>
+<br><font face="Courier New,Courier">input [7:0] data_in @clock ;</font>
+<br><font face="Courier New,Courier">output [7:0] data_out @clock drive
+posedge skew 2 ;</font>
+<p><font face="Courier New,Courier">// portset declaration</font>
+<br><font face="Courier New,Courier">portset if_0 {</font>
+<br><font face="Courier New,Courier">&nbsp; input clk ;</font>
+<br><font face="Courier New,Courier">&nbsp; input d_in @if_0.clk ;</font>
+<br><font face="Courier New,Courier">&nbsp; output d_out @if_0.clk drive
+posedge skew 2 ;</font>
+<br><font face="Courier New,Courier">}</font>
+<p><font face="Courier New,Courier">// another portset declaration</font>
+<br><font face="Courier New,Courier">portset if_1 {</font>
+<br><font face="Courier New,Courier">&nbsp; input clk ;</font>
+<br><font face="Courier New,Courier">&nbsp; input d_in @if_0.clk ;</font>
+<br><font face="Courier New,Courier">&nbsp; output d_out @if_0.clk drive
+posedge skew 2 ;</font>
+<br><font face="Courier New,Courier">}</font>
+<p><font face="Courier New,Courier">class if_driver {</font>
+<br><font face="Courier New,Courier">&nbsp; string name ;</font>
+<br><font face="Courier New,Courier">&nbsp; signal clk ;</font>
+<br><font face="Courier New,Courier">&nbsp; signal d_in ;</font>
+<br><font face="Courier New,Courier">&nbsp; signal d_out ;</font>
+<p><font face="Courier New,Courier">&nbsp; void new(</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; string a_name,</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; signal a_clk,</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; signal a_d_in,</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; signal a_d_out</font>
+<br><font face="Courier New,Courier">&nbsp; ) {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; name = a_name ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; clk = a_clk ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; d_in = a_d_in ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; d_out = a_d_out
+;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<p><font face="Courier New,Courier">&nbsp; void d_drive_loop() {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; printf(</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "if_driver
+%s d_drive_loop started at %d\n",</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name,
+get_cycle()</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; fork</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; forever {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @(posedge
+clk) ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d_out.0
+= d_in.0 ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; knife</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<p><font face="Courier New,Courier">} // end of class if_driver</font>
+<p><font face="Courier New,Courier">void main() {</font>
+<br><font face="Courier New,Courier">&nbsp; if_driver d0, d1 ;</font>
+<p><font face="Courier New,Courier">&nbsp; d0 = new( "d0" if_0.clk, if_0.d_in,
+if_0.d_out ) ;</font>
+<br><font face="Courier New,Courier">&nbsp; d1 = new( "d1" if_1.clk, if_1.d_in,
+if_1.d_out ) ;</font>
+<p><font face="Courier New,Courier">&nbsp; d0.drive_loop() ;</font>
+<br><font face="Courier New,Courier">&nbsp; d1.drive_loop() ;</font>
+<p><font face="Courier New,Courier">&nbsp; repeat(10000) {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; @(posedge clock)
+;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; data_out.0 = data_in.0
+;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br><font face="Courier New,Courier">}</font>
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

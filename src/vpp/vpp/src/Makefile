@@ -1,0 +1,54 @@
+#YACC = yacc
+YACC = bison -o y.tab.c
+LEX = flex -L 
+all: vpp
+
+vpp: vpp.o create.o
+	gcc -o vpp vpp.o create.o -lm
+
+vpp.o: vpp.c y.tab.c lex.yy.c common.h
+	gcc -g -c vpp.c
+
+lex.yy.c: vpp.lex common.h
+	$(LEX) vpp.lex
+
+y.tab.c: vpp.yacc proto.h yacc_stuff.h common.h
+	$(YACC) vpp.yacc
+
+create.o: create.c common.h yacc_stuff.h proto.h
+	gcc -g -c create.c
+
+
+clean :
+	@/bin/rm -f *.o lex.yy.c y.tab.c
+
+tar :
+	tar cf Tar/vpp.tar vpp.c vpp.yacc vpp.lex \
+	       common.h Makefile yacc_stuff.h \
+	       proto.h create.c
+	compress Tar/vpp.tar
+
+check_in : RCS/common.h,v RCS/create.c,v RCS/vpp.c,v RCS/vpp.lex,v \
+	RCS/vpp.yacc,v RCS/proto.h,v RCS/yacc_stuff.h,v
+
+RCS/common.h,v : common.h
+	ci -l common.h
+
+RCS/create.c,v : create.c
+	ci -l create.c
+
+RCS/vpp.c,v : vpp.c
+	ci -l vpp.c
+
+RCS/vpp.lex,v : vpp.lex
+	ci -l vpp.lex
+
+RCS/vpp.yacc,v : vpp.yacc
+	ci -l vpp.yacc
+
+RCS/proto.h,v : proto.h
+	ci -l proto.h
+
+RCS/yacc_stuff.h,v : yacc_stuff.h
+	ci -l yacc_stuff.h
+

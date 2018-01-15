@@ -1,0 +1,8 @@
+gcc -c -g -DJEDA_STATIC_LINK -I ../../../include -I ../../../vinclude ../../../runtime/jeda_pli.c
+
+vcs -f vfiles $1 $2 $3 $4 $5 $6 $7 $8 $9 \
+  -Mupdate  \
+  -P $JEDA_HOME/include/pli.tab \
+  ./jeda_pli.o ./ff_test.jeda.o \
+   $JEDA_HOME/lib/run_obj/*.o \
+  -ll -ldl -Xstrict=0x01 -syslib "-lpthread"

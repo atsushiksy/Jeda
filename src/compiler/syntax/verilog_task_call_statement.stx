@@ -1,0 +1,8 @@
+
+verilog_task_call_statement:
+  'verilog' '.' Identifier 
+  '(' 
+    opt_actual_arguments 
+  ')' semicolon
+  ;
+

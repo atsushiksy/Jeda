@@ -1,0 +1,156 @@
+<html>
+<head>
+</head>
+<body>
+<a href="cell_driver_receiver.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="switch_tester.html">next</a>
+<h1>
+<font size=+1>9. セル ジェネレータ と チェッカー
+</font></h1>
+
+<h2>
+9.2 セル ジェネレータ
+</h2>
+
+<ul>
+この設計検証の例では、ランダムなデータのセルが常に使用されます。
+セルクラスの関数 rand_cell() が ランダムなセルと、必要なVPI値を設定します。
+４バイト目の[2:0]ビットが、どのポートからこのセルが送られたかを示します。
+(実際のコードは<a href="../utils/cell_classes_0.j">cell_classes_0.j</a>を
+参照)
+<br>
+この情報を用いれば、受信されたセルを、各ポートへの送信時の順にチェック
+することが可能です。(同じ入力ポートからのセルの順序は変わらないことが
+期待されます)
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; // create a cell
+with given gfc and random contents</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; //&nbsp;&nbsp;
+use pt to indicate the input port for checking</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; void rand_cell(
+bit [7:0] vpi, bit [2:0] pt ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i&nbsp; ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; for(
+i = 0 ; i &lt; 53 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+data[i] = random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data[0][3:0]
+= vpi[7:4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data[1][7:4]
+= vpi[3:0] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data[3][2:0]
+= pt ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; set_hec()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;</ul>
+関数 set_hec_err()は、エラーセルを生成するのに使用します。
+<br>&nbsp;
+<ul>&nbsp;<font face="Courier New,Courier"><font size=-1> void set_hec_err()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data[4]
+= ~data[4] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; err
+= 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+</ul>
+
+<h2>
+9.2 セル チェッカー
+</h2>
+
+<ul>
+セルチェッカー(ソースコード
+<a href="../utils/cell_checker_1.j">cell_checker_1.j</a>)
+は、各txポートから出力されたセルをチェックします。
+したがって、この環境では、チェッカーの４つのインスタンスが生成されます。
+チェッカーは、４バイト目の[2:0]ビットをチェックし、このセルがどこから
+送られて来たものかを決定します。
+そして、対応するポートのチェックキュー内のセルと比較を行ないます。
+同じ入力ポートからのセルの順序は保持されるため、データーの一部で
+入力ポートの情報を保持することで、チェックは非常に簡単になります。
+<br>
+チェックが完了したことを検知するために、セマフォーを使用しています。
+このセマフォーは、ゼロに初期化され、１つのセルがチェックされるたびに
+１ユニットが増加されます。したがって、セマフォーから受け取るべきセル分
+のユニットを得ることでチェックの完了を検知できます。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class cell_checker {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int id ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; single_cell_queue
+rcv_que ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; cell_queue_array
+chk_que ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; semaphore done_sem
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br>&nbsp;</ul>
+関数 check_loop() は、レシーバーからセルを受け取り、チェックキュー内の
+セルと比較を行なうスレッドを生成します。
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; void check_loop()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+i ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cell_class
+cell, ccell ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+iport ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell = rcv_que.que.receive() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+iport = cell.data[3][2:0] ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"checker %d got a cell %h %h %h %h from %d at %d\n",</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+id, cell.data[0], cell.data[1], cell.data[2], cell.data[3],</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+iport, get_cycle()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( chk_que.num_element( iport ) ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ccell = chk_que.receive( iport ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for( i = 0 ; i &lt; 53 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if( cell.data[i] != ccell.data[i] ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+error(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Data[%d] got %h expect %h\n", i, cell.data[i], ccell.data[i]</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+done_sem.put() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+else {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+error( "No check cell found on checker %d from %d", id, iport ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;</ul>
+<a href="cell_driver_receiver.html">prev</a> : <a href="index.html">index</a>
+:
+<a href="switch_tester.html">next</a>
+</body>
+</html>

@@ -1,0 +1,31 @@
+Here are the steps for building vzpp from gcc-2.95.2.  
+The patch program called in patch_cpp is assumed to be GNU version.
+The patch_cpp set the patch to be "/volume/dist/gnu/bin/patch".
+This must be modified to a proper path to get GNU patch.
+
+GNU makefile invokes the following process to create jedapp code.
+Note that this process generates entire gcc code, and takes a long time. 
+
+Before the gmake process, you need to obtain gcc-2.95.2.tar.gz from somewhere.
+
+
+1. Expand the gcc package, which creates a directory gcc-2.95.2:
+   gzip -dc gcc-2.95.2.tar.gz | tar xvf -
+
+2. Patch cpp code:
+   ./patch_cpp 
+
+3. Make an object directory for building gcc and go there:
+   mkdir build_gcc
+   cd build_gcc
+
+4. Configure gcc, don't build other languages:
+   ../gcc-2.95.2/configure --enable-cpp --enable-languages=c++
+   ( For a list of available configure options, please refer to
+     gcc-2.95.2/install/CONFIGURE. )
+
+5. Build gcc:
+   gmake bootstrap-lean
+   ( Adding lean to the bootstrap target will clean up those stage1 and stage2
+     files after building gcc. )
+

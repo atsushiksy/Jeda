@@ -1,0 +1,20 @@
+new_expression:
+  'new' opt_new_args opt_new_object 
+  ;
+
+opt_new_args:
+  /* empty */
+  |
+  '(' ')'
+  |
+  '(' actual_arguments ')'
+  ;
+  
+opt_new_object:
+  /* empty */
+  |
+  left_expression 
+  |
+  block  /* this is for thread new */
+  ;
+

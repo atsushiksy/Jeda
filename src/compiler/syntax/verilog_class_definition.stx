@@ -1,0 +1,22 @@
+
+verilog_class_definition:
+  opt_var_func_attrib 'class' 'verilog' '{'
+     verilog_task_definitions  
+  '}'
+  ;
+  
+verilog_task_definitions:
+  verilog_task_definition
+  |
+  verilog_task_definitions verilog_task_definition
+  ;
+
+verilog_task_definition:
+  opt_func_type 
+  func_name
+  '(' 
+    opt_formal_args 
+  ')' 
+  String_literal semicolon
+  ;
+  

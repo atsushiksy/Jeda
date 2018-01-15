@@ -1,0 +1,29 @@
+Module compile document.
+Use File version
+Design/Implement RND/CYC and randcase
+License control function
+
+
+
+
+
+
+
+
+
+
+
+
+
+Perl code to parse all *.c, *.h and remove 
+  PRODUCT_CODE, PREALLOCATE
+  
+Remove Product related files
+  Makefile_product.in
+  configprod.in
+  configprod
+  runtime/Makefile_product.in
+  runtime/gen_code_out_macro_prod.pl
+  linker/Makefile_product.in
+  linker/jeda_prod.in
+  remove prod files, runtime/sop

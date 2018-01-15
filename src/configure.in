@@ -1,0 +1,91 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(runtime/data.c)
+AC_CONFIG_HEADER(include/config.h)
+
+# Check the hardware type
+case "`uname -m`" in
+i*86)		base_machine=i386 sysdep=sysdep/i386 ;;
+sun4u)		base_machine=sparc sysdep=sysdep/sparc32 ;;
+esac
+AC_SUBST(base_machine)
+AC_SUBST(sysdep)
+
+dnl Checks for programs.
+AC_PROG_YACC
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_LEX
+AC_PROG_MAKE_SET
+
+dnl Checks for icarus_verilog
+AC_CHECK_PROG(HAVE_ICARUS_VERILOG, iverilog, yes, no)
+
+if test "$HAVE_ICARUS_VERILOG" = yes ; then
+  verilog=icarus
+fi
+AC_SUBST(verilog)
+
+dnl Checks for btyacc
+AC_CHECK_PROG(HAVE_BTYACC, btyacc, yes, no)
+
+if test "$HAVE_BTYACC" != yes ; then
+  AC_MSG_ERROR( Can't find btyacc binary! )
+fi
+
+AC_CHECK_PROG(HAVE_BISON, bison, yes, no)
+if test "$HAVE_BISON" != yes ; then
+  AC_MSG_ERROR( Can't find bison binary! )
+fi
+
+AC_CHECK_PROG(HAVE_GCC, gcc, yes, no)
+if test "$HAVE_GCC" != yes ; then
+  AC_MSG_ERROR( Can't find gcc binary! )
+fi
+
+AC_CHECK_PROG(NAME_OF_MAKE, gmake, gmake, make)
+
+dnl Check perl path
+
+AC_MSG_CHECKING(path for perl)
+AC_PATH_PROG(PATH_2_PERL, perl)
+AC_MSG_RESULT($PATH_2_PERL)
+
+AC_CHECK_LIB(socket, socket)
+
+AC_CHECK_LIB(termcap, tputs,,AC_MSG_ERROR( Can't find termcap library! ))
+
+dnl Checks for libraries.
+dnl Replace `main' with a function in -lc:
+AC_CHECK_LIB(c, main)
+dnl Replace `main' with a function in -ll:
+AC_CHECK_LIB(l, main)
+dnl Replace `main' with a function in -lm:
+AC_CHECK_LIB(m, main)
+
+dnl Replace `main' with a function in -lnsl:
+AC_CHECK_LIB(nsl, main)
+
+dnl put pthread at the end, will put -lpthread first
+AC_CHECK_LIB(pthread, pthread_create,,AC_MSG_ERROR( Can't find pthread library! ))
+
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+
+dnl Checks for library functions.
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(getcwd regcomp socket strcspn strdup strstr)
+
+AC_SUBST(PATH_2_PERL)
+AC_SUBST(LIBS)
+AC_SUBST(LEX)
+AC_SUBST(LEXLIB)
+AC_SUBST(NAME_OF_MAKE)
+
+AC_OUTPUT(jedatemp/Makefile compiler/Makefile  Makefile regexp/Makefile jedapp/Makefile runtime/Makefile linker/Makefile regexp/Makefile vpp/Makefile linker/jeda standalone_tests/run_regress standalone_tests/run_regress_g readline/Makefile)
+
+chmod +x linker/jeda
+chmod +x standalone_tests/run_regress

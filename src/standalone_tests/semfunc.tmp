@@ -1,0 +1,6 @@
+lock allocated
+p0 got lc
+p0 put lc
+p1 got lc
+p1 put lc
+semfunc done!

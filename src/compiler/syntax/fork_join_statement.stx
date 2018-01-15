@@ -1,0 +1,16 @@
+
+fork_join_statement:
+  opt_statement_prefix 'fork'
+    statements
+  joins  
+  ;
+
+joins:
+  /* empty */
+  'join'
+  |
+  'spoon' 
+  |
+  'knife' 
+  ;
+

@@ -1,0 +1,176 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_basic_data.html">Prev
+</a>|
+<a href="jeda_func_dcl.html">Next</a>
+<h1>
+5. 変数宣言
+</h1>
+
+<blockquote>
+変数は、指定されたデータタイプを記憶する領域です。
+Jedaでは、変数は、宣言された場所とその属性によって、
+異なったスコープをもちます。
+</blockquote>
+
+<h2>
+<a NAME="5.1 Local Variables"></a>
+5.1 ローカル変数
+</h2>
+
+<blockquote>
+ローカル変数は、そのソースファイル内の関数やクラスで共有することができます。
+このタイプの変数は、(関数やクラスなどの)ブロックの外部で local 属性と
+ともに宣言されます。変数のスコープは、そのソースファイル内のみです。
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; local bit [7:0]
+foo ;</font></blockquote>
+
+<h2>
+<a NAME="5.2 Global Variables"></a>
+5.2 
+グローバル変数
+</h2>
+
+<blockquote>
+グローバル変数は、一つの完成したプログラムとしてリンクされる全てのJedaコード
+間で共有され、スコープはプログラム全体におよびます。
+グローバル変数を宣言し共有するためには、２種類の方法があります。
+<p>
+第一の方法は、変数をなにも属性を付けずに宣言することです。そして他のファイル
+から変数を共有する場合に、extern 属性を用いて変数を宣言します。
+この方法では、extern 属性なしで宣言される変数はただ一箇所でなければなりません。
+<br>&nbsp;
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp; int new_flag
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // the vanilla mode without
+"local"</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp; extern int
+new_flag ; // using the "extern" attribute</font>
+<br>&nbsp;
+<p>
+第二の方法は、global 属性を使用します。global属性がついた変数は、複数の
+ファイルで宣言できます。
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; global int gflag
+= 0 ;</font>
+<p>
+グローバル変数が１つのインクルード ファイルで宣言される場合に、この方法
+は便利です。
+global属性を用いた変数の宣言は、初期値をふくめて、完全に同一でなくては
+なりません。
+<p>
+上記の二種類の方法をミックスすることは出来ません。たとえば、global属性
+と extern属性を同じ変数に使用すると、リンク時にエラーが発生します。
+<br>&nbsp;</blockquote>
+
+<h2>
+<a NAME="5.3 Initializing Local and Global Variable"></a>
+5.3 ローカル変数とグローバル変数の初期化
+</h2>
+
+<blockquote>
+配列でないローカル変数とグローバル変数の初期化は、つぎのように定数の
+代入を変数宣言とともに行うことで可能です。
+<br><font face="Courier New,Courier">&nbsp; local int foo = 0 ;</font>
+<br><font face="Courier New,Courier">&nbsp; global int zoo = 100 ;</font>
+<p>
+もし、変数が配列で、最初に使用される前に初期化される必要がある場合、
+initialステートメントを使用することで、main()関数が呼び出されるまえに
+変数の初期化を行うことが出来ます。
+<p><font face="Courier New,Courier">&nbsp; local int foo[100] ;</font>
+<br><font face="Courier New,Courier">&nbsp; initial {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; int i ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; for( i = 0 ; i
+&lt; 100 ; i++ ) foo[i] = i*10 ;</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<p>
+initialステートメントは、0 (ゼロ) シミュレーション時間に実行されます。
+initialステートメントは、いくつでも宣言することが出来ます。これらのinitial
+ステートメントの実行順序は不定で、ユーザーはその順番を想定することは出来ま
+せん。
+initialステートメントは、クラスの宣言内でも使用できます。この場合、
+ステートメントは、スタティック変数にのみアクセスできます。
+<br>&nbsp;</blockquote>
+
+<h2>
+<a NAME="5.4 Temporary and Static Variables"></a>
+5.4 テンポラリ変数とスタティック変数
+</h2>
+
+<blockquote>
+テンポラリ変数は、ブロックの始めに宣言されます。この変数は、実行がブロックに
+入った時点で領域が確保され、ブロックの終了時に消滅します。この変数のスコープ
+は、ブロック内のみに限定されます。
+<br><font face="Courier New,Courier">&nbsp; int foo() {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; int i, j, k ;&nbsp;
+// temp variables</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int
+x, y, z ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<p>
+スタティック変数は、関数のトップブロックの最初に、static属性を用いて宣言
+されます。スタティック変数は、静的空間に領域が確保され、関数が呼ばれた
+時点で以前の値を保持しています。スタティック変数への初期化は、0 (ゼロ)
+シミュレーション時間(main()が呼び出される前)に一度だけ行われます。
+
+<p><font face="Courier New,Courier">&nbsp; int foo() {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; static int first
+= 1 ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; if( first ) {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; first
+= 0 ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf(
+"foo() first call detected\n" ) ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; .</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br>&nbsp;</blockquote>
+
+<h2>
+<a NAME="5.5 Enum Variable Declaration"></a>
+5.5 enum変数の宣言
+</h2>
+
+<blockquote>
+ユーザーは、enum宣言を用いてenumタイプを定義できます。
+
+<p><font face="Courier New,Courier">&nbsp; enum color = black, white ;</font>
+<p>
+この後、定義されたタイプは、定義されたメンバーのみを値として持つことの出来る
+ユーザ定義データタイプとして用いることが出来ます。
+<p><font face="Courier New,Courier">&nbsp; color bw_color ;</font>
+<p><font face="Courier New,Courier">&nbsp; bw_color = white ;</font>
+<p>
+enumタイプとそのメンバーはローカルなスコープを持ち、したがって各ブロック
+内で、そのローカルなタイプとして宣言することができます。
+<p><font face="Courier New,Courier">&nbsp; {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; enum color = black,
+white ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; int i ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; color blackorwhite
+;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ..</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; {</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enum
+color = red, green, blue ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int
+i, j ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; color
+rgb_color ;</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+..</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; }</font>
+<br><font face="Courier New,Courier">&nbsp; }</font>
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

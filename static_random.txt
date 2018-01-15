@@ -1,0 +1,57 @@
+
+
+
+
+Static Random Functions for simple pattern generation
+
+1. Abstruct
+  This idea is to add the random initialization mechanism, while not losing
+  the simpleness of Jeda language. 
+  By calling random functions for class value initialization, the user can 
+  initialize the member variable to a random value in the given range.
+  There's no mechanism that the another language is provided, but that kind 
+  of complicated constraint can be written in 'new' function if desiered,
+  in much simple way. 
+
+2. Random sequence of static random function
+
+The static random function is a pseudo random function that generates 
+individual sequence of random pattern. It's random sequence is statically
+allocated at the calling point, and not influenced by the same function call
+at other code location. 
+
+For example, non-static random function random() provides a simgle sequence.
+In the following code:
+
+  if( x ) data0 = random() ;
+  data1 = random() ;
+  
+the value created by the second random() call is influenced by the previous
+random() call.
+The static random function has individual random sequence per calling point.
+In the code:
+
+  if( x ) data0 = S_random() ;
+  data1 = S_random() ;
+  
+Each S_random() call in the code has the individual random sequence per
+the calling point. So value of data1 (2nd S_random() call) is indipendent
+from the call (or not-call) of the first S_random().
+
+3. Supported functions
+
+ 3.1 integer functions
+   The following functions creates 32-bit interger (signed or non-signed)
+   values.
+   
+   3.1.1 S_random()
+     MT based signed interger random. 32th bit will not be set.
+     
+   3.1.2 S_urandom()
+     MT based unsigned interger random. 32th bit may be set.
+   
+   3.1.3 S_rnd( <range> )
+     Uniform distribution of value within given range.
+     
+   3.1.4 S_cyc( <range> )
+     Non-repeated random selection of value within given range.

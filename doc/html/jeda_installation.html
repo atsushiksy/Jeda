@@ -1,0 +1,349 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+
+<h1>
+Appendix B. Installation</h1>
+
+<h2>
+B.0 Required Tools and The Roots of Other Sources</h2>
+
+<blockquote>In order to construct Jeda language system from the source,
+the following tools are required:
+<ul>
+<li>
+gcc</li>
+
+<li>
+btyacc v2.1 (Not 3.0, must be 2.1. See <a href="http://www.siber.org/btyacc/">http://www.siber.org/btyacc/</a>
+)</li>
+
+<li>
+flex (v2.5.4)&nbsp;&nbsp; (NOT working with v2.5.2)</li>
+
+<li>
+bison</li>
+
+<li>
+perl5</li>
+
+<li>
+gmake</li>
+
+<li>
+patch (gnu patch v2.5.4 or later, it won't work with old patch v 2.1)</li>
+</ul>
+Also, Jeda system uses other source files (GPL or non-GPL). They are included
+in the source distribution file. The sources that is used and included
+within the Jeda distribution are:
+<ul>
+<li>
+mt19937.c and mt19937int.c</li>
+
+<br>The Mersenne Twister pseudo random generator developed by Makoto Matsumoto
+and Takuji Nishimura. This state-of-art random function is used as the
+core random generator in Jeda (e.g. random() function).
+<br>(See <a href="http://www.math.keio.ac.jp/~matumoto/emt.html">http://www.math.keio.ac.jp/~matumoto/emt.html</a>
+)
+<li>
+rand48 related files</li>
+
+<br>The 48-bit linear congruential pseudo random generator written by Martin
+Birgmeier.
+<br>Downloaded from <a href="http://www.ics.uci.edu/~eppstein/projects/pairs/Source/testbed/rand48/">http://www.ics.uci.edu/~eppstein/projects/pairs/Source/testbed/rand48/</a>
+<li>
+regexp 1.3</li>
+
+<br>Regular expression engine developed by University of Toronto, written
+by Henry Spencer. This code is extended with some features in Perl5 (by
+Larry Wall) and used as the system class.
+<br>The original regexp.shar.Z was downloaded from <a href="http://www.cs.toronto.edu/pub/">http://www.cs.toronto.edu/pub/</a>
+<li>
+gcc-2.95.2</li>
+
+<br>cpp under this is patched to become the jeda preprocessor 'jedapp'.
+<br>Downloaded from ftp suite under <a href="http://www.gnu.org">http://www.gnu.org</a>
+<li>
+vpp-1.2.tar.gz</li>
+
+<br>This Verilog preprocessor is used when jedatemp (Template generator)
+scans the Verilog source. (See <a href="http://www.surefirev.com/vpp/">http://www.surefirev.com/vpp/</a>)
+<li>
+readline-4.2.tar.gz</li>
+
+<br>The debugger user interface is constructed with the GNU Readline library.
+(See <a href="http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html">http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html</a>
+)</ul>
+</blockquote>
+
+<h2>
+B.1 Installing From Source files</h2>
+
+<blockquote>If you decided to compile yourself, you need to get the source
+release file:
+<br>&nbsp;&nbsp;&nbsp; jeda.&lt;version_revision>.tar.gz
+<p>Expand the source at proper location:
+<br>&nbsp;<font face="Courier New,Courier">&nbsp;&nbsp; gzip -cd jeda.&lt;version_revision>.tar.gz
+| tar xvpf -</font>
+<br>&nbsp;
+<p>Then Follows the B.2 process.
+<br>&nbsp;</blockquote>
+
+<h2>
+B.2&nbsp; Configure and Make process</h2>
+
+<blockquote>Go to &lt;install_dir>/src, and type:
+<blockquote>./configure</blockquote>
+You need to set $JEDA_HOME to &lt;install_dir>/release directory (which
+will be created after 'make'). For csh, type (with proper substitution
+of &lt;install_dir>) :
+<blockquote>setenv JEDA_HOME &lt;install_dir>/release</blockquote>
+Now, we are ready to run make:
+<blockquote>make</blockquote>
+Don't forget to cross your finger. If you got error(s), then you somehow
+fix it. At the end, you'll get complete release directory under &lt;install>/src
+directory. You need to add $JEDA_HOME/bin to your search path.
+<p>The standalone tests are stored in &lt;install_dir>/src/standalone_tests
+directory. To run the regression, go to the directory and type:
+<blockquote>run_regress jlist</blockquote>
+</blockquote>
+
+<h2>
+B.3 Installing from binary release</h2>
+
+<blockquote>If you get a pre-compiled binary release file:
+<br>&nbsp; jeda.&lt;system/OS>.&lt;version_revision>.tar.gz
+<p>Expand the binary at proper location:
+<br><font face="Courier New,Courier">&nbsp;&nbsp; gzip -cd jeda.&lt;system/OS>.&lt;version_revision>.tar.gz
+| tar xvpf -</font>
+<p>The binary files will be expanded under a directory:
+<br><font face="Courier New,Courier">&nbsp; jeda.&lt;system/OS>.&lt;version_revision></font>
+<p><font face="Courier New,Courier">Now, you </font>need to set $JEDA_HOME
+to the directory . For csh, type :
+<blockquote>setenv JEDA_HOME jeda.&lt;system/OS>.&lt;version_revision></blockquote>
+and add $JEDA_HOME/bin to your search path.</blockquote>
+
+<h2>
+B.4 Installing Jeda PLI to Verilog Simulators</h2>
+
+<ul>Jeda used one PLI task "$JEDA_task" in Jeda_module to setup the link
+between jeda code and Verilog environment. To acomplish this, Jeda PLI
+object must be linked with Verilog code. There are different Verilog simulators
+available from different venders. With any simulator, what we need is to
+add PLI table for $JEDA_task, and link verilog with $JEDA_HOME/lib/jeda_pli.o.</ul>
+
+<h3>
+B.4.1 Installation for Verilog-XL and Verilog-NC</h3>
+
+<ul>For Verilog XL/NC, there's PLI definition files, jeda_pli_func_ext.h
+and jeda_pli_func_def.h.
+<br>The file jeda_pli_func_ext.h declares the necessary c functions as
+external function:
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">/***************************************************************</font>
+<br><font face="Courier New,Courier">&nbsp;* Jeda pli function definition</font>
+<br><font face="Courier New,Courier">&nbsp;***************************************************************/</font>
+<br><font face="Courier New,Courier">/*</font>
+<br><font face="Courier New,Courier">&nbsp; ** Copyright info, omitted</font>
+<br><font face="Courier New,Courier">*/</font>
+<p><font face="Courier New,Courier">extern int JEDA_task() ;</font>
+<br><font face="Courier New,Courier">extern int JEDA_task_misctf() ;</font>
+<br>&nbsp;</blockquote>
+
+<p><br>The file jeda_pli_func_def.h declares an entry for veriuserft[]
+table in the veriuser.c.
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">/***************************************************************</font>
+<br><font face="Courier New,Courier">&nbsp;* Jeda pli function definition</font>
+<br><font face="Courier New,Courier">&nbsp;***************************************************************/</font>
+<br><font face="Courier New,Courier">/*</font>
+<br><font face="Courier New,Courier">&nbsp; ** Copyright info, omitted</font>
+<br><font face="Courier New,Courier">*/</font>
+<p><font face="Courier New,Courier">&nbsp;{usertask, 0, 0, 0, JEDA_task,
+JEDA_task_misctf, "$JEDA_task", 0},</font></blockquote>
+By including those files at proper location in veriuser.c, Verilog-XL/NC
+have the PLI task for Jeda. Here's an example veriuser.c just have Jeda
+PLI tasks:
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">#include "veriuser.h"</font>
+<br><font face="Courier New,Courier">#include "vxl_veriuser.h"</font>
+<p><font face="Courier New,Courier">#&nbsp; include "jeda_pli_func_ext.h"</font>
+<p><font face="Courier New,Courier">int (*endofcompile_routines[])() =</font>
+<br><font face="Courier New,Courier">{</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; /*** my_eoc_routine,
+***/</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; 0 /*** final entry
+must be 0 ***/</font>
+<br><font face="Courier New,Courier">};</font>
+<p><font face="Courier New,Courier">bool err_intercept(level,facility,code)</font>
+<br><font face="Courier New,Courier">int level; char *facility; char *code;</font>
+<br><font face="Courier New,Courier">{ return(true); }</font>
+<p><font face="Courier New,Courier">s_tfcell veriusertfs[] =</font>
+<br><font face="Courier New,Courier">{</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; /*** Template for
+an entry:</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; { usertask|userfunction,
+data,</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; checktf(),
+sizetf(), calltf(), misctf(),</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "$tfname",
+forwref?, Vtool?, ErrMsg? },</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; Example:</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; { usertask, 0,
+my_check, 0, my_func, my_misctf, "$my_task" },</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; ***/</font>
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; /*** add user entries
+here ***/</font>
+<p><font face="Courier New,Courier">#&nbsp; include "jeda_pli_func_def.h"</font>
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; {0} /*** final entry
+must be 0 ***/</font>
+<br><font face="Courier New,Courier">};</font>
+<br>&nbsp;</blockquote>
+
+<li>
+Installing to Verilog-XL</li>
+
+<br>When you run 'vconfig' to create 'cr_vlog' script, you need to specify:
+<ol>
+<li>
+Proper 'veriuser.c' that includes jeda_pli_func_ext.h and jeda_pli_func_def.h.</li>
+
+<li>
+Add $JEDA_HOME/lib/jeda_pli.o to be the file to be linked</li>
+</ol>
+After 'cr_vlog' script is created, add the following line within the compile
+veriuser.c command line&nbsp; to notify the location of the included files:
+<br>&nbsp;&nbsp;&nbsp; -I$JEDA_HOME/include
+<br>Also add '-lpthread' to the link command line.
+<p>If you are using GNU version of 'ld' (loader, mostly true on Linux system),
+you need to add -export-dynamic option to the link command line.
+<p>Then run ./cr_vlog to create the Verilog simulator.
+<br>&nbsp;
+<li>
+Installing to Verilog-NC</li>
+
+<br>NC comes with the makefile 'Makefile.nc' (usually under &lt;install_dir>/tools/inca/files/).
+Create a copy of the Makefile, and modify:
+<ol>
+<li>
+Change veriuser.c to the proper one that includes Jeda PLI files.</li>
+
+<li>
+Add '-I$JEDA_HOME/include' to the compile line.</li>
+
+<li>
+Link ncsim and ncelab with $JEDA_HOME/lib/jeda_pli.o</li>
+
+<li>
+Add '-lpthread' to the link command line of $(NCELAB) and $(NCSIM)</li>
+</ol>
+
+<p><br>If you are using GNU version of 'ld' (loader, mostly true on Linux
+system), you need to add -export-dynamic option to the link command line.
+<p>Then, run 'make' to create 'ncelab' and 'ncsim' with Jeda PLI.</ul>
+
+<h3>
+B.4.2 Installing to VCS</h3>
+
+<ul>When run VCS to create 'simv' (the compiled simulation image), you
+need to specify:
+<ol>
+<li>
+The Jeda PLI table with '-P $JEDA_HOME/include/pli.tab'</li>
+
+<li>
+Link with Jeda PLI object '$JEDA_HOME/lib/jeda_pli.o'</li>
+
+<li>
+Add ' -Xstrict=0x01 -syslib "-lpthread" ' to link pthread lib.</li>
+</ol>
+Example:
+<br>&nbsp;&nbsp;&nbsp; vcs&nbsp; -f vfiles \
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -P $JEDA_HOME/include/pli.tab
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $JEDA_HOME/lib/jeda_pli.o
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Xstrict=0x01
+-syslib "-lpthread"
+<p><b>Note for GNU loader:</b>
+<br>&nbsp; If you are using GNU version of 'ld' (loader, mostly true on
+Linux system), you need to specify
+<br>&nbsp;&nbsp;&nbsp;&nbsp; -LDFLAGS "-export-dynamic"
+<br>&nbsp; option to add -export-dynamic option to the loader. Without
+this flag, dynamic loading will cause the link error.
+<p>Example:
+<br>&nbsp;&nbsp;&nbsp; vcs&nbsp; -f vfiles \
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -P $JEDA_HOME/include/pli.tab
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $JEDA_HOME/lib/jeda_pli.o
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Xstrict=0x01
+-syslib "-lpthread" \
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -LDFLAGS "-export-dynamic"</ul>
+
+<h3>
+<a NAME="icarus"></a>B.4.3 Running with Icarus Verilog Simulator</h3>
+
+<blockquote>Jeda runtime supports VPI interface layer as well. When ./configure
+recognizes 'iverilog' command, it compiles VPI interface layer as 'icarus
+verilog' mode. (This is necessary as Icarus Verilog's vpi_user.h is not
+same as Verilog-XL. Note that because of this, Verilog-XL can't run with
+'vpi' mode when iverilog command exists. It should still work fine with
+regular pli mode.)
+<p>When Jeda runtime library is compiled, it uses 'src/vinclude/ivl_vpi_user.h'
+to compile vpi related files. This version of vpi_user.h is a copy from
+a specific version of icarus verilog, but may not be up to date. (At this
+point, it is copied from 20020806 snapshot)
+<br>Please make sure this local copy is compatible with your icarus verilog.
+(check the diff between &lt;ivl source dir>/vpi_user.h and ivl_vpi_user.h)
+If it's not compatible, copy the latest vpi_user.h to ivl_vpi_user.h.
+<p>To run Icarus Verilog, you simply use '-ivl' option (instead of '-dl')
+on 'jeda' command to create .vpi module for icarus verilog.
+<br>Then run iverilog output with -m option to specify the module. (Note
+that the module path needs to contain '/', otherwise icarus searches it's
+own library directory for the module.)</blockquote>
+
+<blockquote>&nbsp;
+<br>Example:
+<br>&nbsp;&nbsp;&nbsp;&nbsp; jeda -ivl -g jeda_test.j
+<br>&nbsp;&nbsp;&nbsp;&nbsp; iverilog -o isim tesbench.v dut.v jeda_test.jeda.v
+<br>&nbsp;&nbsp;&nbsp;&nbsp; isim -m ./jda_test.vpi</blockquote>
+
+<h3>
+B.4.4 Linking with another Verilog Simulator</h3>
+
+<blockquote>Jeda uses the following PLI 1.0 functions. If a simulator supports
+the PLI functions listed bellow, it may run with Jeda. If not, new PLI
+interface code will be needed. The source &lt;jeda_source>/src/runtime/pli.c
+contains all the PLI calls, so rewrite it and create a new Jeda runtime
+library.
+<br>&nbsp;
+<blockquote>&nbsp;
+<br><font face="Courier New,Courier">tf_dostop()</font>
+<br><font face="Courier New,Courier">tf_dofinish()</font>
+<br><font face="Courier New,Courier">tf_getcstringp()</font>
+<br><font face="Courier New,Courier">tf_getp()</font>
+<br><font face="Courier New,Courier">tf_exprinfo()</font>
+<br><font face="Courier New,Courier">tf_getinstance()</font>
+<br><font face="Courier New,Courier">tf_isynchronize()</font>
+<br><font face="Courier New,Courier">tf_isetdelay()</font>
+<br><font face="Courier New,Courier">tf_ievaluatep()</font>
+<br><font face="Courier New,Courier">tf_ipropagatep()</font>
+<br><font face="Courier New,Courier">tf_compare_long()</font>
+<br><font face="Courier New,Courier">tf_add_long()</font>
+<br><font face="Courier New,Courier">tf_getlongtime()</font>
+<br><font face="Courier New,Courier">acc_handle_tfarg()</font>
+<br><font face="Courier New,Courier">acc_vcl_add()</font>
+<br><font face="Courier New,Courier">acc_vcl_delete()</font>
+<br><font face="Courier New,Courier">mc_scan_plusargs()</font>
+<br><font face="Courier New,Courier">io_printf()</font></blockquote>
+</blockquote>
+
+<ul>&nbsp;</ul>
+
+</body>
+</html>

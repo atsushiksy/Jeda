@@ -1,0 +1,10 @@
+MK = gmake
+
+build_gcc/gcc/jedapp: Makefile.diff jedacp.diff jedaexp.diff patch_cpp
+	gzip -dc gcc-2.95.2.tar.gz | tar xvf -
+	./patch_cpp gcc-2.95.2
+	${RM} -r -f build_gcc
+	mkdir build_gcc
+	cd build_gcc ; ../gcc-2.95.2/configure --enable-cpp --enable-languages=c++
+	cd build_gcc/libiberty ; ${MK} libiberty.a
+	cd build_gcc/gcc ; ${MK} jedapp

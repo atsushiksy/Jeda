@@ -1,0 +1,31 @@
+Testing
+  reg exp -- done
+  class  -- done
+  argument -- done
+  
+  argument access -- done
+  return value -- done
+  overwrite -- done
+  
+  this access--done
+  
+Debugger  -- done
+
+  break at func
+    access asp.var  -- Illegal object type for member access
+    access aspect itself (error) -- Unknown type 0 for print
+    
+       Assign index to avar on the scope somehow.
+       
+       Check the gvar index correctness
+       
+    
+  break at aspect func
+    access aspect vars
+    access asp.var
+    access aspect itself
+  
+  break at advice
+    access aspect vars
+    access asp.var
+    access aspect itself

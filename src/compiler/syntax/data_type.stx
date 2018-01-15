@@ -1,0 +1,35 @@
+
+opt_func_type:
+  /* empty */
+  |
+  var_func_type opt_array_range
+  ;
+  
+var_func_type:  
+  data_type  
+  |
+  user_data_type 
+  ;
+  
+data_type:
+  'void'
+  |
+  'int' 
+  |
+  'float'  
+  |
+  'double'  
+  |
+  'bit' opt_bit_range
+  |
+  'string'
+  |
+  'signal'
+  |
+  'class_type'
+  ;
+  
+user_data_type: 
+  Identifier
+  ;
+

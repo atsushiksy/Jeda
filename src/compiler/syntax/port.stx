@@ -1,0 +1,48 @@
+
+port_definition:
+  port_declaration
+  ;
+  
+port_declaration:
+  port_direction 
+  opt_bit_range 
+  port_name 
+  opt_port_attribs 
+  semicolon
+  ;
+
+
+port_direction:
+  'input'  
+  |
+  'output'  
+  |
+  'inout'   
+  ;
+
+opt_bit_range:
+  /* empty */
+  |
+  bit_range
+  ;
+  
+bit_range:
+  '[' constant ':' constant ']'
+  ;
+  
+port_name: 
+  Identifier 
+  ;
+
+opt_port_attribs:
+  /* empty */
+  |
+  port_attribs
+  ;
+  
+port_attribs:
+  port_attrib
+  |
+  port_attribs port_attrib
+  ;
+  

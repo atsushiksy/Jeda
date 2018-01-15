@@ -1,0 +1,375 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_func_dcl.html">Prev</a>
+| <a href="jeda_statement.html">Next</a>
+<h1>
+7. 表現式
+</h1>
+
+<blockquote>
+表現式は、Jedaのプログラムでデータの値を示すための方法です。
+</blockquote>
+
+<h2>
+<a NAME="7.1 Operators"></a>
+7.1 オペレータ
+</h2>
+
+<blockquote>
+Jedaのオペレータは、C、Verilog、およびJavaのものに類似しています。
+しかし、?==など、Jeda独自のオペレータもあります。
+<p>以下が、演算の優先順に並べられたオペレータです。
+<br>&nbsp;
+<blockquote><b>level&nbsp;&nbsp; operators&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+operation</b>
+<br>1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+member selection
+<br>2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ++&nbsp;&nbsp;
+--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+post increment/decrement
+<br>3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ++&nbsp;&nbsp;
+--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pre increment/decrement
+<br>4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~&amp;&nbsp;
+&amp;~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary nand
+<br>4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~|&nbsp;&nbsp;&nbsp;
+|~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary nor
+<br>4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~^&nbsp;&nbsp;
+^~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary neor
+<br>5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~&amp;&nbsp;
+&amp;~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary nand
+<br>5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~|&nbsp;&nbsp;&nbsp;
+|~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary nor
+<br>5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~^&nbsp;&nbsp;
+^~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary neor
+<br>6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+logical not
+<br>6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+bitwise not
+<br>7L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; /&nbsp;
+%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary multiply, divide, modulo
+<br>8L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +&nbsp;&nbsp; -&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary add, substruct
+<br>9L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;&lt;&nbsp; >>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+left shift, signed right shift,
+<br>9L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; >>>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unsigned right shift
+<br>10L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; >&nbsp; >=&nbsp;&nbsp; &lt;&nbsp;&nbsp;
+&lt;=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+comparators
+<br>11L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =:=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mask compare
+<br>12L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary and
+<br>13L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary and
+<br>14L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary eor
+<br>15L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary eor
+<br>16L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unary or
+<br>17L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+binary or
+<br>18L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;&amp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+logical and
+<br>19L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ||&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+logical or
+<br>20R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ? :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+conditional
+<br>21R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =&nbsp; +=&nbsp; -=&nbsp; /=&nbsp;
+%=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; assignment
+<br>22R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; >>= >>>= &lt;&lt;=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+shift assignment
+<br>22R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;=&nbsp; |=&nbsp; ^=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+and, or, eor assignment
+<br>22R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~&amp;=&nbsp; &amp;~=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+nand assignment
+<br>22R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~|=&nbsp;&nbsp;&nbsp; ~|=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+nor assignment
+<br>22R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~^=&nbsp;&nbsp; ^~=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+neor assignment</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="7.2 Special compare operators"></a>
+7.2 特殊比較オペレータ
+</h2>
+
+<blockquote>
+特殊比較オペレータは、マスク条件を用いたビット値の比較に用いられます。
+<p>
+x (不定値)、z (ハイインピーダンス)の値を持つビットフィールドを無視
+して比較するための３種類の比較オペレータがあります。
+<ul>
+<li>
+&lt;left_expression> =?= &lt;right_expression></li>
+
+<br>
+'=?=' オペレータは、左右両項で、x、z、が含まれるフィールドをマスクして
+比較を行います。
+</ul>
+
+<ul>
+<li>
+&lt;left_expression> ?== &lt;right_expression></li>
+
+<br>
+'?==' は、左項のみの x、zのフィールドをマスクして比較演算を行います。
+(マスクされた領域も含め)右項にx、z、がある場合、比較結果は常に
+falseとなり、0 (ゼロ)が返されます。
+<br>&nbsp;
+<li>
+&lt;left_expression> ==? &lt;right_expression></li>
+
+<br>'==?' は、右項のみの x、zのフィールドをマスクして比較演算を行います。
+(マスクされた領域も含め)左項にx、z、がある場合、比較結果は常に
+falseとなり、0 (ゼロ)が返されます。</ul>
+
+<p><br>マスク比較演算は次のフォームを取ります。
+<ul>
+<li>
+&lt;left_expression> =:= &lt;right_expression> : &lt;mask_expression></li>
+
+<br>この演算子は、xやzを用いずに、マスクのかかった比較を行うために
+用いることが出来ます。(この演算子は、x、zを使わない２値モードでも確実に
+動作するコードを記述するのに有効です。)
+</ul>
+</blockquote>
+
+<h2>
+<a NAME="7.3 Timed Expression"></a>
+7.3 時間表現式
+</h2>
+
+<blockquote>
+全てのJedaの表現式の評価は、周期の要素を付加することが出来ます。
+このような表現式を、時間表現式と呼びます。
+時間表現式は、以下のフォーマットを持ち、１(真の場合)または０(偽の場合)を
+返します。周期要素の後の表現式は、複数を組み合わせることが出来ることに
+注意してください。
+<blockquote>&lt;time_element> '(' &lt;expression> ( ',' &lt;expression>
+)*&nbsp; ')'</blockquote>
+ここで、&lt;time_element> は、つぎのように定義されます。
+<blockquote>@delay [ , window ] [ &lt;clock_edge_spec> ]
+<blockquote>
+delayで指定された周期分待ってから、windowで指定される周期の間、その表現式
+が真になる時点を探します。windowの指定が省略された場合、window = 0 が
+使用されます。
+</blockquote>
+
+<p><br>@@delay[ , window ] [ &lt;clock_edge_spec> ]
+<blockquote>
+delayで指定された周期分待ってから、windowで指定される周期の間中、その表現式
+が真であるかをチェックします。windowの指定が省略された場合、window = 0 が
+使用されます。
+</blockquote>
+</blockquote>
+&lt;clock_edge_spec> は、オプションで、どのクロック エッジを用いるかを
+指定します。フォーマットは、次の通りです。
+
+<blockquote>'(' &lt;edge_spec> &lt;port or signal variable expresion> ')'
+<blockquote>&lt;edge_spec> は、'<i>posedge</i>'か '<i>negedge</i>'か
+'<i>bothedge</i>'のいずれかを使用することができます。 
+もし、&lt;clock_edge_spec>が省略された場合、与えられた表現式を、左から
+チェックし、最初のsignal変数やポートの値そのものをアクセスする表現式を検出して
+(ポインタのアクセスではないもの)、その信号(signalかポート)の
+サンプリング クロックを使用して周期演算を行います。
+<br>
+もし、signal変数やポートが検知されない場合、CLOCK信号が使用されます。
+</blockquote>
+&nbsp; Example:
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp; if( @0,100(
+sigs.a.0 == 2'b00 ) )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "zee!\n" ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp; if( !@0,100(
+sigs.a.0 == 2'b01 ) )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;
+error( "sig.a.0 != 2'b01\n" ) ;</font></font></blockquote>
+</blockquote>
+
+
+<h2>
+<a NAME="Pallarel Timed Expression"></a>7.4 並列時間表現式</h2>
+
+<blockquote>
+p_and と p_or 演算子を用いて、複数の時間表現式を並列に評価することが出来ます。
+<br>&nbsp;
+<h3>
+<a NAME="p_and Expression"></a>7.4.1 p_and 表現式</h3>
+
+<blockquote>&nbsp;
+p_and演算子は、一つ以上の時間表現式を引数に取り、それらを並列に評価して、１(真)、または０(偽)を返します。引数として与えられた全ての時間表現式が１(真)の場合に、この演算子は１(真)を返し、それ以外では０(偽)を返します。引数の時間表現式の一つが０(偽)となった場合には、他の表現式の結果を待たずに、直ちに０(偽)が返されます。
+<blockquote>if( p_and( @0,5( p.vld == 1'b1), @0,5( p.a == 4'b1110) ) )
+..</blockquote>
+各時間演算子の評価は、独立して行われることに注意してください。p_and演算子が１を返したことは、全ての時間表現式が(独立して)１(真)となったことを意味します。このことは、各時間演算子が同時に真になったことを保証しません。
+</blockquote>
+
+<h3>
+<a NAME="p_or Expression"></a>7.4.2 p_or 演算子</h3>
+
+<blockquote>
+p_or演算子は、一つ以上の時間表現式を引数に取り、それらを並列に評価して、１(真)、または０(偽)を返します。引数として与えられた時間表現式のどれか一つが１(真)となった場合にこの演算子は１(真)を返し、全ての時間表現式が０の場合に０(偽)を返します。引数の時間表現式の一つが１(真)となった場合には、他の表現式の結果を待たずに、直ちに１(真)が返されます。
+
+<blockquote>if( p_or( @0,5( p.a == 4'b0110), @0,5( p.a == 4'b1110) ) )
+..</blockquote>
+</blockquote>
+この並列のandとor演算は論理演算であり、結果が決定的になった時点で評価を終了します。例えば、p_andの引数のどれか一つが０となった時点で、直ちに評価は終了し、この演算子は０を返します。同様に、p_orでは、どれか一つの引数の評価が１となった時点で、直ちに１を返します。未完了の引数の評価は、システムの内部に存在しますが、評価完了時にその結果は捨てられます。
+
+</blockquote>
+
+<h2>
+<a NAME="7.3 Other expressions"></a>
+7.5 その他の表現式
+</h2>
+
+<blockquote>
+以下の表現式が、Jedaでサポートされています。クラスやポートに関連した
+表現式は、後章で説明します。
+<h3>
+<a NAME="7.3.1 Null Expression"></a>
+7.5.1 null 表現式
+</h3>
+
+<blockquote>
+null表現式は、非数値表現式の空の状態を表します。
+<blockquote><font face="Courier New,Courier">string s ;</font>
+<p><font face="Courier New,Courier">if ( s == null ) ..</font></blockquote>
+注：Jedaでは、nullストリングと "" (空ストリング)は異なったオブジェクトをして
+取り扱われ、これらのオブジェクトの"=="による比較は、false(否)となります。
+以下のifステートメントは、全てfalse(否)となります。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">string s ;</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">s = null ;</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">if( s ) error( "null becomes true\n"
+) ;</font>
+<br><font face="Courier New,Courier">if( s == "" ) error( "null matches
+empty string\n" ) ;</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">s = "" ;</font><font face="Courier New,Courier"></font>
+<p><font face="Courier New,Courier">if( s ) error( "empty string becomes
+true\n" ) ;</font>
+<br><font face="Courier New,Courier">if( s == null ) error( "empty string
+matches null\n" ) ;</font>
+<br><font face="Courier New,Courier"></font>&nbsp;</blockquote>
+</blockquote>
+
+<h3>
+<a NAME="7.3.2 Increment and Decrement Expression"></a>
+7.5.2 インクリメント と デクリメント 表現式
+</h3>
+
+<blockquote>
+C言語のように、事前／事後のインクリメント(増加)/デクリメント(減少)を
+Jedaで使用することができます。
+<blockquote><font face="Courier New,Courier">int i</font>
+<p><font face="Courier New,Courier">if ( ++i ) ..</font>
+<br><font face="Courier New,Courier">if ( --i ) ..</font>
+<br><font face="Courier New,Courier">if ( i++ ) ..</font>
+<br><font face="Courier New,Courier">if ( i-- ) ..</font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<h3>
+<a NAME="7.3.3 Concatenation Expression"></a>
+7.5.3 結合表現式
+</h3>
+
+<blockquote>
+Verilogのような結合表現式で、ビットや文字列のデータを結合することが出来ます。
+<blockquote><font face="Courier New,Courier">a = {3'b001, b[3:1], 1'b0,
+b[0] } ;</font>
+<p><font face="Courier New,Courier">str = {"bill","sux"} ;</font></blockquote>
+次の表現式は、与えられたパターンを与えられた数だけ繰り返します。
+<blockquote><font face="Courier New,Courier">&nbsp; { &lt;num> { &lt;pattern>
+}}</font>
+<p><font face="Courier New,Courier">a = {10{3'b010}} ;</font>
+<p><font face="Courier New,Courier">str = {5{"woops!"}} ;</font></blockquote>
+</blockquote>
+
+<h3>
+<a NAME="7.3.3 List Expression"></a>
+7.5.4 リスト表現式
+</h3>
+
+<blockquote>
+いろいろなデータタイプのリストは、'{ } (クオート付きのブラケット)で
+作ることが出来ます。
+<blockquote><font face="Courier New,Courier">int ilist&lt;> ;</font>
+<p><font face="Courier New,Courier">ilist = '{ 0, 1, 2, 3, 4, 5, 6, 7 }
+;</font></blockquote>
+'{ }内に並べられる全ての表現式は、同じタイプでなくてはなりません。
+</blockquote>
+
+<h3>
+<a NAME="7.3.3 Variable Expression"></a>
+7.5.5 変数表現式
+</h3>
+
+<blockquote>
+変数へのアクセスは、その名前で行います。配列の要素へのアクセスには
+インデックスを用います。もし、配列データがインデックス無しで参照された
+場合、配列全体へのアクセスを意味します。
+<blockquote><font face="Courier New,Courier">int i ;</font>
+<br><font face="Courier New,Courier">int ia[5], ib[5] ;</font>
+<p><font face="Courier New,Courier">i = 0 ;</font>
+<p><font face="Courier New,Courier">ia[0] = 2 ;</font>
+<br><font face="Courier New,Courier">ib = ia ;&nbsp; // entire array copy</font></blockquote>
+ビットデータの一部のビットをアクセスするためには、ビット インデックスを
+使用します。Verilogと異なり、配列データの一部のビットに直接アクセスする
+ことが出来ます。
+<blockquote><font face="Courier New,Courier">bit [7:0] vec_a ;</font>
+<br><font face="Courier New,Courier">bit [7:0] vec_ary[] ;</font>
+<p><font face="Courier New,Courier">vec_a[6] = 1'b0 ; // single sub bit</font>
+<br><font face="Courier New,Courier">vec_a[2:0] = 3'b000 ; // multi bit</font>
+<p><font face="Courier New,Courier">vec_ary[4][0] = 1'b0 ; // index 4,
+bit 0</font>
+<br><font face="Courier New,Courier">vec_ary[2][7:6] = 2'b11 ; //index
+2,but[7:6]</font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<h3>
+<a NAME="7.3.3 Function Call Expression"></a>
+7.5.6 関数呼び出し表現式
+</h3>
+
+<blockquote>
+voidタイプでない関数への呼び出しは、表現式として使用できます。
+<blockquote><font face="Courier New,Courier">int foo( int x ) {</font>
+<br><font face="Courier New,Courier">&nbsp; return x ;</font>
+<br><font face="Courier New,Courier">}</font>
+<p><font face="Courier New,Courier">main() {</font>
+<br><font face="Courier New,Courier">&nbsp; int y ;</font>
+<p><font face="Courier New,Courier">&nbsp; y = foo(0) ;&nbsp; // expression
+foo()</font>
+<p><font face="Courier New,Courier">&nbsp; if( foo(3) ) ..</font>
+<p><font face="Courier New,Courier">}</font></blockquote>
+関数呼び出しで、デフォルト引数を使用する方法については、
+<a href="jeda_func_dcl.html#6.3 Default Argument">
+6.3 デフォルト引数
+</a>
+を参照してください。
+</blockquote>
+</blockquote>
+
+</body>
+</html>
+
+
+
+
+

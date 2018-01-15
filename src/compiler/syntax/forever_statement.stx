@@ -1,0 +1,6 @@
+
+forever_statement:
+  opt_statement_prefix 'forever' 
+  statement 
+  ;
+

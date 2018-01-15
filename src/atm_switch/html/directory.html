@@ -1,0 +1,83 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="test_plan.html">prev</a> : <a href="index.html">index</a> : <a href="portset.html">next</a>
+<p><font size=+1>4. Directory Structure and Makefile</font>
+<ul>The following directories are used in this example. (In fact, this
+is the structure I always use for my real verification work.):
+<br>&nbsp;
+<ul>
+<li>
+verilog</li>
+
+<br>This directory contains the verilog files.
+<br>&nbsp;
+<li>
+include</li>
+
+<br>This directory contains include files (not derived from the source
+files)
+<br>&nbsp;
+<li>
+utils</li>
+
+<br>This directory contains low level drivers and primitives. This directory
+may also include the header files that is created from the source (with
+-h option).
+<br>&nbsp;
+<li>
+suites</li>
+
+<br>This directory contains the top level with main() function which does
+the initialization of the testbench. This directory may contains multiple
+top levels that do the initialization differently.
+<br>&nbsp;
+<li>
+tests</li>
+
+<br>This directory contains various test cases. The entry of the test cases
+have the same name (squat_test() in this example) and called from main().
+The final execution images (.dl files) for various tests are created in
+this directory.
+<br>&nbsp;
+<li>
+run</li>
+
+<br>This directory contains the Makefile that compiles the Jeda files.
+It is also used to run simulation.</ul>
+
+<p><br><a href="../run/Makefile">Makefile</a> under run directory is a
+sort of general purpose makefile that works as far as the directory structure
+is kept as above. (Note that you need GNU make for this.)
+<br>The Jeda files are identified with .j suffix and automatically compiled
+and linked. Adding a new test file is done by just create a new test file
+(&lt;name>.j) under 'tests' directory. So as util files. Files under include
+directory are assumed to be used for all the files.
+<br>The files under utils are categorized by the name, as &lt;name>_0.j,
+&lt;name>_1.j, &lt;name>_2.j. This numbers at the end represent the level
+of reference, files with _0 won't referee any other util files, files with
+_1 will referee _1 files, and files with _2 will referee _0 and _1 files.
+The header files for the utils are automatically created by Jeda compiler.
+<br>The drawbacks of using this generic Makefile are:
+<br>&nbsp;
+<ul>
+<li>
+You can't have a partially coded file (or junk) as &lt;name>.j. It ends
+as make error.</li>
+
+<li>
+It always compile/link all the tests. When you are working on one specific
+test, it's better to specify the specific image to make (make ../tests/&lt;name>.dl)
+to avoid this happens.</li>
+</ul>
+
+<p><br>Having a unified directory structure through out the projects makes
+things easy when you have to poke into someone's work. You always find
+drivers and low level stuff under utils, test cases under tests.</ul>
+<a href="test_plan.html">prev</a> : <a href="index.html">index</a> : <a href="portset.html">next</a>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<html>
+<head>
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_class.html">Prev</a>
+| <a href="jeda_concurrent.html">Next</a>
+<h1>
+10. ポート、ポートセット、シグナル
+</h1>
+
+<blockquote>
+Jedaは、コンパイル/リンクのプロセスで生成されるモジュール (Jedaモジュール)
+を介してVerilogとの相互作用を行います。このモジュールは、Jedaコードで
+宣言されたポートに対応する、Verilogポートを持ちます。
+Verilogのテストベンチは、Jedaとシミュレーションを実行するために、
+Jedaモジュールのインスタンスを生成し、そのポートを適切に接続する必要が
+あります。
+</blockquote>
+
+<h2>
+<a NAME="10.1 port"></a>
+10.1 ポート
+</h2>
+
+<blockquote>
+Jedaは、ポートを介してシミュレータ(Verilog)とインターフェースします。
+ポートは、Verilogのポートのように、キーワード input output inout を用いて
+定義されます。
+ポートの宣言は、関数(およびクラス)定義の外部で行われます。
+ポートは、単ビットもしくはベクターとして宣言することが出来ます。
+ポートの方向には、次の種類があります。
+<ul>
+<li>
+input&nbsp; -- ポートは、Jedaへの入力
+</li>
+
+<li>
+output -- ポートは、Jedaからの出力
+</li>
+
+<li>
+inout&nbsp; -- ポートは、Jedaの入出力
+</li>
+</ul>
+ポートの入出力キーワードの後、ビットレンジを指定することで、バス信号が
+定義されます。
+ビットレンジは、big-endian [2:0]、または small-endian [0:2] のビット順
+を取ることが出来、ゼロでない lsb を用いることも出来ます (例 [5:3] [3:5])。
+<p>
+例：
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>input single
+;&nbsp; // single bit input port</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [3:0] nibble
+; // 4 bit bus output port</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout [7:0] a_bus ;&nbsp;
+// 8 bit bus inout port</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout [0:7] b_but ;&nbsp;
+// 8 bit small endian inout port</font></font>
+<br><font face="Courier New,Courier"><font size=-1>input [9:2] nz_in ;&nbsp;
+// 8 bit non-zero lsb input</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [2:9] nz_out
+;&nbsp; // 8 bit non-zero lsb, small endian</font></font>
+</blockquote>
+ポートが宣言されると、対応する(Verilog)ポートがJedaモジュールに作成されます。
+上記の例に対応するJedaモジュールは：
+<blockquote><font face="Courier New,Courier"><font size=-1>module jeda_module
+(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; CLOCK,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; single,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; nibble,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; a_bus</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>input CLOCK ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>input single ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [3:0] nibble
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout [7:0] a_bus ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout [0:7] b_bus ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>input [9:2] nz_in ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [2:9] nz_out
+;</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="10.2 port access"></a>
+10.2 ポートのアクセス
+</h2>
+
+<blockquote>
+ポートへの参照は、ポートへのポインタと、ポートの値という、二種類の意味を
+持ちます。
+<br>
+ポートの名前への通常の参照は、ポートへのポインタという意味になります。
+このポインタは、ポートへの間接的なアクセスを行うためにsignal変数へ
+代入することが出来ます。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>signal p_sig
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>p_sig = a_bus ; // signal
+p_sig holds a pointer to a_bus</font></font>
+</blockquote>
+ポートの値へのアクセスは、depthサフィックス( .n 、nは整数 )を付加することで
+行います。ポートへのデータの代入時には、depthは常に 0 でなくてはなりません。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>a_bus.0 = 8'hff
+;&nbsp;&nbsp; // driving a_bus</font></font>
+<p><font face="Courier New,Courier"><font size=-1>i = single.0 ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// sampling single</font></font>
+</blockquote>
+
+</blockquote>
+
+<h2>
+<a NAME="10.3 port attribute"></a>
+10.3 ポート属性
+</h2>
+
+<blockquote>
+ポートには、どのようにシミュレータとインターフェースするかを決定する
+各種の属性を付加することが出来ます。
+ポートの属性はポート名に続いて記述されます。ポート属性が省略されると
+次のデフォルト値が使用されます。
+<p><font face="Courier New,Courier"><font size=-1>default_attrib := @CLOCK
+sample posedge skew 0 drive posedge skew 1 ;</font></font>
+<p>
+デフォルト値が変更される必要がある場合に、ポート属性を付加する必要があります。
+<p>例:
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>input single
+@other_clock ; // clock reference to other_clock</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [3:0] nibble
+drive negedge skew 2 ; // @CLOCK is used</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout [7:0] a_bus sample
+negedge skew -2 ; // @CLOCK, drive are default</font></font>
+</blockquote>
+ポートに付加される属性には、つぎのものがあります。
+<br>&nbsp;
+<h3>
+<a NAME="10.3.1 Clock Attribute"></a>
+10.3.1 クロック属性
+</h3>
+
+<blockquote>
+
+クロック属性は、ポートの参照クロックを指定します。
+参照クロックは、代入や評価にサイクルエレメントが付加されていた場合に
+使用されるクロックです。
+クロック属性は、'＠' 文字にクロックとなるポート名を記述して指定します。
+クロック属性が省略されると Jedaのシステム クロック CLOCK が参照クロック
+に使用されます。
+<p>例:
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>input clock
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [7:0] data @clock
+drive posedge skew 1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>input [7:0] sig @clock
+sample posedge ;</font></font>
+</blockquote>
+
+上記の例で、dataがクロック参照と共にドライブされると、
+CLOCKの代わりに、clock ポートの立ち上がりエッジが、参照クロックとして
+使用されます。
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>@5 data.0 =
+8'hff ;</font></font>
+</blockquote>
+また、sigがクロック参照と共にサンプルされると、clock ポートの立ち上がりエッジ
+が参照クロックとして使用されます。
+<blockquote><font face="Courier New,Courier"><font size=-1>// sampling
+of sig is done at posedge of 'clock'</font></font>
+<br><font face="Courier New,Courier"><font size=-1>if( @2,5( sig.0 == 8'h55
+) ) printf( "sig becomes 8'h55\n" ) ;</font></font>
+</blockquote>
+
+</blockquote>
+
+<h3>
+<a NAME="10.3.2 Drive Attribute"></a>
+10.3.2 ドライブ属性
+</h3>
+<blockquote>
+ドライブ属性は、ポートの値への代入がサイクルエレメントと共に行われた時の
+ドライブ タイミングを決定します。
+スキュー値は、クロック エッジから実際にドライブが発生する間のディレイを
+発生させるために使用します。この値は、シミュレータの単位時間で指定します。
+ドライブ属性は、outputかinoutタイプのポートにのみ指定できます。
+<p>シンタックス:
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>drive_attribute
+::= drive &lt;edge> [ &lt;skew> ]</font></font>
+</blockquote>
+&nbsp; ここで：
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>&lt;edge></font></font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; posedge&nbsp;
+
+</font>立ち上がりエッジでドライブする(デフォルト)</font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; negedge&nbsp;
+
+</font>立ち下がりエッジでドライブする</font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; bothedge 
+</font>立ち上がり、立ち下がりの両エッジでドライブする</font>
+</blockquote>
+
+
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>&lt;skew></font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;skew &lt;value>
+</font></font>
+<font size=-1>
+整数の定数で、ドライブエッジから実際にシミュレータに値が伝達される
+単位ディレイを指定します。ポートへのドライブは、ドライブを行った時点
+(サイクルエレメントがあれば、ドライブエッジ)にスケジュールされますが、
+実際にシミュレータ側に値が伝達するのは、与えられたスキューの後となります。
+これにより、コードは、あるクロックエッジで様々な処理を行うことが出来、
+スキューをもつデータのドライブにより、レーシング状態が発生することを
+避けることが出来ます。このスキュー値は、正の整数でなくてはなりません。
+</font>
+</blockquote>
+
+</blockquote>
+
+<h3>
+<a NAME="10.3.3 sample attribute"></a>
+10.3.3 サンプル属性
+</h3>
+
+<blockquote>
+サンプル属性は、ポートの値への参照がサイクルエレメントと共に行われた場合の、
+サンプルタイミングを決定します。
+負のスキュー値で、指定されたクロックエッジから単位ディレイ前の値をアクセス
+することができます。このスキューは、負の整数でなければなりません。(コンパイラ
+がエラーを検知します。)
+サンプル属性は、inputかinoutタイプのポートにのみ付加することができます。
+<p>シンタックス:
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>sample_attribute
+::= sample &lt;edge> [ &lt;skew> ]</font></font>
+</blockquote>
+ここで
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>&lt;edge></font></font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; posedge&nbsp;
+
+</font>サンプルエッジは、立ち上がりエッジ(デフォルト)
+</font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; negedge&nbsp;
+
+</font>サンプルエッジは、立ち下がりエッジ</font>
+<br><font size=-1><font face="Courier New,Courier">&nbsp; bothedge 
+</font>サンプルエッジは、立ち上がり、立ち下がり、両エッジ
+</font>
+</blockquote>
+
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>&lt;skey></font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; skew &lt;value></font></font>
+<blockquote>
+<font size=-1>
+負の整数定数 &lt;value> で、サンプルエッジから、実際のサンプルタイミングの
+ディレイを指定します。負のディレイであることが示すように、データは、
+サンプルエッジよりも前に行われます。
+</font>
+</blockquote>
+<font face="Courier New,Courier"><font size=-1>depth &lt;value></font></font>
+<blockquote>
+<font size=-1>
+このdepth属性は、何段階のパイプラインサイクルの情報を記憶するかを指定します。
+パイプライン化されたポートの値は、&lt;port_name>.n (nは整数の定数で、
+パイプラインの位置を示す)を使ってアクセスできます。
+</font>
+</blockquote>
+<font face="Courier New,Courier"><font size=-1>node &lt;string></font></font>
+<blockquote>
+<font size=-1>
+このノード属性は、ポートを直接シミュレータ内のノードへと接続するために
+使用します。ノード属性が指定されると、そのポートは、Jedaモジュールの
+ポートリストには現れず、モジュール間参照によって、ノード属性の文字列で
+指定されるシミュレータ内のノードへと直接接続されます。
+従って、この文字列は、Jedaモジュールのインスタンスから、正しいノードへの
+参照パスでなくてはなりません。
+<br>
+この直接接続は、コネクションセット ブロック(後章で説明)を用いても行えます。
+</font>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="10.4 Portset"></a>
+10.4 ポートセット
+</h2>
+
+<blockquote>
+複数のポートをまとめて、portset として定義することにより、
+論理的なポートの集まりを作ることが出来ます。
+<p>例:
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>portset a_bus
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input clock ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; output [31:0]
+out_bus ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; inout&nbsp; [31:0]
+bidi_bus ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+</blockquote>
+ポートセット内のポートは、Jedaモジュール上に
+<font face="Courier New,Courier"><font size=-1>&lt;portset_name>_&lt;port_name></font></font>
+という名のポートとして定義されます。
+<p>
+上記のポートセット a_bus は、Jedaモジュールに次のようにコンパイルされます：
+<blockquote>
+<font face="Courier New,Courier"><font size=-1>input a_bus_clock
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>output [31:0] a_bus_out_bus
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>inout&nbsp; [31:0] a_bus_bidi_bus
+;</font></font>
+</blockquote>
+注: ポートセット名とポート名を '_' によって組み合わせたものが、同じ結果に
+なるようなものを使用することは避けてください。例えば、
+<blockquote>portset:<font face="Courier New,Courier"> foo_x&nbsp; </font>port:<font face="Courier New,Courier">
+_bar&nbsp; </font>Jeda module port<font face="Courier New,Courier"> foo_x_bar</font>
+<br>portset:<font face="Courier New,Courier"> foo_&nbsp;&nbsp; </font>port:<font face="Courier New,Courier">
+x_bar </font>Jeda module port<font face="Courier New,Courier"> foo_x_bar</font></blockquote>
+</blockquote>
+
+<blockquote>
+ポートセットは、ポートセット属性を付加して宣言できます。ポートセット属性
+は、ポートセット内のポートのデフォルト属性となります。
+個別の属性がポートに付加されない限り、デフォルトのポートセット属性が
+ポート内全てのポートに適用されます。
+<blockquote><font face="Courier New,Courier"><font size=-1>portset foo
+@fastclock {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; inout [7:0] data
+;&nbsp;&nbsp;&nbsp;&nbsp; // fastclock is used</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input [5:0] command
+;&nbsp; // fastclock is used</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input [2:0] error
+@ slowclock ; // overwritten to slowclock</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>portset foo @fastclock
+drive posedge skew 2 sample posedge {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; inout [7:0] data
+;&nbsp;&nbsp;&nbsp;&nbsp; // fastclock is used, drive posedge skew 2</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input [5:0] command
+;&nbsp; // fastclock is used, sample posedge</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; input [2:0] error
+@ slowclock ; // overwritten to slowclock,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// sample posedge</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+ポートセット内のポートにアクセスするには、 '.' オペレータを用います。
+depthを指定しない参照は、ポートへのポインターアクセスを意味します。
+<blockquote><font face="Courier New,Courier"><font size=-1>signal&nbsp;
+sig_a ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>sig_a = foo.data ;</font></font></blockquote>
+ポートの値にアクセスするには、depthが使われます：
+<blockquote><font face="Courier New,Courier"><font size=-1>&lt;portset_name>.&lt;port_name>.0</font></font>&nbsp;
+: 通常のデータ値へのアクセス
+<br><font face="Courier New,Courier"><font size=-1>&lt;portset_name>.&lt;port_name>.n</font></font>&nbsp;
+: n番目のパイプラインデータ値へのアクセス
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="10.5 Signal"></a>
+10.5 signal変数
+</h2>
+
+<blockquote>
+signalは、ポートへのポインタを記憶することができるJedaのデータタイプです。
+signal変数が宣言された時点で、その変数は空で、ポートのポインタが代入
+される必要があります。
+<blockquote><font face="Courier New,Courier"><font size=-1>signal sig ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>sig = foo.data ; // foo
+is portset, data is a port</font></font>
+<br>&nbsp;</blockquote>
+ポートの一部の領域のみをアクセスすることを、代入時に指定出来ます。この場合、
+signal変数を介したアクセスは、ポートの一部のビット領域に限定されます。
+<blockquote><font face="Courier New,Courier"><font size=-1>signal sub_sig
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>sub_sig = foo.data[2:0]
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( sub_sig.0 == 3'b000
+) // same as foo.data[2:0] == 3'b000</font></font>
+<br><font face="Courier New,Courier"><font size=-1>{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="10.6 Class Functions for Port and Signal"></a>
+10.6 ポートとsignal変数のクラス関数
+</h2>
+
+<blockquote>
+クラス関数 drive_clock() を、ポートやsignal変数に対して使用することで、
+クロック信号を生成することが出来ます。
+</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>drive_clock(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int period1,
+int period2 = period1, int init = 0, int dly = 0</font></font>
+<br><font face="Courier New,Courier"><font size=-1>) ;</font></font></blockquote>
+このメンバー関数は、outputかinoutのポートに、与えられた周期でのクロック
+信号をつくり出します。
+ここで、
+<blockquote><font face="Courier New,Courier"><font size=-1>period1 :</font></font>
+単位時間でしめす、クロックの前半の周期
+<br><font face="Courier New,Courier"><font size=-1>period2 :</font></font>
+クロックの後半の周期、省略されると period2 = period1
+<br><font face="Courier New,Courier"><font size=-1>init&nbsp;&nbsp;&nbsp;
+:</font></font> 
+クロックの初期値、省略時 init = 0
+<br><font face="Courier New,Courier"><font size=-1>dly&nbsp;&nbsp;&nbsp;&nbsp;
+:</font></font> クロックが起動するまでのディレイ、省略時 dly = 0
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="10.7 Connection Set"></a>
+10.7 コネクションセット
+</h2>
+
+<blockquote>
+コネクションセットは、ポートをシミュレーター内の特定ノードに直接接続
+するための手段を提供します。
+</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>connectionset
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; sigs.siga "verilog_top.port_a"
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; sigs.sigb "verilog_top.port_b"
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; single_sig "verilog_top.port_c"
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+connectionsetブロック内に、ポートと文字列で示されたノードへのパスを、
+ '；' で区切って記述します。
+実際の処理は、前出のポート宣言時のノード属性と全く同じです。
+ただし、コネクションセットは、コンパイル/リンク時に独立して指定することが
+出来るため、ポート宣言がこうしたノード情報を含まないクリーンな状態を
+保つことができます。
+(ノード情報は、RTLとゲートなどの、シミュレーションのモデルの違いにより
+変更される可能性があります。)
+</blockquote>
+
+<br>&nbsp;
+</body>
+</html>

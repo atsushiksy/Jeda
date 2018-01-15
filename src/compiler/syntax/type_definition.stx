@@ -1,0 +1,61 @@
+
+type_definition:
+  enum_type_definition 
+  |
+  class_type_definition
+  ;
+  
+enum_type_definition:
+  'enum' Identifier '=' enum_members_list semicolon
+  ;
+
+enum_members_list:
+  enum_member
+  |
+  enum_members_list ',' enum_member
+  ;
+  
+enum_member: 
+  Identifier 
+  ;
+  
+
+class_type_definition:
+  'typedef' 'class' class_name_list semicolon 
+  ;
+  
+class_name_list:
+  class_name
+  |
+  class_name_list ',' class_name
+  ;
+
+
+data_type_name:
+  'array' 
+  |
+  'marray' 
+  |
+  'assoc' 
+  |
+  'stridx'  
+  |
+  'list'  
+  |
+  'string'
+  |
+  'signal'
+  |
+  'port'
+  ;
+
+class_name:
+  Identifier
+  |
+  '.' data_type_name
+  ;
+
+class_name_ref:
+  Identifier
+  ;
+

@@ -1,0 +1,7 @@
+This directory contains the original source of Mersenne Twister code
+(a random number generator) developped by Makoto Matsumoto and 
+Takuji Nishimura.
+
+Refer to the websuite for futher information.
+
+  http://www.math.keio.ac.jp/~matumoto/emt.html

@@ -1,0 +1,45 @@
+#!/bin/csh -f
+setenv CVSROOT /home/cvsroot
+echo -n $1 >> rel_record.data
+echo -n " " >> rel_record.data
+echo $2 >> rel_record.data
+cd /home/atsushi/work/jeda_release
+\rm -r -f $2
+cvs -q export -r $1 -d $2 jeda
+cd $2/src/include
+mv runtime.h runtime.h.p
+/home/atsushi/work/jeda/modify_code.pl < runtime.h.p | /home/atsushi/work/jeda/modify_gc_code.pl > runtime.h
+rm runtime.h.p
+mv mem_macro.h mem_macro.h.p
+/home/atsushi/work/jeda/modify_gc_code.pl < mem_macro.h.p > mem_macro.h
+rm mem_macro.h.p
+cd ../runtime
+mv jeda_pli.c jeda_pli.c.p
+/home/atsushi/work/jeda/modify_code.pl < jeda_pli.c.p > jeda_pli.c
+mv pli.c pli.c.p
+/home/atsushi/work/jeda/modify_code.pl < pli.c.p > pli.c
+mv thread.c thread.c.p
+/home/atsushi/work/jeda/modify_code.pl < thread.c.p > thread.c
+mv top_loop.c top_loop.c.p
+/home/atsushi/work/jeda/modify_code.pl < top_loop.c.p > top_loop.c
+mv vpi.c vpi.c.p
+/home/atsushi/work/jeda/modify_code.pl < vpi.c.p > vpi.c
+mv data.c data.c.p
+/home/atsushi/work/jeda/modify_gc_code.pl < data.c.p > data.c
+mv code_exec.c code_exec.c.p
+/home/atsushi/work/jeda/modify_gc_code.pl < code_exec.c.p > code_exec.c
+mv exec_object.c exec_object.c.p
+/home/atsushi/work/jeda/modify_gc_code.pl < exec_object.c.p > exec_object.c
+rm *.c.p
+rm -r -f sysdep
+cd /home/atsushi/work/jeda_release
+#cp /home/atsushi/work/jeda/src/vpp/vpp-1.2.tar.gz $2/src/vpp
+#cp /home/atsushi/work/jeda/src/jedapp/gcc-2.95.2.tar.gz $2/src/jedapp
+#cp /home/atsushi/work/jeda/src/readline/readline-4.2.tar.gz $2/src/readline
+\rm -r -f $2/doc
+\rm -f $2.tar $2.tar.gz
+tar cvf $2.tar $2
+gzip $2.tar
+echo -n $1 >> rel_record.data
+echo -n " " >> rel_record.data
+echo $2 >> rel_record.data

@@ -1,0 +1,237 @@
+# This file defines the type of non-terminal nodes
+#  gen_node_type.pl converts this file to node type entry for YACC
+#  
+# 
+#  
+#  Copyright (C) 1999, 2000, 2001 Juniper Networks Inc.
+#  Copyright (C) 2002, 2003 Jeda Technologies, Inc.
+#
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 2, or (at your option) any
+#  later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+#   USA.  
+#   
+#
+
+<block>
+  translation_units
+  translation_unit
+  portset_definition
+  connectionset_definition
+  local_global_variable_declaration
+  top_initial_statement
+  function_definition 
+  class_definition  
+  verilog_class_definition
+  verilog_task_definition
+  verilog_task_definitions
+  new_function_definition
+  port_definition
+  aspect_definition
+  advice_definition
+
+<expression>
+  actual_arguments
+  actual_argument
+  new_expression
+  opt_new_args
+  opt_new_object
+  assign_expression
+  left_expression
+  opt_bit_range
+  bit_range
+  opt_array_range
+  array_ranges
+  array_range
+  opt_var_init
+  var_init
+  opt_arg_init
+  arg_init
+  opt_statement_prefix
+  cycle_element
+  opt_clock_definition
+  opt_multi_expressions
+  multi_expressions
+  for_expression
+  constant
+  number
+  expression
+  opt_expression
+  timed_expression
+  time_range
+  parallel_eval_expression
+  timed_expression_list
+  a_ver_expression
+  opt_access_range
+  access_range
+  bit_access_range
+  array_access_ranges
+  array_access_range
+  function_call_expression
+  opt_actual_arguments
+  bool_null_expression
+  state_expression
+  concatenation_expression
+  list_expression
+  varport_expression
+  port_declarations
+  port_declaration
+  opt_port_attribs
+  port_attribs
+  port_attrib
+  port_expression
+  constant_concatenation
+  constant_list
+  expression_list
+  clock_attrib
+  drive_attrib
+  sample_attrib
+  depth_attrib
+  node_attrib
+  opt_depth
+  opt_skew
+  string_constant
+  string_list
+  opt_super_new_call
+  enum_expression
+  pointcut_pattern
+  pointcut_element
+  rand_val
+  rand_value
+  rand_values
+  rand_range
+  rand_arg
+  rand_parm
+  rand_args
+  opt_rand_args
+  static_random
+  rand_cond
+  rnd_constant
+  rnd_string
+  
+<statement>
+  initial_statement
+  opt_class_items
+  class_items
+  class_item
+  verilog_task_call_statement
+  opt_aspect_items
+  aspect_items
+  aspect_item
+  statement
+  block
+  opt_statements
+  statements
+  opt_var_enum_definitions
+  var_enum_definitions
+  var_enum_definition
+  var_definition
+  opt_formal_args
+  formal_args
+  formal_arg
+  opt_outer_block
+  null_statement
+  if_else_statement
+  opt_else
+  while_statement
+  for_statement
+  repeat_statement
+  do_while_statement
+  forever_statement
+  case_statement
+  opt_case_items
+  case_items
+  case_item
+  casex_statement
+  casez_statement
+  randcase_statement
+  opt_randcase_items
+  randcase_items
+  randcase_item
+  break_statement
+  continue_statement
+  fork_join_statement
+  terminate_statement
+  breakpoint_statement
+  expression_statement
+  assign_statement
+  return_statement
+  function_call_statement
+  enum_type_definition
+  type_definition
+  opt_new_outer_block
+  new_block
+  pointcut_spec
+  pointcut_specifications
+  
+<integer_value>
+  opt_var
+  
+<assign_opr> 
+  assign_opr
+
+<string_value>
+  opt_exit_label
+  label
+  opt_string
+
+<join>
+  joins
+
+<edge>
+  edge_specification
+
+<vfattr>
+  opt_var_func_attrib
+  var_func_attribs
+  var_func_attrib
+  opt_extern
+
+<name>
+  opt_func_type
+  var_func_type
+  data_type
+  data_type_name
+  user_data_type
+  enum_members_list
+  enum_member
+  class_type_definition
+  class_name_list
+  var_name_list
+  var_name
+  func_name
+  arg_name
+  class_name
+  class_name_ref
+  portset_name
+  port_name
+  portset_port
+  opt_extention
+  opt_void
+  clock_port_name
+  aspect_name
+  advice_name
+  
+<exp_type>
+  parallel_primitive
+
+<strength>
+  opt_strength
+
+
+<portdir>
+  port_direction
+
+<connection>
+  port_connections
+  port_connection

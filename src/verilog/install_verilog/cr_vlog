@@ -1,0 +1,53 @@
+#!/bin/csh -f
+#
+#
+#
+#
+# The following line(s) will pre-compile your
+# PLI C source files before the linking step.
+#
+
+gcc -c -O \
+   veriuser.c \
+   -I$JEDA_HOME/include \
+   -I$VERILOG_HOME/include 
+   
+gcc -c  \
+   vpi_user.c \
+   -I$JEDA_HOME/include \
+   -I$VERILOG_HOME/include 
+
+# The following is the actual compile/link
+# statement:                              
+# 
+# NOTE: 
+#  Add option -export-dynamic if you are using GNU 'ld'
+#    or you'll get dlopen link error at runtime.
+#    
+gcc -o verilog \
+   $VERILOG_HOME/lib/vlog.o \
+   $VERILOG_HOME/lib/libdlc.a \
+   $VERILOG_HOME/lib/omnitasks.o \
+   veriuser.o \
+   vpi_user.o \
+   $JEDA_HOME/lib/jeda_pli.o \
+   -L$VERILOG_HOME/lib \
+   -lsimcontrol -lsimvis_ext -ludm \
+   -lmpsc_sh \
+   -lnmp_sh \
+   -ldataReg_sh \
+   -lcla_sh \
+   -lmpi_sh \
+   -lsman_sh \
+   -L$VERILOG_HOME/../lib \
+   -lelf \
+   -lcdsCommon_sh \
+   -I$VERILOG_HOME/include \
+   -lnewsdfa \
+   -lsdfi \
+   -L/usr/dt/lib -L/usr/openwin/lib \
+   -lXm -lXmu -lXt -lXext -lX11 \
+   -lvoids \
+   -lsocket -lnsl -lm -ldl -lw -lgen -lintl -ll -ly -lpthread
+#
+unset verbose

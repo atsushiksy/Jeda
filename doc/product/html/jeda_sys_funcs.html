@@ -1,0 +1,323 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_concurrent.html">Prev</a>
+| <a href="jeda_sys_class.html">Next</a>
+<h1>
+<a NAME="12. System Functions"></a>13. System Functions</h1>
+
+<blockquote>This chapter explains the system functions that Jeda provides.</blockquote>
+
+<h2>
+<a NAME="12.1 Pseudo Random Generators"></a>13.1 Pseudo Random Generators</h2>
+
+<ul>Jeda provides 2 different types of pseudo random generator. Each random
+function comes with signed (bit31 is always 0) version and unsigned version.
+Both signed and unsigned version shares the same random generation structure,
+thus not individual random sequence.
+<ul>&nbsp;
+<li>
+int random( [int seed] )</li>
+
+<br>Meesenne Twister random function. This random function is&nbsp; developped
+by Makoto Matsumoto and Takuji Nishimura, and it has the period of 2**19937-1.
+<br>Refer to the websuite for futher information:
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="http://www.math.keio.ac.jp/~matumoto/emt.html">http://www.math.keio.ac.jp/~matumoto/emt.html</a>
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>random( 5945394 ) ; //
+initialize</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; x = random()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "random
+= %d\n", x ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+
+<li>
+int urandom( [int seed] )</li>
+
+<br>Unsigned version of random().
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>bit [63:0] data ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>urandom( 499494 ) ; //
+initialize</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( 100 ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; data = {urandom(),urandom()}
+; // create 64-bit random</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+</ul>
+Note: Unsigned version of random functions create a value with 32-bit set,
+which is a negative value as a signed integer. This random may not be used
+with modulo operation as modulo of negative will be the same negative value.
+<br>&nbsp;
+<ul>
+<ul><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>x = random() % 100 ;&nbsp;
+// will get 0 to 99 value</font></font>
+<p><font face="Courier New,Courier"><font size=-1>x = urandom() % 100 ;
+// will get negative value, not like above</font></font>
+<br>&nbsp;</ul>
+
+<li>
+int rand48( [int seed] )</li>
+
+<br>Non-negative pseudo random. Based on a linear congruential algorithm
+on 48bits integer.
+<br>&nbsp;
+<li>
+int urand48( [int seed] )</li>
+
+<br>Unsigned version of rand48.</ul>
+</ul>
+
+<ul>The random functions above generates a single sequence of the pseudo
+random. Jeda also support system classes of random functions that each
+instance creates individual
+<br>pseudo random sequence. See <a href="jeda_sys_class.html#13.1 Random Classes">13.1
+Random Classes</a> for the detailed information.</ul>
+
+<h2>
+<a NAME="12.2 Print and Report Functions"></a>13.2 Print and Report Functions</h2>
+
+<blockquote>Jeda support C style printf format with the following additional
+% formats:
+<ul>%h %H&nbsp; -- same as %x, print in hex format
+<br>%b %B&nbsp; --&nbsp; print in binary format</ul>
+The following functions take the same printf forms.
+<ul>
+<li>
+void printf( string format [, data..] )</li>
+
+<br>This function prints out to standard out. The message will also be
+on the log file in Verilog.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>printf( "data = %d\n",
+data ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>printf( "bit data =
+%b\n", data ) ;</font></font></ul>
+
+<li>
+void error( string format [, data..] )</li>
+
+<br>This function prints out the form to standard out with additional error
+message. The execution will be stopped (depends on the execution mode).
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>if( sig.0 != 3'b000
+) error( "sig.0 is not 3'b000\n" ) ;</font></font></ul>
+
+<li>
+void warning( string format [, data..] )</li>
+
+<br>This function prints out the form with additional warning message.
+The execution will not be stopped.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>if( sig.0 == 3'b101
+) warning( "sig.0 == 3'b101\n" ) ;</font></font></ul>
+</ul>
+assert() function is provided to construct a simple check easily.
+<blockquote>
+<li>
+void assert( ? )</li>
+
+<br>This function takes one argument of any type and checks if the argument
+is true(non-zero, non-null). If the argument is not 'true' it reports 'assert
+error'.
+<br>Thus the function assert(x) is same as:
+<br>&nbsp; if( !x ) error( "assert error" ) ;
+<blockquote><font face="Courier New,Courier"><font size=-1>assert( sig.0
+= 9'b101 ) ;</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="12.3 String Handling Functions"></a>13.3 String Handling Functions</h2>
+
+<blockquote>The following functions are for string handling:</blockquote>
+
+<blockquote>
+<ul>
+<li>
+string sprintf( string format [, data ..] )</li>
+
+<br>This function takes the same format arguments as printf, and returns
+a string of the print out.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>string name ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>x = random() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>name = sprintf( "name_%d",
+x ) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+string substring( string str, int start [, int end] )</li>
+
+<br>This function returns the substring indexed by start and end point.
+If end is omitted, it becomes the end of the string.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>string pname ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>pname = substring( name,
+0, 3 ) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+int strlen( string str )</li>
+
+<br>This function returns the length of the string
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>x = strlen( name ) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+int atoi( string str )</li>
+
+<br>This function converts the integer string to an integer
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>int x ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>x = atoi( "12454" ) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+bit abintobit( string str )</li>
+
+<br>This function converts the binrary string to a bit value
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>bit [7:0] y ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>y = abintobit( "10001011"
+) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+bit aocttobit( string str )</li>
+
+<br>This function converts the octal string to a bit value
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>bit [17:0] z ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>z = aocttobin( "174240"
+) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+bit ahextobit( string str )</li>
+
+<br>This function converts the hex string to a bit value
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>bit [23:0] hh ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>hh = ahextobit( "f948ce"
+) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+string bit2string( bit data )</li>
+
+<br>This function converts the bit data to a bit string
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>string bitstr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>bit [31:0] data ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>bitstr = bit2string(
+data ) ;</font></font></ul>
+</ul>
+</blockquote>
+
+<h2>
+<a NAME="12.4 Simulator Related Functions"></a>13.4 Simulator Related Functions</h2>
+
+<blockquote>The following functions are for controling and getting simulator
+information.</blockquote>
+
+<blockquote>
+<ul>
+<li>
+bit [31:0] get_cycle()</li>
+
+<br>This function returns the current cycle value. This current cycle is
+counted in a 32-bit counter 'CycleCount' created in Jeda Verilog module
+(.jeda.v) and the counter is incremented at the posedge of CLOCK signal.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>printf( "Current cycle
+is %d \n", get_cycle() ) ;</font></font></ul>
+
+<li>
+bit [63:0] get_time()</li>
+
+<br>This function returns the current simulation time as the 64-bit value.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>printf( "Current simulation
+time is %d\n", get_time() ) ;</font></font></ul>
+
+<li>
+string get_plusarg( string pattern )</li>
+
+<br>This function returns the post match string of plus argument with given
+pattern. It will return null if not match. The patterm must be longer than
+2 charactors.
+<br>The following example shows how to feed a different seed with plus
+argument.
+<br>The new seed can be given with +mt_seed=&lt;value> at the execution
+of the simulation.
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>string parm ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>int seed ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>parm = get_plusarg( "mt_seed="
+) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( parm != null ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; seed = atoi(
+parm ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; random( seed
+) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "random
+is initialized with seed %d\n", seed ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</ul>
+This function returns null if it can't find the given pattern. As null
+and "" (null-string) are not equal, the following code can be used to detect
+the exact pattern string.
+<br>&nbsp;
+<ul><font face="Courier New,Courier">if( get_plusarg( "verbose" ) != null
+) verbose = 1 ;</font></ul>
+
+<li>
+void unit_delay( int delay_value )</li>
+
+<br>This function delays the execution with given unit_delay.</ul>
+
+<ul>
+<ul><font face="Courier New,Courier"><font size=-1>printf( "Current time
+is %d\n", get_time() ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>unit_delay( 100 ) ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>printf( "Current time
+is %d\n", get_time() ) ;</font></font>
+<br>&nbsp;</ul>
+
+<li>
+void exit()</li>
+
+<br>This function exits from the simulation.</ul>
+</blockquote>
+
+<h2>
+<a NAME="12.5 System Exec Function"></a>13.5 System Exec Function</h2>
+
+<blockquote>The system_exec function invokes (fork and exec) the given
+strings as the command. The command runs in the background process.</blockquote>
+
+<blockquote>
+<ul>
+<li>
+int system_exec( string command )</li>
+
+<br>This function executes the command as the background process.</ul>
+The example code using system_exec() and ip_socket class to communicate
+with the invoked process (tcl/tk) is shown in the next chapter.</blockquote>
+
+</body>
+</html>

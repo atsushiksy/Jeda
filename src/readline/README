@@ -1,0 +1,15 @@
+This directory is to create GNU readline library and history library.
+As some examples (e.g. gdb and octave) shows that readline library is
+included in the source release, I did the same. 
+
+To be able to link as dynamic lib, -fPIC is added to the CC flag. This is 
+done by patching readline-4.2/Makefile.in with Makefile.in.diff.
+
+While configuring/compiling readline-4.2, I faced a problem that my system
+does have 'setlocale' function, while locale.h does not exists. This causes
+nls.c compile error. To overcome this problem, I've created the new
+autoconf input configure.in.new, and its output configure.new.
+The modification is simply check locale.h first, and only check setlocale
+when locale.h is found.
+
+

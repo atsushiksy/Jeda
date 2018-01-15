@@ -1,0 +1,50 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="random_test.html">prev </a>: <a href="index.html">index</a>
+<h1>
+<font size=+1>14. Running Simulation</font></h1>
+
+<blockquote>In order to run simulation, we need to 1) compile the jeda
+file, 2) invoke the verilog simulation.
+<br>As explained before, the compile and simulation are supposed to be
+done in 'run' directory, so cd to 'run'.
+<p>Here, running 'make' (or 'gmake' if it's the name for GNU make) will
+compile all the Jeda files and produce the dynamic loadable library &lt;test>.dl
+for all the &lt;test>.j in 'tests' directory. Type:
+<blockquote><font face="Courier New,Courier"><font size=-1>make</font></font></blockquote>
+The Makefile uses -g option on jeda compiler/linker to enable the debugger
+at runtime. If you are running the simulation for regression, it would
+be better to remove the option to get better performance. This can be done
+by overwriting JEDA_FLAG variable as:
+<blockquote><font face="Courier New,Courier"><font size=-1>make JEDA_FLAG=''</font></font></blockquote>
+In the directory, the necessary verilog files are listed in a file 'vfiles'.&nbsp;
+The contents of the file is the following:
+<blockquote><font face="Courier New,Courier"><font size=-1>../verilog/squat_test.v</font></font>
+<br><font face="Courier New,Courier"><font size=-1>../verilog/squat.v</font></font>
+<br><font face="Courier New,Courier"><font size=-1>../verilog/utopia1_atm_rx.v</font></font>
+<br><font face="Courier New,Courier"><font size=-1>../verilog/utopia1_atm_tx.v</font></font></blockquote>
+The script 'run' in the directory shows how to run verilog simulation given
+that the simulator name is 'verilog'. This script will work on Verilog-XL
+simulator. The contents of the script is the following:
+<blockquote><font face="Courier New,Courier"><font size=-1>verilog -f vfiles
+../tests/$1.jeda.v +jeda_debug_on_error \</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; +jeda_code=../tests/$1.dl
+$2 $3 $4 $5 $6 $7 $8 $9</font></font></blockquote>
+To run a specific test, give the test name to the run script. For example:
+<blockquote><font face="Courier New,Courier"><font size=-1>run manage_if_test</font></font></blockquote>
+will run manage_if_test. Additional plus argument can be added to the 'run'
+script after the test name.
+<br>The plus argument <font face="Courier New,Courier"><font size=-1>'+jeda_debug_on_error'</font></font>
+will enable the debugger to be called when the simulation encounters&nbsp;
+the verification error (user error() call). Another useful plus argument
+during the debugging is <font face="Courier New,Courier"><font size=-1>'+jeda_debug_on_warning'</font></font>
+which will call the debugger when the simulation encounters the warning
+such as access to a not allocated entry in an associative array.</blockquote>
+<a href="random_test.html">prev </a>: <a href="index.html">index</a>
+</body>
+</html>

@@ -1,0 +1,598 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_expression.html">Prev</a>
+| <a href="jeda_class.html">Next</a>
+<h1>
+8. Statement</h1>
+
+<blockquote>Statement is the minimum unit of execution in Jeda code.</blockquote>
+
+<h2>
+<a NAME="8.1 Statement Prefix"></a>8.1 Statement Prefix</h2>
+
+<blockquote>Every statement can have label and cycle element.
+<h3>
+<a NAME="8.1.1 Label"></a>8.1.1 Label</h3>
+
+<blockquote>
+<blockquote>Label can be declared to specify the range of loop for break
+and continue statement. Label has a name with : (column) as:
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; for_label:&nbsp;
+for( i = 0 ; i &lt; 1000 ; i++) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; break
+for_label ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p>Label is only valid for loop statement (i.e. while, for, repeat, do,
+forever). Label for other type of statement will be ignored.</blockquote>
+</blockquote>
+
+<h3>
+<a NAME="8.1.2 Cycle Element"></a>8.1.2 Cycle Element</h3>
+
+<blockquote>
+<blockquote>Any statement can have cycle element to delay the execution
+by number of cycle. When the number of cycle is ommited, cycle = 1 is used
+as the default. Statement with the cycle element will sync with the edge
+given number of cycles.&nbsp; When "@1(posedge clock)" is executed at the
+posedge of the clock, then it moves the execution cycle to the next edge
+(thus fulll cycle delay). If it is executed at the negedge of the clock,
+it only moves a half cycle to the next posedge.
+<p>@0 is the special case which will move the execution to the edge only
+if it's not on the edge at the execution.</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>int a, b, c
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>@5 (posedge sig.clk)
+a = 5 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// wait for 5 posedge
+of sigs.clk, then assign 10 to a</font></font>
+<br><font face="Courier New,Courier"><font size=-1>@5 b = 5 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// wait for 5 posedge
+of internal clock, then assign 10 to b</font></font></blockquote>
+</blockquote>
+
+<blockquote>When a port assignment is used with cycle delay, the driving
+edge for the port is used as the default clock. Non-blocking assignment
+'&lt;=' operator can be used to schedule the drive without waiting. This
+is only allowed for assignment to a port.</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>@5 sigs.a &lt;=
+2'b00 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// use drive edge of
+sigs.a, non-blocking assignment</font></font>
+<p><font face="Courier New,Courier"><font size=-1>@0 sigs.b = 1'b1 ; //
+not wait if it's on the edge</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h3>
+<a NAME="8.1.3 Note on the order of evaluation"></a>8.1.3 Note on the order
+of evaluation</h3>
+
+<blockquote>
+<blockquote>When a statement with the cycle element is detected, the following
+rules are applied to the evaluation:
+<blockquote>
+<ul>
+<li>
+If the statement is an assignment, right hand side is evaluatedfirst, before
+the delay given by the cycle element is applied to the execution.</li>
+</ul>
+
+<ul>
+<li>
+If the statement is not an assignment, the delay given by the cycle element
+is applied immediately, then the statement execution will be invoked.</li>
+</ul>
+</blockquote>
+</blockquote>
+
+<blockquote>This rules will gualantee the result for blocking and non-blocking
+assignment. But there will be some confusing cases when the right hand
+expression on the assigment contains a delay factor. In such a case, the
+delay given by the right hand side will occure first during the evaluation
+of the right hand side, then the delay given by the cycle element of the
+statement will be applied.</blockquote>
+</blockquote>
+
+<p><br>The following statements are supported in Jeda.</blockquote>
+
+<h2>
+<a NAME="8.2 Block"></a>8.2 Block</h2>
+
+<blockquote>&nbsp;&nbsp;&nbsp; Block is a statement to encapslate one or
+more statement together with { }.
+<br>&nbsp;&nbsp;&nbsp; Local variable and local enum type can be declared
+at the top of block.
+<blockquote><font face="Courier New,Courier"><font size=-1>if( i == 0 )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// block statement begin</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// statements in a block</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// block statement end</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.3 Null Statement"></a>8.3 Null Statement</h2>
+
+<blockquote>
+<blockquote>Null statement is a statement with no operation. This can be
+used to generate CLOCK cycle delay.
+<blockquote><font face="Courier New,Courier"><font size=-1>&nbsp; ; //
+null statement</font></font>
+<p><font face="Courier New,Courier"><font size=-1>@5 ;&nbsp; // cycle element
++ null statement</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.4 IF Else Statement"></a>8.4 IF Else Statement</h2>
+
+<blockquote>
+<blockquote>If statement does the conditional execution of the statement.
+Else section is an option.
+<blockquote><font face="Courier New,Courier"><font size=-1>if( &lt;cond>
+)</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; &lt;statement
+executed when &lt;cond> is true (non-zero)></font></font>
+<p><font face="Courier New,Courier"><font size=-1>if( &lt;conf> )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; &lt;statement
+executed when &lt;cond> is true ></font></font>
+<br><font face="Courier New,Courier"><font size=-1>else</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; &lt;statement
+executed when &lt;cond> is faulse></font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.5 While statement"></a>8.5 While statement</h2>
+
+<blockquote>
+<blockquote>While statement executes the statement while the condition
+is true.
+<blockquote><font face="Courier New,Courier"><font size=-1>i = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>while( i &lt; 100 )
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; array[i] = i++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.6 for statement"></a>8.6 for statement</h2>
+
+<blockquote>
+<blockquote>This is the famous for loop structure found in C.
+<blockquote><font face="Courier New,Courier"><font size=-1>for( i = 0 ;
+i &lt; 100 ; i++ ) array[i] = i ;</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.7 repeat statement"></a>8.7 repeat statement</h2>
+
+<blockquote>
+<blockquote>Verilog style repeat execute the statement given times. The
+repeat loop count is evaluated at the begining andstored in a temp memory
+while executint the loop, so changing the variable in the loop will not
+affect the loop time.
+<blockquote><font face="Courier New,Courier"><font size=-1>i = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>repeat( 100 ) array[i]
+= i++ ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>i = 100 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>repeat( i ) array[i-1]
+= i-- ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>// changing i wont change
+the loop times</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.8 Do while statement"></a>8.8 Do while statement</h2>
+
+<blockquote>
+<blockquote>Do-while statement repeat the statement while the condition
+is true. This is similar to while statement, but condition is checked at
+the end of loop. Thus, the statement will be executed at least once.
+<blockquote><font face="Courier New,Courier"><font size=-1>i = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>do {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; array[i] = i++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>} while ( i &lt; 100
+) ;</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.9 Forever statement"></a>8.9 Forever statement</h2>
+
+<blockquote>
+<blockquote>Forever statement execute the statement until terminated.
+<blockquote><font face="Courier New,Courier"><font size=-1>i = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>forever {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; array[i] = i++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( i > 100 )
+break ;&nbsp; // terminate the forever</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.10 Case statement"></a>8.10 Case statement</h2>
+
+<blockquote>
+<blockquote>Case statement is the Verilog style conditional statement selection.
+<br>(Note that Jeda does not support C style 'switch' statement.)
+<blockquote><font face="Courier New,Courier"><font size=-1>case(a) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 0,1,2:&nbsp;
+printf( "a &lt;= 2\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; default: printf(
+"a > 2!!\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.11 Casex statement"></a>8.11 Casex statement</h2>
+
+<blockquote>
+<blockquote>This is the Verilog style casex statement which ignores x in
+the field.
+<blockquote><font face="Courier New,Courier"><font size=-1>casex(a) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0000:&nbsp;
+printf( "a = 4'b0000\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0001:&nbsp;
+printf( "a = 4'b0001\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0010:&nbsp;
+printf( "a = 4'b0010\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0100:&nbsp;
+printf( "a = 4'b0100\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b1000:&nbsp;
+printf( "a = 4'b1000\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; default: printf(
+"a is in unknown state!!\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.12 Casez statement"></a>8.12 Casez statement</h2>
+
+<blockquote>
+<blockquote>This is the Verilog style casez statement which ignores z in
+the field.
+<blockquote><font face="Courier New,Courier"><font size=-1>casez(a) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0000:&nbsp;
+printf( "a = 4'b0000\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0001:&nbsp;
+printf( "a = 4'b0001\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0010:&nbsp;
+printf( "a = 4'b0010\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b0100:&nbsp;
+printf( "a = 4'b0100\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; 4'b1000:&nbsp;
+printf( "a = 4'b1000\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; default: printf(
+"a is in unknown state!!\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.13 Break statement"></a>8.13 Break statement</h2>
+
+<blockquote>
+<blockquote>Break statement exits from the loop (while, for, do-while,
+repeat, forever). When label is not specified, it terminates the most inner
+loop. When the (valid) label is specified, it exit from the loop statement
+with the given label.
+<blockquote><font face="Courier New,Courier"><font size=-1>lbl_0: forever
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 10000
+) {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+x == 100 ) break ; // exit from repeat loop</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+y == 100 ) break lbl_0 ; // exit from forever loop</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.14 Continue statement"></a>8.14 Continue statement</h2>
+
+<blockquote>
+<blockquote>Continue statement move the control to the end of loop for
+next iteration. Without the label, it effects to the most inner loop. When
+the label is specified, it effects to the loop statement with the label.
+<blockquote><font face="Courier New,Courier"><font size=-1>lbl_0: for(
+i = 0 ; i &lt; 100 ; i++ ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; repeat( 10000
+) {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+x == 100 ) continue ; // continue the repeat loop</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+y == 100 ) continue lbl_0 ; // continue the for loop</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.15 Fork join statement"></a>8.15 Fork join statement</h2>
+
+<blockquote>
+<blockquote>Statements placed between fork - join will be executed concurrently
+as the threads.
+<br>There are three ways to end the fork:
+<ul>
+<li>
+Ending with 'join' will wait all the forked threads' completion.</li>
+
+<li>
+Ending with 'spoon', it waits for the first one thread to complete. The
+threads that are not completed will be kept for execution, but parent won't
+wait the result.</li>
+
+<li>
+Ending with 'knife', it won't wait for the completion and continue to execute
+the following statement.</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<p><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>join</font></font>
+<p><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>spoon</font></font>
+<p><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>knife</font></font></ul>
+Note: Common mistake I see when fork/knife is used to generate a thread
+is to forget { }. The intention is to execute the statements in a sequential
+order, but the result is a bit messy:
+<blockquote><font face="Courier New,Courier"><font size=-1>// forgetting
+{}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; printf( "Child
+thread started\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( x == 0 )
+@10 ; // delay 10 cycle</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; if( x == 0 )
+error( "x == 0 even after 10 cycle\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>knife</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.16 Terminate statement"></a>8.16 Terminate statement</h2>
+
+<blockquote>
+<blockquote>Terminate statement will terminate all the descendant threads
+started from the thread.
+<blockquote><font face="Courier New,Courier"><font size=-1>fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; bar() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>spoon</font></font>
+<p><font face="Courier New,Courier"><font size=-1>terminate ;&nbsp; //
+terminating the one that still running</font></font>
+<br>&nbsp;</blockquote>
+Note that all the child-threads that are created previously under this
+thread will be terminated. There may be child-thread createds in the sequence
+that is not visible from where the terminate statement is executed. For
+example, threads created by a caller of the function will be terminated
+as it belongs to the same thread. (Note that a function call does not create
+a thread.) To eliminate such unknow effect, it is suggested to fork off
+a thread around the terminate statement to constraint the child threads
+that are actually terminated.
+<br>&nbsp;
+<blockquote>&nbsp;
+<br><font face="Courier New,Courier"><font size=-1>main() {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; checker()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; driver()
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; zoo() ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void zoo() {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; // terminate will
+not effect threads outside this fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // without this
+fork, the terminate statement will terminate checker()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; // and driver()
+called from main() above.</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; fork</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+foo() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+bar() ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; knife</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @100(posedge
+CLOCK) ;&nbsp; // some delay</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; terminate
+; // only terminate foo(), bar()</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; join</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.17 Breakpoint statement"></a>8.17 Breakpoint statement</h2>
+
+<blockquote>
+<blockquote>Breakpoint statement terminates the execution and transfer
+the control to the debugger.
+<blockquote><font face="Courier New,Courier"><font size=-1>breakpoint ;</font></font></blockquote>
+It can take a string as the file name that is executed at the beginning
+of the debugger session.
+<blockquote><font face="Courier New,Courier"><font size=-1>breakpoint "commands.jdb"
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1></font></font>&nbsp;</blockquote>
+See <a href="jeda_debugger.html">Appendix C. Jeda Debugger</a> for the information about the debugger.</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.18 increment and decrement statement"></a>8.18 increment and
+decrement statement</h2>
+
+<blockquote>
+<blockquote>post, pre increment/decrement expression (++, --) can be done
+as the statment.</blockquote>
+
+<blockquote>
+<blockquote><font face="Courier New,Courier"><font size=-1>val++ ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>--i ;</font></font></blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.19 Assign statement"></a>8.19 Assign statement</h2>
+
+<blockquote>
+<blockquote>Assign statement stores right hand expression to left hand
+(variable or port).
+<blockquote><font face="Courier New,Courier"><font size=-1>x = 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>y = foo() ;</font></font></blockquote>
+Assignment itself is not an expression in Jeda, so the following if statement
+is not allowed, and cause syntax error.
+<blockquote><font face="Courier New,Courier"><font size=-1>if( x = 0 )
+print( "boo!\n" ) ; // meant x==0 ??</font></font></blockquote>
+</blockquote>
+
+<h3>
+&nbsp;<a NAME="8.19.1 String to Bit Assignment"></a> 8.19.1 String to Bit
+Assignment</h3>
+
+<blockquote>Assigning a string to bit data is allowed, which will transfer
+a string in to the bit variable at the byte boundary.
+<blockquote><font face="Courier New,Courier"><font size=-1>bit [8*20-1:0]
+name ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>name = "unkown" ;</font></font>
+<br>&nbsp;</blockquote>
+This assignment is for communicating string information to Verilog using
+Verilog task call mechanism. The assignment with subbit access is not allowed.
+<blockquote><font face="Courier New,Courier"><font size=-1>name[7:0] =
+"g" ; // illegal, compile error</font></font></blockquote>
+Direct assignment of bit valiable to a string variable is not allowed.
+The system function bit2string will convert back the bit (contains string)
+to a string value.
+<blockquote><font face="Courier New,Courier"><font size=-1>string name_string
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>bit [8*20-1:0] name
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>name = "my_name" ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>name_string = bit2string(
+name ) ;</font></font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<h3>
+&nbsp;<a NAME="8.19.2 Concatenated Assignment"></a>8.19.2 Concatenated
+Assignment</h3>
+
+<blockquote>An enumerated list with '{ }&nbsp; (quoted bracket) can be
+used as the left expression of the assignment. This is similar to the assignment
+to concatenated data in Verilog.&nbsp; All the data within the blacet must
+be bit, int, or port/signal with depth. Rright hand side must be int or
+bit type.
+<blockquote><font face="Courier New,Courier"><font size=-1>output [5:0]
+d_out ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>bit [2:0] bit2 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>..</font></font>
+<p><font face="Courier New,Courier"><font size=-1>void foo() {</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; '{d_out.0, bit2}
+= 9'b111101010 ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<h3>
+&nbsp;<a NAME="8.19.3 Non Blocking Assignment"></a>8.19.3 Non Blocking
+Assignment</h3>
+
+<blockquote>Non-blocking assignment is specified with '&lt;=' as the assignment
+operator.
+<blockquote><font face="Courier New,Courier"><font size=-1>@5 d_out.0 &lt;=
+6'b111000 ;</font></font></blockquote>
+</blockquote>
+
+<h3>
+&nbsp;<a NAME="8.19.4 Note on the Order of Evaluation"></a>8.19.4 Note
+on the Order of Evaluation</h3>
+
+<blockquote>The following rule are applied to the order of evaluation for
+assign statement.
+<ul>
+<li>
+If a cycle element is attached with the assign statement, right hand side
+is evaluated first, before the delay given by the cycle element is applied
+to the execution.</li>
+</ul>
+This rule gualantees the result of blocking and non-blocking assignments
+are identical after the assignment completion. But there will be some confusing
+cases when the right hand expression on the assignment contains a delay
+factor. In such case, the delay given by the right hand side will occur
+first during the first evaluation, then the delay given by the cycle element
+will take effect.</blockquote>
+
+<blockquote>
+<blockquote>&nbsp;</blockquote>
+</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="8.20 Function call statement"></a>8.20 Function call statement</h2>
+
+<blockquote>
+<blockquote>Function can be called as statement. If the function returns
+a value, the value will be discarded.
+<blockquote><font face="Courier New,Courier"><font size=-1>int foo( int
+x ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font>
+<br><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p><font face="Courier New,Courier"><font size=-1>main() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int i ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; i = foo( 0 ) ;&nbsp;
+// function call as an expression</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; foo(0) ;&nbsp;
+// function call as a statement</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font></blockquote>
+See <a href="jeda_func_dcl.html#6.3 Default Argument">6.3 Default Argument</a>
+for handling default value on the function call.</blockquote>
+</blockquote>
+
+</body>
+</html>

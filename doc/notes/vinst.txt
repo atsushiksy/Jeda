@@ -1,0 +1,810 @@
+Jeda Virtual-Virtual Instruction Definition
+  
+  See vinst parser for detailed syntax.
+
+1. common representations
+
+ 1.1 Data type:
+  void
+  int
+  long
+  float
+  double
+  bit [<u>:<l>]
+  bool  (old)
+  class <class_name>
+  string
+  signal
+  enum <enum_name>
+
+ 1.2 Array range
+  single
+  array <size>
+  marray <dim>
+  stridx
+  assoc
+  list
+
+ <dim>
+   <dimention> ( <range0> <range1> .. )
+ 
+2. Structure Information
+
+ 2.1 Initial header
+  vzcmp <cmp_version>.<cmp_revision>
+      -- Compiler version & revision information
+
+ 2.2 Port Information
+  port <direction> [<ub>:<lb>] <port_name> <attribs>
+  
+  <attribs>
+    sample <edge> skew <value>
+    drive  <edge> skew <value>
+    depth <value>
+    path <string>
+    @ <port_name>
+    @ <pset_name>.<port_name>
+  
+ 2.3 Port Set Information
+   portset <pset_name> {
+     <port_information> ..
+   }
+   
+ 2.4 Connection Information
+   connection port <port_name> = <verilog_path_string>
+   connection portset <pset_name> <port_name> = <verilog_path_string>
+   
+ 2.5 Variable Declaration
+   var <level> <data_type> <name> <scope> <array_range> <var_attrib>
+   
+     <scope>
+       local
+       global
+       
+     <var_attrib>
+       static
+       clone
+       extern
+       local
+
+ 2.6 Enum declaration
+   enum <enum_name> <member_name>..
+   
+ 2.7 Function
+  function <func_options> <data_type> <func_name>  // should have <array_range>
+  (
+    <arguments>
+  )
+  
+    <func_options>
+      abstruct
+      local
+      protected
+      final
+      
+    <arguments>
+      [ var ] arg <data_type> <array_range> 
+      
+ 2.8 Class
+   class  <class_name> [ extends <super_class> ] {
+     <class_member>..
+   }
+   
+   <class_member>
+     <member variable declaration>
+     <function>
+     
+   2.8.1 Member Variable declaration
+     variable <data_type> <name> <array_range> <var_attrib>
+ 
+ 2.9 Static variable declaration
+   stat_var <class_name> <func_name> 
+      <data_type> <name> <array_range> <var_attrib>
+ 
+ 2.10 Static variable initialization block
+   static_init
+     <op_code>..
+   static_init_end
+ 
+ 2.11 Initial block
+   initial_begin
+     <op_code>..
+   initial_end
+   
+ 2.12 Class Initial block
+   class_initial_begin <class_name>
+     <op_code>..
+   class_initial_end
+   
+ 2.13 Class Allocation Entry
+   class_alloc <class_name>
+     <op_code>..
+   class_alloc_end
+     
+ 2.14 Member Function Entry
+   mfunc <class_name> <mfunc_name>
+     <op_code>..
+   func_end
+     
+ 2.15 Function Entry
+   func <name>
+     <op_code>..
+   func_end
+     
+3. Opcode
+  
+ 3.1 local variable declaration
+  lvar <index> <data_type> <var_name> <flags>
+  
+    <flags>
+      static
+      clone
+ 
+ 3.2 ALU operation
+ 
+   3.2.0 <type> code
+     (<type_string>)
+     
+     <type_string>
+       string
+       void
+       null
+       int
+       bit
+       float
+       ptset
+       signal
+       enum
+       float
+       obj
+       array
+       marray
+       assoc
+       stridx
+       list
+       what!! 
+       
+   3.2.1 Convert 
+     to_int                : convert ACC to integer type
+     convert bit <ub> <lb> (<type>)  : convert ACC to bit [ub:lb]
+     convert string (<type>) : convert ACC to string
+     convert float (<type>) : convert ACC to float
+  
+   3.2.2 Increment/Decrement
+    dec  <type>           : ACC--
+    inc  <type>           : ACC++
+ 
+   3.2.3 Binary Operation
+    minus (<type1>,<type2>)   :  ACC <- stack[sp-1] - ACC
+    plus  (<type1>,<type2>)   :  ACC <- stack[sp-1] + ACC
+    times (<type1>,<type2>)   :  ACC <- stack[sp-1] * ACC
+    div   (<type1>,<type2>)   :  ACC <- stack[sp-1] / ACC
+    mod   (<type1>,<type2>)   :  ACC <- stack[sp-1] % ACC
+    and   (<type1>,<type2>)   :  ACC <- stack[sp-1] & ACC
+    or    (<type1>,<type2>)   :  ACC <- stack[sp-1] | ACC
+    eor   (<type1>,<type2>)   :  ACC <- stack[sp-1] ^ ACC
+    nand  (<type1>,<type2>)   :  ACC <- stack[sp-1] ~& ACC
+    nor   (<type1>,<type2>)   :  ACC <- stack[sp-1] ~| ACC
+    neor  (<type1>,<type2>)   :  ACC <- stack[sp-1] ~^ ACC
+    rshift (<type>)           :  ACC <- stack[sp-1] >> ACC
+    urshift (<type>)          :  ACC <- stack[sp-1] >>> ACC
+    lshift (<type>)           :  ACC <- stack[sp-1] << ACC
+    lt    (<type1>,<type2>)   :  ACC <- stack[sp-1] < ACC
+    gt    (<type1>,<type2>)   :  ACC <- stack[sp-1] > ACC
+    eqeq  (<type1>,<type2>)   :  ACC <- stack[sp-1] == ACC
+    le    (<type1>,<type2>)   :  ACC <- stack[sp-1] <= ACC
+    ge    (<type1>,<type2>)   :  ACC <- stack[sp-1] >= ACC
+    ne    (<type1>,<type2>)   :  ACC <- stack[sp-1] != ACC
+    eqeqeq (<type1>,<type2>)  :  ACC <- stack[sp-1] === ACC
+    neqeq (<type1>,<type2>)   :  ACC <- stack[sp-1] !== ACC
+    eqQeq (<type1>,<type2>)   :  ACC <- stack[sp-1] =?= ACC
+    eqeqQ (<type1>,<type2>)   :  ACC <- stack[sp-1] ==? ACC
+    Qeqeq (<type1>,<type2>)   :  ACC <- stack[sp-1] ?== ACC
+  
+   3.2.4 Unary Operation
+    u_minus (<type>)          :  ACC <- - ACC
+    u_tilde (<type>)          :  ACC <- ~ ACC
+    u_not (<type>)            :  ACC <- ! ACC
+    u_and (<type>)            :  ACC <- & ACC
+    u_or  (<type>)            :  ACC <- | ACC
+    u_eor (<type>)            :  ACC <- ^ ACC
+    u_nand (<type>)           :  ACC <- ~& ACC
+    u_nor (<type>)            :  ACC <- ~| ACC
+    u_neor (<type>)           :  ACC <- ~^ ACC
+
+   3.2.5 Constant Operation
+    load_zero             : ACC <- 0
+    load_one              : ACC <- 1
+  
+    load_const (type) data : ACC <- data
+  
+    load_this   [<var>]     : ACC <- this
+    load_super  [<var>]     : ACC <- this.super
+
+    load_thread <label>   :  ACC <- thread(label) 
+
+    get_super [var] <num>  : ACC <- ACC.super(num)
+   
+   3.2.6 Concatenation and list
+    concat  (<type1>,<type2>) :  ACC <- ACC concat stack[sp-1] ;
+    
+        stack: data1     ACC: data2 
+                            -> stack:       ACC: {data1,data2}
+      
+    duplicate  (<type>)       :  ACC <- duplicate(ACC,stack[sp-1]) ;
+    
+        stack: data     ACC: num 
+                            -> stack:       ACC: {num{data2}}
+    
+    list    (<type>) n        :  ACC <- list(stack[sp-1]..stack[sp-n-1])
+    
+        stack: data1 data2 .. dataN   ACC: 
+                            -> stack:       ACC: '{data1, data2, .. dataN}
+    
+   3.2.7 Create a copy of object
+    copy_obj                  :  ACC <- copy_object(stack[sp-1], ACC) 
+
+   3.2.8 Extract sub-bit
+    get_subbit  <bittype>     :  ACC <- submit(stack[sp-2],stack[sp-1],ACC)
+    
+        stack: data   ub     ACC: lb 
+                            -> stack:       ACC: data[ub:lb]
+                            
+       <bittype>
+         i_endian[ub:lb]      :  Data source is i_endian
+         nz_lsb[ub:lb]        :  Data source is non-zero lsb
+
+   3.2.8 create sub-bit signal
+    get_sig_subbit      :  ACC <- submit_sig(stack[sp-2],stack[sp-1],ACC)
+    
+        stack: signal   ub     ACC: lb 
+                            -> stack:       ACC: data[ub:lb]
+                                  
+ 4. Stack Operation
+  pop <n>               : pop n-enties from stack and discard
+  push alu              :  stac[sp++] <- ACC
+  pop alu               :  ACC <- stac[--sp]
+  copy alu <n>          :  ACC <- stack[sp-n-1] 
+
+ 5. Stack Frame Operation
+  gen_frame             : create stack frame for leaf function
+                          this frame will be released on 'return_l' instruction
+                          
+  gen_thread            : create a new thread for non-leaf function call
+                          this stack frame will be released on 'return' inst
+ 
+ 6. Call, Jump, Return
+  jmp  <label>          : unconditional jump
+  jz <type> <label>     : jump if zero 
+  jnz <type> <label>    : jump if not zero
+  return_l              : return from leaf
+  return                : return from threaded child
+  return_n              : return from class instance allocation
+  
+  call <fnc_name> <narg> : call function
+  
+  call_m <class_name> <fuc_name> <narg> : call member function
+
+  veri_call <fnc_name> <narg> : call verilog task
+ 
+ 7. Concurrent
+  fork                  : create fork info stack
+                          point the current sp as sp for forked child sp
+                          so that stacked child thread won't be copied to
+                          child thread's stack
+                          
+  exec  label           : execute child
+                          create a thread with PC set to label, put it to 
+                          ready queue, push the thread to stack
+                          
+  join                  : wait for children
+                          wait untill all the children complete (exit)
+                          
+  spoon                 : wait for a child
+                          wait until one of the children complete
+                          
+  spoon cancel          : wait for a child, cancel the child after first one
+  
+  knife                 : flush fork info and proceed
+  
+  exit                  : terminate self thread
+  
+  exit p_and            : terminate self thread, anding ACC value to
+                          parent ACC value
+                          
+  exit p_or             : terminate self thread, storing ACC value to
+                          parent ACC value if it's non-zero
+                        
+  terminate             : terminate children
+    
+ 8. Debug
+  breakpoint            : stop execution and call debugger
+  
+
+ 9. Sync on clock
+  sync clk_of_pset_port <edge> <pset> <port>
+  
+        Sync on the reference clock of the port_set port
+        stack:        ACC: num_cycle 
+                            -> stack:       ACC: 
+                            
+  sync clk_of_port <edge> <port>
+  
+        Sync on the reference clock of the port
+        stack:        ACC: num_cycle 
+                            -> stack:       ACC: 
+                            
+  sync clk_of_signal <edge>
+  
+        Sync on the reference clock of the port
+        stack: num_cycle       ACC: signal (pointer to a port)
+                            -> stack:       ACC: 
+                            
+  sync pset_port <edge> <pset> <port>
+        
+        Sync on the portset port itself
+        stack:        ACC: num_cycle 
+                            -> stack:       ACC: 
+        
+  sync port <edge> <port>
+        
+        Sync on the port itself
+        stack:        ACC: num_cycle 
+                            -> stack:       ACC: 
+        
+  sync signal <edge> 
+  
+        Sync on the signal
+        stack: num_cycle       ACC: signal
+                            -> stack:       ACC: 
+  
+    <edge> -- posedge, negedge, bothedge, noedge
+
+
+ 10. Memory Access
+ 
+  10.1 Memory Access Options
+    <array_option>
+      stridx
+      array   <range>                 :  array[ index @ ACC ]
+      marray  <dim>  <range_list>     :  marray[ index @ ACC ]
+      assoc                           :  assoc[ index @ ACC ]
+    
+    <range_list>
+      ( <dim0> [, <dim>.. ] )
+      
+    <subbit_access>
+      subbit [ <bit_order> ]          :  store only to subbit
+      
+    <bit_order>
+      i_endian[<ub>:<lb>]
+      nz_lsb[<ub>:<lb>]
+      
+    <static>
+      static              :  access to static variable (local var only)
+    
+    <var>
+      var                 :  load the pointer to the variable
+      
+  10.2 Load ALU
+  
+   10.2.1 Load local
+    loadl [<array_option>] [<static>] [<var>] <index> 
+                                        : ACC <- local_var[<index>]
+    
+    loadl [<static>] [<var>] <index>
+      stack:          ACC:
+                            -> stack:       ACC: local@<index>
+      
+    loadl  stridx  [<static>] [<var>] <index>
+      stack:          ACC: <string>
+                            -> stack:       ACC: local@<index>[<string>]
+    
+    loadl  array <range> [<static>] [<var>] <index>
+      stack:          ACC: <array_id>
+                            -> stack:       ACC: local@<index>[<array_id>]
+    
+    loadl  assoc  [<static>] [<var>] <index>
+      stack:          ACC: <array_id>
+                            -> stack:       ACC: local@<index>[<array_id>]
+    
+    loadl  marray  <dim>  [<static>] [<var>] <index>
+      stack: <id1> <id2>..   ACC: <idN>
+                  -> stack:       ACC: local@<index>[<id1>][<id2>]..[<idN>]
+    
+    loadl [<array_option>] [<static>] [<var>] <index> 
+                                        : ACC <- local_var[<index>]
+    
+   10.2.2 Load global
+    loadg [<array_option>] [<var>] <name>         : ACC <- global_var[<index>]
+    
+    Stack/ACC handling per array option is the same as loadl
+    
+    
+   10.2.3 Load member
+    loadm [<array_option>] [<static>] [<var>] <class> <member> 
+                                            : ACC <- ACC@class.member
+
+    loadm          [<static>] [<var>] <class> <member>
+      stack:          ACC: <object>
+                            -> stack:     ACC: object@class.member
+    
+    loadm  stridx  [<static>] [<var>] <class> <member>
+      stack:<object>  ACC: <string>
+                            -> stack:     ACC: object@class.member[<string>]
+    
+    loadm  array  [<static>] [<var>] <class> <member>
+      stack:<object>  ACC: <array_id>
+                            -> stack:     ACC: object@class.member[<array_id>]
+    
+    loadm  assoc  [<static>] [<var>] <class> <member>
+      stack:<object>  ACC: <array_id>
+                            -> stack:     ACC: object@class.member[<array_id>]
+    
+    loadm  marray <dim> [<static>] [<var>]   <class> <member>
+      stack: <object>  <id1> <id2>..   ACC: <idN>
+                  -> stack:    ACC: object@class.member[<id1>][<id2>]..[<idN>]
+    
+
+   10.2.4 Load port
+    load_port  <port_name>           : ACC <- port[<index>].depth(ACC)
+      stack:          ACC: <depth>
+                            -> stack:     ACC: port[port_name].depth
+
+    load_pset_port  <pset_name> <port_name>               
+                        : ACC <- pset[stack[sp-1].port[<index>].depth(ACC)
+       stack:          ACC: <depth>
+                     -> stack:     ACC: pset[pset_name].port[port_name].depth
+   
+    
+    load_port_ptr  <port_name>           : ACC <- port[<index>]
+      stack:          ACC: 
+                            -> stack:     ACC: port[port_name]
+
+    load_pset_port_ptr  <pset_name> <port_name>               
+                        : ACC <- pset[stack[sp-1].port[<index>]
+       stack:          ACC: 
+                     -> stack:     ACC: pset[pset_name].port[port_name]
+ 
+    
+   10.2.5 Load signal port
+    load_sig_pt [static]   : ACC <- stack[sp-1].depth(ACC) 
+                            top of stack is a signal pointing to a port
+      stack:<signal>  ACC: <depth>
+                            -> stack:     ACC: signal.depth
+
+    load_sig_pt subbit   : ACC <- stack[sp-3].depth(sp-2)[sp-1:ACC]
+                            top of stack is a signal pointing to a port
+      stack:<signal> <depth> <ub> ACC: <lb>
+                            -> stack:     ACC: signal.depth[ub:lb]
+
+   10.2.6 Load static
+     load_static <class> <func> <variable>
+      stack:          ACC: 
+                            -> stack:     ACC: static@class.func.variable
+     
+     load_static stridx <class> <func> <variable>
+      stack:          ACC: <string>
+                -> stack:     ACC: static@class.func.variable[string]
+                            
+     load_static array <class> <func> <variable>
+      stack:          ACC: <index>
+                -> stack:     ACC: static@class.func.variable[index]
+                            
+     load_static assoc <class> <func> <variable>
+      stack:          ACC: <index>
+                -> stack:     ACC: static@class.func.variable[index]
+                
+     load_static marray <dim> <class> <func> <variable>
+      stack:<id1> <id2>..   ACC: <idN>
+           -> stack:     ACC: static@class.func.variable[<id1>][<id2>]..[<idN>]
+                
+         
+  10.3 Store Memory
+   10.3.1 Store local
+    storel [<array_option>] [<static>] [<subbit_access>] <ptype> <index>   
+                                       :local_var(<index>) <- data
+    
+      <ptype>
+        (<dst-type>,<src-type>)
+   
+    10.3.1.1 full access
+   
+     storel [<static>] <ptype> <index>          :  local(n) <- data
+      stack:   ACC: <data>
+    
+     storel stridx [<static>] <ptype> <index>   :  local(n)[string] <- data
+      stack: <data>  ACC: <string>
+
+     storel array [<static>] <ptype> <index>    :  local(n)[id] <- data
+      stack: <data>  ACC: <id>
+
+     storel assoc [<static>] <ptype> <index>    :  local(n)[id] <- data
+      stack: <data>  ACC: <id>
+
+     storel marray <dim> [<static>] <ptype> <index> 
+                                   :  local(n)[id1]..[idN] <- data
+      stack: <data> <id1> .. <data> ACC: <idN>
+
+    10.3.1.2 subbit access
+   
+     storel [<static>] <subbit_access> <ptype> <index> 
+                                          :  local(n)[ub:lb] <- data
+      stack: <ub> <data>  ACC: <lb>
+    
+     storel stridx [<static>] <subbit_access> <ptype> <index>   
+                                          :  local(n)[string][ub:lb] <- data
+      stack: <ub> <string> <data>  ACC: <lb>
+
+     storel array [<static>] <subbit_access> <ptype> <index>    
+                                          :  local(n)[id][ub:lb] <- data
+      stack: <ub> <id> <data>  ACC: <lb>
+
+     storel assoc [<static>] <subbit_access> <ptype> <index>    
+                                          :  local(n)[id][ub:lb] <- data
+      stack: <ub> <id> <data>  ACC: <lb>
+
+     storel marray <dim> [<static>] <subbit_access> <ptype> <index> 
+                                        :  local(n)[id1]..[idN][ub:lb] <- data
+      stack: <data> <id1> .. <idN> <ub> ACC: <lb>
+
+   10.3.2 Store global
+    storeg [<array_option>] [<subbit_access>] <ptype> <index>   
+                                       : ACC <- local_var[<index>]
+
+     10.3.2.1 full access
+      storeg <ptype> name                 :  global(name) <- data
+       stack:   ACC: <data>
+    
+      storeg stridx <ptype> name          :  global(name)[string] <- data
+       stack: <data>  ACC: <string>
+
+      storeg array <ptype> name          :  global(name)[index] <- data
+       stack: <data>  ACC: <id>
+
+      storeg assoc <ptype> name          :  global(name)[index] <- data
+       stack: <data>  ACC: <id>
+
+      storeg marray <dim> <ptype> name    :  global(name)[id1]..[idN] = ACC
+       stack: <data> <id1> .. ACC: <idN>
+
+     10.3.2.2 subbit access
+      storeg <subbit_access> <ptype> name                 
+                                         :  global(name)[ub:lb] <- data
+       stack:   ACC: <data>
+    
+      storeg stridx <subbit_access> <ptype> name          
+                                      :  global(name)[string][ub:lb] <- data
+       stack: <data> <string> <ub>  ACC: <lb>
+
+      storeg array N <subbit_access> <ptype> name          
+                                      :  global(name)[index][ub:lb] <- data
+       stack: <data> <id> <ub>  ACC: <lb>
+
+      storeg assoc <subbit_access> <ptype> name          
+                                      :  global(name)[index][ub:lb] <- data
+       stack: <data> <id> <ub>  ACC: <lb>
+
+      storeg marray <dim> <subbit_access> <ptype> name          
+                                      :  global(name)[id1]..[idN][ub:lb] <- data
+       stack: <data> <id1> .. <idN> <ub> ACC: <lb>
+        
+   10.3.3 Store Member
+  storem [<array_option>] [<static>] [<subbit_access>] <ptype> <class> <member>
+                                          : object@class.member <- data
+    10.3.3.1 full access
+    
+     storem [<static>] <ptype> <class> <member>       
+                                          :  object@class.member <- data
+      stack: <data>  ACC: <object>
+    
+     storem stridx [<static>] <ptype> <class> <member>   
+                                          :  object@class.member[string] <- data
+      stack: <data> <object> ACC: <string>
+
+     storem array [<static>] <ptype> <class> <member>   
+                                          :  object@class.member[id] <- data
+      stack: <data> <object> ACC: <id>
+
+     storem assoc [<static>] <ptype> <class> <member>   
+                                          :  object@class.member[id] <- data
+      stack: <data> <object> ACC: <id>
+
+     storem marray <dim> [<static>] <ptype> <class> <member> 
+                                    :  object@class.member[id1]..[idN] <- data
+      stack: <data> <object> <id1> <id2> .. ACC: <idN>
+      
+    10.3.3.2 subbit access
+    
+     storem [<static>] <subbit_access> <ptype> <class> <member>       
+                                       :  object@class.member[ub:lb] <- data
+      stack: <data> <object> <ub> ACC: <lb>
+    
+     storem stridx [<static>] <subbit_access> <ptype> <class> <member>   
+                                 :  object@class.member[string][ub:lb] <- data
+      stack: <data> <object> <string> <ub> ACC: <lb>
+
+     storem array N [<static>] <subbit_access> <ptype> <class> <member>   
+                                 :  object@class.member[id][ub:lb] <- data
+      stack: <data> <object> <id> <ub> ACC: <lb>
+
+     storem assoc [<static>] <subbit_access> <ptype> <class> <member>   
+                                 :  object@class.member[id][ub:lb] <- data
+      stack: <data> <object> <id> <ub> ACC: <lb>
+
+     storem marray <dim> [<static>] <subbit_access> <ptype> <class> <member> 
+                             :  object@class.member[id1]..[idN][ub:lb] <- data
+      stack: <data> <object> <id1> <id2> .. <idN> <ub> ACC: <lb>
+      
+  10.4 Store port
+   10.4.1 Store port 
+    store_port      <ptype>  <port>         : port(<id>) <- data
+      stack:   ACC: <data>
+
+    store_pset_port <ptype> <pset> <port>   : pset.port <- data
+      stack:   ACC: <data>
+   
+  10.4.2 Store signal port
+    store_sig_l [static] <ptype> <index>     : local[<index>].signal <- data
+      stack:      ACC: <data>
+
+    store_sig_l stridx [static] <ptype> <index>     
+                                  : local[<index>][<string>].signal <- data
+      stack: <data>     ACC: <string>
+
+    store_sig_l array N [static] <ptype> <index>     
+                                 : local[<index>][<id>].signal <- data
+      stack: <data>     ACC: <id>
+
+    store_sig_l assoc [static] <ptype> <index>     
+                                 : local[<index>][<id>].signal <- data
+      stack:  <data>    ACC: <id>
+
+    store_sig_l marray <dim> [static] <ptype> <index>     
+                                 : local[<index>][id1]..[idN].signal <- data
+      stack:  <data> <id1> ..    ACC: <idN>
+
+    store_sig_g [static] <ptype> <name>      : global[<name>].signal <- data
+      stack:      ACC: <data>
+
+    store_sig_g stridx [static] <ptype> <index>     
+                                  : global[<index>][<string>].signal <- data
+      stack: <data>     ACC: <string>
+
+    store_sig_g array N [static] <ptype> <index>     
+                                 : global[<index>][<id>].signal <- data
+      stack: <data>     ACC: <id>
+
+    store_sig_g assoc [static] <ptype> <index>     
+                                 : global[<index>][<id>].signal <- data
+      stack:  <data>    ACC: <id>
+
+    store_sig_g marray <dim> [static] <ptype> <index>     
+                                 : global[<index>][id1]..[idN].signal <- data
+      stack:  <data> <id1> ..    ACC: <idN>
+
+    store_sig_m [static] <ptype> <class> <member>   : port(member) = data
+      stack: <data>      ACC: <object>
+
+    store_sig_m stridx [static] <ptype> <index>     
+                                  : member[<index>][<string>].signal <- data
+      stack: <data> <object>   ACC: <string>
+
+    store_sig_m array N [static] <ptype> <index>     
+                                 : member[<index>][<id>].signal <- data
+      stack: <data> <object>    ACC: <id>
+
+    store_sig_m assoc [static] <ptype> <index>     
+                                 : member[<index>][<id>].signal <- data
+      stack:  <data> <object>   ACC: <id>
+
+    store_sig_m marray <dim> [static] <ptype> <index>     
+                                 : member[<index>][id1]..[idN].signal <- data
+      stack:  <data> <object> <id1> ..    ACC: <idN>
+
+  10.4.3 Store Subbit to port
+    store_port <ptype> <subbit_access> <port>    
+                                     : port(<id>)[<sp-2>:<sp-1>] <- data
+      stack: <data> <ub> ACC: <lb>
+    
+    store_pset_port <ptype> <subbit_access> <pset> <port>    
+                                     : pset.port[ub:lb] <- data
+      stack: <data> <ub> ACC: <lb>
+
+  10.4.3 Store Subbit to signal
+    store_sig_l [static] <subbit_access> <ptype> <id> 
+                            : local[<id>].signal[ub:lb] <- data
+      stack: <data> <ub> ACC: <lb>
+
+    store_sig_l stridx [static] <subbit_access> <ptype> <index>     
+                            : local[<index>][<string>].signal[ub:lb] <- data
+      stack: <data> <string> <ub>    ACC: <lb>
+
+    store_sig_l array N [static] <subbit_access> <ptype> <index>     
+                            : local[<index>][<id>].signal[ub:lb] <- data
+      stack: <data>  <id> <ub>   ACC: <lb>
+
+    store_sig_l assoc [static] <subbit_access> <ptype> <index>     
+                            : local[<index>][<id>].signal[ub:lb] <- data
+      stack:  <data> <id> <ub>  ACC: <lb>
+
+    store_sig_l marray <dim> [static] <subbit_access> <ptype> <index>     
+                            : local[<index>][id1]..[idN].signal[ub:lb] <- data
+      stack:  <data> <id1> .. <idN> <ub>   ACC: <lb>
+      
+
+    store_sig_g [static] <subbit_access> <ptype> <id> 
+                            : global[<id>].signal[ub:lb] <- data
+      stack: <data> <ub> ACC: <lb>
+
+    store_sig_g stridx [static] <subbit_access> <ptype> <index>     
+                            : global[<index>][<string>].signal[ub:lb] <- data
+      stack: <data> <string> <ub>   ACC: <lb>
+
+    store_sig_g array N [static] <subbit_access> <ptype> <index>     
+                            : global[<index>][<id>].signal[ub:lb] <- data
+      stack: <data> <id> <ub>    ACC: <lb>
+
+    store_sig_g assoc [static] <subbit_access> <ptype> <index>     
+                            : global[<index>][<id>].signal[ub:lb] <- data
+      stack:  <data> <id> <ub>   ACC: <lb>
+
+    store_sig_g marray <dim> [static] <<subbit_access> ptype> <index>     
+                            : global[<index>][id1]..[idN].signal[ub:lb] <- data
+      stack:  <data> <id1> .. <idN> <ub>  ACC: <lb>
+      
+      
+    store_sig_m <subbit_access> <ptype> <pset> <port>
+                            : port(member)[ub:lb] <- data
+      stack: <data> <object> <ub> ACC: <lb>
+
+    store_sig_m stridx [static] <subbit_access> <ptype> <index>     
+                            : member[<index>][<string>].signal[ub:lb] <- data
+      stack: <data> <object> <string> <ub>  ACC: <lb>
+
+    store_sig_m array N [static] <subbit_access> <ptype> <index>     
+                            : member[<index>][<id>].signal[ub:lb] <- data
+      stack: <data> <object> <id> <ub>   ACC: <lb>
+
+    store_sig_m assoc [static] <subbit_access> <ptype> <index>     
+                            : member[<index>][<id>].signal[ub:lb] <- data
+      stack:  <data> <object> <id> <ub> ACC: <lb>
+
+    store_sig_m marray <dim> [static] <subbit_access> <ptype> <index>     
+                            : member[<index>][id1]..[idN].signal[ub:lb] <- data
+      stack:  <data> <object> <id1> .. <idN> <ub> ACC: <lb>
+
+
+  10.4 Store static
+   10.4.1 Store static
+     store_static [<array_option>] <ptype> <class> <func> <variable>
+     
+     store_static [<array_option>] <subbit_access> 
+       <ptype> <class> <func> <variable>
+     
+     
+   10.4.2 Store static signal port
+     store_sig_static [<array_option>] <ptype> <strength>
+       <class> <func> <variable>
+     
+     store_sig_static [<array_option>] <subbit_access> <ptype> <strength> 
+       <class> <func> <variable>
+     
+11 Overwrite member functions
+
+  11.1 allocate function table
+    alloc_func <id> <func>
+    
+  11.2 overwrite function table
+    overwrite <parent> <this_class> <func>
+    
+  11.3 check overwrite function
+    chk_overwrite <id> <func>
+
+12 Others
+  
+  12.1 Null statement
+      null
+
+  12.2 Void statement
+      void

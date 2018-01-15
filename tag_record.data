@@ -1,0 +1,91 @@
+IntRelease_0_0_2
+IntRelease_0_0_3
+IntRelease_0_0_4
+IntRelease_0_0_5
+IntRelease_0_0_6
+IntRelease_0_0_7
+IntRelease_0_0_8 
+IntRelease_0_0_9 : sysclass func bug fix, string "" != null
+IntRelease_0_0_10 : forward global var member ref, this.protected bug fixes
+IntRelease_0_0_11 : portset ref bug, add assert, system_exec, (ip_socket)
+IntRelease_0_0_12 : fix this as argument bug, bug fix on ip_socket class
+IntRelease_0_0_13 : fix storel static subbit, bug fix on ip_socket class
+IntRelease_0_0_14 : fix non-blocking assignment bug, document update
+IntRelease_0_0_15 : fix object GC bug (mem-leak, core-dump on sys-obj)
+IntRelease_0_0_16 : fix object GC bug (object GC twice), super.new call bug
+IntRelease_0_0_17 : fix verilog task call bug
+IntRelease_0_0_18 : fix associative bit array data allocation bug
+IntRelease_0_0_19 : Added COPYING, for limited external release
+IntRelease_0_0_20 : Added configure support
+IntRelease_0_0_21 : Added INSTALL, update html doc for the new installation
+IntRelease_0_0_22 : Remove old GNUmake
+IntRelease_0_0_23 : Fix patch prblem, bit assoc array bug, void func detection
+IntRelease_0_0_24 : Fix a lot of bugs, added bus_snooper example
+IntRelease_0_0_25
+Release_1_0_0 : First version with debugger
+Release_1_0_1 : Fix config files
+Release_1_0_2 : Verilog writeback
+Release_1_0_3 : bug fixes
+Release_1_0_4 : bug fixes
+Release_1_0_5 : bug fix on debugger, fix on vpp, jedatemp
+Release_1_0_5 : added vpp.lex.patch
+Release_1_0_6 : able to use multiple -U, fix debugger, fix bug on standalone
+Release_1_0_7 : doc typo, fix if( signal ), fix clone flag bug in nested fork
+Release_1_0_8 : standalone simulator (basic), fix assoc member access bug
+Release_1_0_9 : standalone simulator with VCD, workaround flex problem
+Release_1_0_10 : various bug fixes, debug window support
+Release_1_0_11 : 2/17/02 two bugs reported by forls in force10, fix typo 
+Release_2_0_0 : Various bug fixes, various optimizations
+Release_2_0_1 : Fix GC bug
+Release_2_0_2 : Fix verilog node bug
+R_2_0_2_br_0 : Branch to try small integer
+Release_2_0_3 : Tag before marge
+R_2_0_2_br_0_0 : Branch tag before marge
+Release_2_0_4 : Fix a flash vstack bug
+Release_2_0_5 : Get updated docs
+Release_2_0_6 : Fix memory leak on sparc lwp. Fix Makefiles
+Release_2_0_7 : Fix seg-fault on mem_func call on empty object
+Release_2_0_8 : export func suport, vpi support
+Release_2_0_9 : temp
+Release_2_0_10 : Icarus Verilog support
+Release_2_0_11 : Fix configure problem
+Release_2_0_12 : change thread_join() to have time limit, debugger bug fix
+Release_2_0_13 : fix readline inc bug, bison 1.35, vpi.c call seq. 
+Release_2_0_14 : fix yet another bison 1.35 fix problem
+Release_2_0_15 : Use Ofer's code, fix two bugs reported by him
+root-of-Aspect-1 : Root for branch Aspect-1
+Aspect-1 : Branch for aspect oriented stuff
+Aspect-2 : Finish Branch for aspect oriented stuff
+Release_3_0_0 : Merge aspect branch
+Release_3_0_1 : Add missing files
+Release_3_0_2 : Remove JEDA_SELF_THREAD_CONTROL from non product version
+Release_3_0_3 : additional ifdef to let it compile
+Release_3_0_4 : bug fix detected on sparc, sone GC change (no effect)
+root-of-RefCountGC : root of branch for RefCount GC
+RefCountGC-1 : Branch for Refcount GC
+Release_3_0_5 : remove spec generation on Make, remove doc dir on release
+Release_3_0_6 : Another modification to remove doc, etc
+root-of-Optimize
+before_optimize
+Optimize : branch for various optimization
+Optimize-1 : branch end merged to trunk
+Release_3_0_7 : Inline optimization, configprod.in Makefile_product
+Release_3_0_8 : Remove -O2 in jeda.in (non-product version)
+Release_3_0_9 : Add flexlm, create product image
+Release_3_0_10 : configuser warn when wish not found. Before separate compile
+Release_3_0_11 : Module compile added
+Release_3_0_12 : checkin_license, checkout_license added
+Release_3_0_13 : fix makefile bug
+Release_3_0_13-bugfix : Bug fix branch for B1Lab problem
+Release_3_0_14 : RND/CYC added, fixes on 13-bugfix is also included here
+Release_3_0_15 : B1lab bug 003 (assoc member size bug in dup object)
+Release_3_0_16 : Fix makefile problem
+Release_3_0_17 : Fix constant NWORD bug
+Release_3_0_18 : B1lab bug 004, i386 lwp
+Release_3_0_19 : Fix src/Makefile_product.in for doc copy process change
+Release_3_0_20 : giving up i386 lwp as it clushes on Redhat
+Release_3_0_21 : Add -mso option on jedax for ModelSim
+Release_3_0_22 : Attempt to fix B1lab bug 005 (touch code_exec.c for stack)
+Release_3_0_23 : Fix b1lab bug 006 (obj_table_table extension bug)
+Release_3_0_24 : Fix jeda_pli.o link error reported by Len
+Release_3_0_25 : fix solaris ld error for Modelsim, fix error_cell segfalut

@@ -1,0 +1,177 @@
+<html>
+<head>
+</head>
+<body>
+<a href="cell_n_queue.html">prev</a> : <a href="index.html">index</a> :
+<a href="cell_driver_receiver.html">next</a>
+<p><font size=+1>7. マネージメント インターフェース ドライバー
+</font>
+<ul>
+ここから、DUTにインターフェースしているチップやロジックを模倣して動作する
+各種のドライバーを構成していきます。
+<p>
+UTOPIAのインターフェース仕様書は、IntelとMotorolaの２種類のマネージメント
+インターフェースを定義していますが、ここではIntel版のみを使用します。
+<br>
+また、この例の目的はマネージメント インターフェースを完全にテストすること
+ではないので、ここでインプリメントされているドライバーは、非常にシンプルな
+もので、コーナーケースをテストするようなタイミングを制御する機能は持って
+いません。
+<br>
+ここでは、ポート定義に無関係なドライバーの記述方法を中心に説明を行ないます。
+(ここでは、マネージメント インターフェース ポートは一つしかないのですが、
+今後の利用を考えている訳です)
+このドライバーのソースファイルは、
+<a href="../utils/mif_driver_0.j">mif_driver_0.j</a>です。
+<p>
+ドライバークラスは、マネージメント インターフェースをドライブするために必要
+なシグナル変数の集合を持っています。
+直接ポート信号を参照せず、シグナル変数から間接的にポートをドライブするように
+記述することは、コードの再利用の観点からみて非常に良い考えです。
+これにより、将来的に複数のインターフェースをドライブする必要がある場合に、
+容易に対応することが出来ます。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>class mif_driver {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal busmode
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal sel ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal rd_ds
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal wr_rw
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal rdy_dtack
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal rst ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; signal clk ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ..</font></font></ul>
+
+<p><br>
+コンストラクタ関数 new()は、ドライバのシグナルを実際のポートに設定するための
+シグナル変数を引数とします。シグナル変数が初期化された後、このコンストラクタ
+は、インターフェースをアイドル状態にドライブします。このドライバーは、
+DUTに対するリセット信号も、ドライブします。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void new(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_busmode,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_addr,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_sel,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_data,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_rd_ds,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_wr_rw,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_rdy_dtack,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_rst,</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; signal
+a_clk</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; busmode
+= a_busmode ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; addr
+= a_addr ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; sel
+= a_sel ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data
+= a_data ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rd_ds
+= a_rd_ds ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; wr_rw
+= a_wr_rw ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rdy_dtack
+= a_rdy_dtack ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rst
+= a_rst ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; clk
+= a_clk ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+drive signals to inactive state</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; busmode.0
+= 1'b1 ; // intel compatible mode, we only use this</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; addr.0
+= 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; sel.0
+= 1'b1 ; // active low</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; data.0
+= 8'bz ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rd_ds.0
+= 1'b1 ; // active low</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; wr_rw.0
+= 1'b1 ; // active low</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rst.0
+= 1'b1 ; // active hi, put under reset</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+関数 drive_reset() は、与えられたサイクル分リセット信号をドライブします。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void drive_reset(
+int duration ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rst.0
+= 1'b1 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; @duration(posedge
+clk) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; rst.0
+= 1'b0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; printf(
+"DUT comes out from reset at %d\n", get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+関数 read() は、与えられたアドレスのレジスタの内容を読みます。この関数は
+オプションの引数として、期待される値を取ることが出来ます。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; bit [7:0] read(
+bit[11:0] adr, bit [7:0] exp_data = 8'bx )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; bit
+[7:0] ret ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>
+引数 ex_data が省略されると、デフォルト値 8'bx が使用されます。この場合、
+関数内のマスク付き比較はつねにパスします。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; if( !(ret ==?
+exp_data) ) { // dont care if x on exp_data</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; error(</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"mif.read expect data error, exp %h act %h at %d\n",</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+exp_data, ret</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; )
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+信号 sel と rd_ds をドライブした後、ドライバーは rdy_dtack 信号がDUTから
+返されるのを待ちます。これは、組み込み関数 assert() と、時間表現式によって
+行なわれます。最大待ち時間 TIME_OUT_LIMITは １０００サイクルにセットされて
+います。アクセスが終了すると、ドライバはアドレスバスをランダムにドライブして、
+次のアクセスが、アイドル時のアドレス値に無関係であることを保証します。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>assert( @1, TIME_OUT_LIMIT(
+rdy_dtack.0 === 1'b0 ) ) ;</font></font></ul>
+
+<p><br>
+関数 write() は、与えられたデータを与えられたアドレスに書き込みます。
+<br>&nbsp;
+<ul><font face="Courier New,Courier"><font size=-1>&nbsp; void write( bit[11:0]
+adr, bit [7:0] dat ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+n ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; .</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></ul>
+
+<p><br>
+これらのドライバーは、後に説明されるスイッチ テスター クラスで使用されます。
+
+</ul>
+<a href="cell_n_queue.html">prev</a> : <a href="index.html">index</a> :
+<a href="cell_driver_receiver.html">next</a>
+</body>
+</html>

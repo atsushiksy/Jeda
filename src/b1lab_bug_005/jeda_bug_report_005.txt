@@ -1,0 +1,54 @@
+Bug report 
+*********************************************
+Number   : 5 
+Severity : Segmentation fault
+Date     : 04/14/2003
+reported : Mike Yin, Be One Lab Inc.
+*********************************************
+
+Bug description:
+
+[mike@b1lab0 bug_005]$ jedax -exe jvc_mpeg2_env.j
+file: jvc_mpeg2_env.j
+/var/tools/jeda-x.i86_linux.3.1.p7/bin/jedacmp   jvc_mpeg2_env.j
+OUT_FILE: jvc_mpeg2_env.jo
+ 0 compile errors
+/var/tools/jeda-x.i86_linux.3.1.p7/bin/jedalnk  -JL_o jvc_mpeg2_env  -JL_S  jvc_mpeg2_env.jo
+OUT_C_FILE: jvc_mpeg2_env.jeda.c
+Loading file "jvc_mpeg2_env.jo"
+OUT_VERILOG_FILE: jvc_mpeg2_env.jeda.v
+ 0 link errors
+C compile: gcc -I/var/tools/jeda-x.i86_linux.3.1.p7/include -c -O2  -D_REENTRANT  -fPIC  jvc_mpeg2_env.jeda.c -o jvc_mpeg2_env.jeda.o
+Link command: gcc -D_REENTRANT -o jvc_mpeg2_env  jvc_mpeg2_env.jeda.o /var/tools/jeda-x.i86_linux.3.1.p7/lib/smain.o /var/tools/jeda-x.i86_linux.3.1.p7/lib/jedaexe.a -lpthread -lnsl -lm -ll -lc -ltermcap
+[mike@b1lab0 bug_005]$ ./jvc_mpeg2_env > bug_005.log
+Segmentation fault                      
+-------------bug_005.log-------------------------------------
+At line 33 in "jvc_mpeg2_env.j" : 
+At line 93 in "jvc_mpeg2_h.j" : 
+At line 94 in "jvc_mpeg2_h.j" : 
+...............................
+...............................
+
+[1   ] jvc_ig      >> jvc_B1LAB_DEBUG     >> ev_qe has trigger
+At line 89 in "jvc_mpeg2_scheduler.j" :
+At line 90 in "jvc_mpeg2_scheduler.j" :
+At line 157 in "jvc_mpeg2_scheduler.j" :
+Segmentation fault  
+--------------------------------------------------------------
+
+To repro:
+all the .j files have been included to repro this bug.
+
+The error is related to line 100 in file jvc_mpeg2_scheduler.j.
+line 100 : //printf("$$$$$$$$$$$$$$$$$$$$$$$$ig.pic_counter=%d,ig.slice_counter=%d\n",ig.pic_counter,ig.slice_counter);
+
+a) if this line is uncommented, this error DOES NOT appear and program runs fine(with replacing the runtime.h that you sent me last time.)
+b) if this line is commented, the error occurs.for more information see bug_005.log.
+
+c) if this line is uncommented, this error DOES NOT appear with replacing the runtime.h that you sent me last time,
+   but with the release runtime.h version(jeda-x.i86_linux.3.1.p7/include/runtime.h), another error occurs.for more 
+   information see the without_debug_line.log.
+
+
+
+

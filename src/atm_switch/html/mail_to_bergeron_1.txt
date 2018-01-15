@@ -1,0 +1,60 @@
+From atsushi@juniper.net Fri Nov 30 12:09 PST 2001
+Date: Fri, 30 Nov 2001 12:09:16 -0800 (PST)
+From: Atsushi Kasuya <atsushi@juniper.net>
+To: janick@bergeron.com
+Subject: Verification Guild Project
+Cc: atsushi@juniper.net
+
+Dear Mr. Bergeron,
+
+I found the verification project on your web suite and started writing
+the verification environment with my open-source verif-language Jeda
+(http://www.jeda.org).
+
+My first transfer test detected the problem on the flow control.
+Under the output conjestion, atm_rx.v deasserts en signal, but
+there's no mechanism to idle the 52byte receiving loop. 
+So, transfer side keep the value when en deassered, but the receiver
+keep receiveing it as the data, and transfer to the core.
+
+As the result, it get dropped due to the HEC error.
+
+Here's the code in utopia1_atm_rx.v:
+
+      // Now sample the next 52 consecutive bytes
+      repeat (52) begin
+         cell = cell << 8;
+         @ (posedge clk);
+         i = i + 1;
+         cell[8:1] = data;
+         
+         // During byte #52 (in sequence 1-53)
+         // check if there will be room in the buffer.
+         // If not, deassert enable during byte 53
+         if (cell_bfr[0] !== 1'bx) begin
+            en <= #1 1'b1;
+         end
+      end
+
+I'll try to fix this my self and keep going my verification.
+Let me know if this is a known problem.
+
+Besides the problem above, I've noticed the following:
+
+  1)The spec. (2.2.4) says:
+     For each non-errored cells received with a non-zero VPI, the
+     configuration information for that cells' VPI is looked up.
+
+   But the model does not check if VPI is zero and always do the lookup. 
+   Software can put 0 on the entry 0 of the config register to acconplish 
+   this, but at least the model does not follow what the spec. says.
+
+  2)The cell transfer mechanism in squat.v does not implement the
+    fairness among the port. Thus, it is very easy to create the
+    sterving situation. I'll create a test case that detects this.
+  
+I'll post the complete result to Jeda web page when it's done.
+
+Regards,
+Atsushi Kasuya
+

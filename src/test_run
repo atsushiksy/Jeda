@@ -1,0 +1,3 @@
+cd APP/example/bus_snooper/standalone_run
+make
+./run multi_transaction_random

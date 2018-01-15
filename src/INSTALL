@@ -1,0 +1,231 @@
+0. Supported System
+  The system is heavily tested (with and without Verilog) on Sun/Solaris system
+  (SunOS 5.7). The Verilog tests are run with both Verilog-XL and VCS.
+  Limited tests (mostly standalone tests) are tested on Linux (Slackware 7.1
+  with kernel 2.2.19, and RedHat 7.1) 
+  
+1. Required Tools
+  In order to construct Jeda programming language system from the source,
+  the following tools are required.
+
+    - gcc (Tested with version 2.6.0)
+    - btyacc v2.1 (Should NOT be v3.0 which only support C++)
+          See: http://www.siber.org/btyacc/
+    - flex (Tested with version 2.5.4.  Version 2.5.2 on Solaris has PROBLEM)
+    - bison (Tested with version 1.22 and 1.28)
+    - perl5
+    - gmake
+    - patch 2.5.4 (gnu version, it won't work with old patch 2.1)
+    
+2. Configure and make process
+  Assume you expand the source files to <jeda_dir>. You'll see
+  <jeda_dir>src, <jeda_dir>/doc directories there.
+  Go to '<jeda_dir>/src' directory (where you find this text), type:
+  
+     ./configure
+  
+  This will create necessary Makefile and command scripts. If 'configure'
+  process does not go through, your system is doomed. :-) I hope you can
+  fix it somehow.
+  
+  After 'configure', envirinment variable $JEDA_HOME must be set to the 
+  release directory which will be created as the result of the following 
+  make. (the make process need the variable) For csh, type (with proper
+  substiturion of <jeda_dir> ):
+  
+    setenv JEDA_HOME <jeda_dir>/src/release
+  
+  Now we are ready to run 'make'. Type
+  
+    make
+  
+  This will create src/release directory which contains all the binary and
+  libraries.
+  The standard prefix option (--prefix=<dir>) does not do anything as 
+  make create '<jeda_dir>/src/release' and 'make install' is not provided.
+  
+3. Setup the search path
+  Now, you have <jeda_dir>/src/release directory, and set $JEDA_HOME
+  variable to the directory.
+  To run Jeda compiler, you need to add $JEDA_HOME/bin to your search path.
+  
+4. Standalone Testing
+  Standalone tests are stored in src/standalone_tests directory. 
+  To run the regression, type:
+  
+    run_regress jlist
+    
+5. Installing Jeda PLI to Verilog Simulators
+  
+  Jeda used one PLI task "$JEDA_task" in Jeda_module to setup the link between 
+  jeda code and Verilog environment. To accomplish this, Jeda PLI object must be
+  linked with Verilog code. There are different Verilog simulators available
+  from different venders. With any simulator, what we need is to add PLI 
+  table for $JEDA_task, and link verilog with $JEDA_HOME/lib/jeda_pli.o.
+
+ 5.1 Installation for Verilog-XL and Verilog-NC
+
+  For Verilog XL/NC, there's PLI definition files, jeda_pli_func_ext.h and 
+  jeda_pli_func_def.h. The file jeda_pli_func_ext.h declares the necessary 
+  c functions as external function:
+ 
+    /***************************************************************
+     * Jeda pli function definition
+     ***************************************************************/
+    /*
+       ** Copyright info, omitted
+    */
+    extern int JEDA_task() ;
+    extern int JEDA_task_misctf() ;
+
+
+  The file jeda_pli_func_def.h declares an entry for veriuserft[]
+  table in the veriuser.c.
+
+    /***************************************************************
+     * Jeda pli function definition
+     ***************************************************************/
+    /*
+       ** Copyright info, omitted
+     */
+    {usertask, 0, 0, 0, JEDA_task, JEDA_task_misctf, "$JEDA_task", 0},
+   
+   
+  By including those files at proper location in veriuser.c, Verilog-XL/NC
+  have the PLI task for Jeda. Here's an example veriuser.c just have Jeda
+  PLI tasks:
+
+    #include "veriuser.h"
+    #include "vxl_veriuser.h"
+    
+    # include "jeda_pli_func_ext.h"
+    
+    int (*endofcompile_routines[])() =
+    {
+       /*** my_eoc_routine, ***/
+       0 /*** final entry must be 0 ***/
+    };
+    bool err_intercept(level,facility,code) 
+    int level; char *facility; char *code;
+    { return(true); }
+    
+    s_tfcell veriusertfs[] =
+    {
+      /*** Template for an entry:
+        { usertask|userfunction, data,  checktf(),
+         sizetf(), calltf(), misctf(), "$tfname",
+         forwref?, Vtool?, ErrMsg? },
+          Example:
+          { usertask, 0, my_check, 0, my_func, my_misctf, "$my_task" },
+       ***/ 
+      /*** add user entries here ***/
+      
+    # include "jeda_pli_func_def.h" 
+    
+      {0} /*** final entry must be 0 ***/
+      
+    };
+
+
+
+  5.1.1 Installing to Verilog-XL
+    When you run 'vconfig' to create 'cr_vlog' script, you need to specify:
+    
+      1) Proper 'veriuser.c' that includes jeda_pli_func_ext.h and
+         jeda_pli_func_def.h.
+      2) Add $JEDA_HOME/lib/jeda_pli.o to be the file to be linked.
+      
+    After 'cr_vlog' script is created, add the following line within the 
+    compile veriuser.c command line to notify the location of the included
+    files:
+    
+        -I$JEDA_HOME/include
+    
+    Also add '-lpthread' to the link command line. Then run ./cr_vlog to 
+    create the Verilog simulator.
+
+
+  5.1.2 Installing to Verilog-NC
+    NC comes with the makefile 'Makefile.nc' 
+    (usually under install_dir>/tools/inca/files/).
+    Create a copy of the Makefile, and modify:
+    
+      1)Change veriuser.c to the proper one that includes Jeda PLI files. 
+      2)Add '-I$JEDA_HOME/include' to the compile line.
+      3)Link ncsim and ncelab with $JEDA_HOME/lib/jeda_pli.o
+      4)Add '-lpthread' to the link command line of $(NCELAB) and $(NCSIM)
+
+
+    Then, run 'make' to create 'ncelab' and 'ncsim' with Jeda PLI.
+
+
+ 5.2 Installing to VCS
+
+   When run VCS to create 'simv' (the compiled simulation image), 
+   you need to specify:
+
+     1)The Jeda PLI table with '-P $JEDA_HOME/include/pli.tab'
+     2)Link with Jeda PLI object '$JEDA_HOME/lib/jeda_pli.o'
+     3)Add ' -Xstrict=0x01 -syslib "-lpthread" ' to link pthread lib.
+
+   Example:  
+     vcs -f vfiles \
+     -P $JEDA_HOME/include/pli.tab \
+     $JEDA_HOME/lib/jeda_pli.o \
+     -Xstrict=0x01 -syslib "-lpthread"
+
+
+ 5.3 Installing to Icarus Verilog
+   
+   Jeda runtime supports VPI interface layer. When ./configre recognized
+   'iverilog' command, it compiles VPI interface layer as 'icarus verilog'
+   mode. (This is necessary as Icarus Verilog's vpi_user.h is not same
+   as Verilog-XL. Note that because of this, Verilog-XL can't run with 
+   'vpi' mode when iverilog command exists. It should still work fine with 
+   regular pli mode.)
+   
+   When Jeda runtime library is compiled, it uses 'src/vinclude/ivl_vpi_user.h'
+   to compile vpi related files. This version of vpi_user.h is a copy from
+   a specific version of icarus verilog, but may not be up to date.
+   (At this point, it is copied from 20020806 snapshot)
+   Please make sure this local copy is compatible with your icarus verilog.
+   (check the diff between <ivl source dir>/vpi_user.h and ivl_vpi_user.h)
+   If not, copy the latest vpi_user.h to ivl_vpi_user.h.
+   
+   To run Icarus Verilog, you simply use '-ivl' option (instead of '-dl')
+   on 'jeda' command to create .vpi module for icarus verilog. 
+   Then run iverilog output with -m option to specify the module. (Note
+   that the module path needs to contain '/', otherwise icarus 
+   searches it's own library directory for the module)
+   
+   Example:
+     jeda -ivl -g jeda_test.j
+     iverilog -o isim tesbench.v dut.v jeda_test.jeda.v
+     isim -m ./jda_test.vpi   
+   
+ 5.4 Linking with another Verilog Simulator
+   Jeda uses the following PLI 1.0 functions. If a simulator supports
+   the PLI functions listed bellow, it may run with Jeda. If not, new PLI
+   interface code will be needed. The source <jeda_source>/src/runtime/pli.c
+   contains all the PLI calls, so rewrite it and create a new Jeda runtime
+   library.
+
+
+     tf_dostop()
+     tf_dofinish()
+     tf_getcstringp()
+     tf_getp()
+     tf_exprinfo()
+     tf_getinstance()
+     tf_isynchronize()
+     tf_isetdelay()
+     tf_ievaluatep()
+     tf_ipropagatep()
+     tf_compare_long()
+     tf_add_long()
+     tf_getlongtime()
+     acc_handle_tfarg()
+     acc_vcl_add()
+     acc_vcl_delete()
+     mc_scan_plusargs()
+     io_printf()

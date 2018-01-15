@@ -1,0 +1,34 @@
+#! /usr/bin/perl
+# 
+while(<>) {
+  chop ;
+  $name = $_ ;
+  $name =~ /\.j$/ ;
+  $obj = $` ;
+  print "file = $name\n" ;
+  $command = "jedax -exe -g $name\n" ;
+  system $command ;
+  if( $? != 0 ) {
+    die "$command : failed\n" 
+  }
+  $command = "./$obj > $obj.tmp\n" ;
+  system $command ;
+  if( $? != 0 ) {
+    die "$command : failed\n" 
+  }
+  # Need delay to flush buffer
+  system "sleep 1" ;
+  $command = "diff $obj.out $obj.tmp\n" ;
+  system $command ;
+  if( $? != 0 ) {
+    die "$command : failed\n" 
+  }
+  else {
+    print " $name pass\n" ;
+    $count++ ;
+    $command = "rm ./$obj" ;
+    system $command ;
+  }
+}
+
+print " run_regress $count test passed\n" ;

@@ -1,0 +1,16 @@
+This directory is to run simulation with ModelSim simulator.
+
+1) Compile all the jeda files and compile verilog with 'vlog'
+
+    do_vlog
+    
+2) Run simulation with 'random_test'
+
+    run random_test
+    
+Other test can be ran by 'run <test_name>' as well without recompiling Verilog
+image.
+
+See the script 'do_vlog' and 'run' for the detailed information of how to run
+it in general.
+

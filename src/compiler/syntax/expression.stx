@@ -1,0 +1,124 @@
+
+expression:
+  number
+  |
+  'return'
+  |
+  string_constant
+  |
+  timed_expression 
+  |
+  parallel_eval_expression
+  |
+  varport_expression
+  |
+  bool_null_expression
+  |
+  function_call_expression
+  |
+  state_expression
+  |
+  concatenation_expression
+  |
+  list_expression
+  |
+  expression '-' expression   
+  |
+  expression '+' expression   
+  |
+  expression '*' expression   
+  |
+  expression '/' expression   
+  |
+  expression '%' expression   
+  |
+  expression '&' expression   
+  |
+  expression '|' expression   
+  |
+  expression '^' expression   
+  |
+  expression '&~' expression  
+  |
+  expression '~&' expression  
+  |
+  expression '|~' expression  
+  |
+  expression '~|' expression  
+  |
+  expression '^~' expression  
+  |
+  expression '~^' expression  
+  |
+  expression '&&' expression  
+  |
+  expression '||' expression  
+  |
+  expression '>>' expression  
+  |
+  expression '>>>' expression 
+  |
+  expression '<<' expression  
+  |
+  expression '<' expression   
+  |
+  expression '>' expression   
+  |
+  expression '==' expression  
+  |
+  expression '<=' expression  
+  |
+  expression '>=' expression  
+  |
+  expression '!=' expression  
+  |
+  expression '===' expression 
+  |
+  expression '!==' expression 
+  |
+  expression '=?=' expression 
+  |
+  expression '!?=' expression 
+  |
+  expression '==?' expression 
+  |
+  expression '?==' expression 
+  |
+  '-' expression
+  |
+  '~' expression
+  |
+  '!' expression
+  |
+  '&' expression
+  |
+  '|' expression
+  |
+  '^' expression
+  |
+  '~&' expression
+  |
+  '&~' expression
+  |
+  '~|' expression
+  |
+  '|~' expression
+  |
+  '^~' expression 
+  |
+  '~^' expression 
+  |
+  expression '=:=' expression ':' expression 
+  |
+  expression '?' expression ':' expression 
+  |
+  '(' expression ')'
+  ;
+
+
+opt_expression:
+  /* empty */
+  |
+  expression
+  ;
+

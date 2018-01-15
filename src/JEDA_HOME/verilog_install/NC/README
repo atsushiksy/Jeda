@@ -1,0 +1,17 @@
+
+Copyright (C) 2003, Jeda Technologies, Inc
+
+
+For Verilog NC installation, Makefile.NC is provided.
+
+Run make as:
+
+  make -f Makefile.NC
+  
+will create ncsim and ncelab with Jeda PLI. 
+For GNU ld user, set LD_FLAG=-export-dynamic as:
+
+  make LDFLAG=-export-dynamic -f Makefile.NC
+  
+
+

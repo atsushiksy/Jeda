@@ -1,0 +1,430 @@
+<html>
+<head>
+</head>
+<body>
+
+<h1>
+Appendix B. インストール
+</h1>
+
+<h2>
+B.0 インストールに必要なツール
+</h2>
+
+<blockquote>
+Jedaプログラミング言語システムをソースから構築するためには、
+以下のツールが必要です。
+<ul>
+<li>
+gcc</li>
+
+<li>
+btyacc v2.1 (3.0ではなく, バージョン2.1でなくてはなりません。<a href="http://www.siber.org/btyacc/">http://www.siber.org/btyacc/</a>を参照してください。
+)</li>
+
+<li>
+flex (v2.5.4)&nbsp;&nbsp; (v2.5.2では動作しません)</li>
+
+<li>
+bison</li>
+
+<li>
+perl5</li>
+
+<li>
+gmake</li>
+
+<li>
+patch (gnu patch v2.5.4 かそれ以降のもの, v 2.1では動作しません)</li>
+</ul>
+Jedaは、以下のオープンソースコードを使用しています。これらは、ソース
+ディストリビューションの中に含まれています。
+<ul>
+<li>
+mt19937.c and mt19937int.c</li>
+
+<br>松本 眞氏と西村 拓士氏によって開発されたMersenne Twister 疑似乱数生成関数。
+このすぐれた乱数生成アルゴリズムは、Jedaのコアの乱数生成として
+使用されています。
+<br>(<a href="http://www.math.keio.ac.jp/~matumoto/mt.html">http://www.math.keio.ac.jp/~matumoto/mt.html</a>を参照してください。
+)
+<li>
+rand48 関連ファイル</li>
+
+<br>48-ビット linear congruential 疑似乱数発生関数は Martin Birgmeierによって
+書かれました。
+<br><a href="http://www.ics.uci.edu/~eppstein/projects/pairs/Source/testbed/rand48/">http://www.ics.uci.edu/~eppstein/projects/pairs/Source/testbed/rand48/</a>からダウンロードしました。
+<li>
+regexp 1.3</li>
+
+<br>
+University of Tronto で開発された正規表現エンジンは、Henry Spencer氏によって
+書かれました。このコードを元に、(Larry Wall氏による)Perl5の持ついくつかの
+機能をとりこみ、Jedaのシステムクラスとして使用しています。
+<br>
+オリジナルのソース regexp.shar.Z は、
+<a href="http://www.cs.toronto.edu/pub/">http://www.cs.toronto.edu/pub/</a>
+から、ダウンロードしました。
+<li>
+gcc-2.95.2</li>
+
+このgccに含まれるcppにパッチをあてて、jedapp(Jedaのプリプロセッサ)として
+使用しています。
+
+<br>
+ソースは、 <a href="http://www.gnu.org">http://www.gnu.org</a>
+内のftpサイトからダウンロードしました。
+
+<li>
+vpp-1.2.tar.gz</li>
+
+<br>
+このVerilogプリプロセッサは、jedatemp(テンプレート ジェネレータ)で、Verilog
+のソースをスキャンするのに使われています。
+<br>
+URL： <a href="http://www.surefirev.com/vpp/">http://www.surefirev.com/vpp/</a>
+<li>
+readline-4.2.tar.gz</li>
+
+<br>
+デバッガのユーザーインターフェースは、このGNU Readlineライブラリを使用して
+作られました。
+<br>
+URL: <a href="http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html">http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html</a>
+)</ul>
+</blockquote>
+
+<h2>
+B.1 ソースからのインストール
+</h2>
+
+<blockquote>
+ソースコードからのコンパイルを行なうためには、ソースリリースファイルを
+入手してください。
+<br>&nbsp;&nbsp;&nbsp; jeda.&lt;version_revision>.tar.gz
+<p>適切な場所で、ソースを展開します
+<br>&nbsp;<font face="Courier New,Courier">&nbsp;&nbsp; gzip -cd jeda.&lt;version_revision>.tar.gz
+| tar xvpf -</font>
+<br>&nbsp;
+<p>この後B.2のプロセスに従ってください。
+<br>&nbsp;</blockquote>
+
+<h2>
+B.2 configure と make の実行
+</h2>
+
+<blockquote>ソースディレクトリ &lt;install_dir>/srcにて
+<blockquote>./configure</blockquote>
+を実行してください。
+次に、$JEDA_HOME 環境変数を &lt;install_dir>/release にセットしてください。
+Cシェル cshでは、(適切なinstall_dirを用いて)以下のコマンドで行ないます。
+<blockquote>setenv JEDA_HOME &lt;install_dir>/release</blockquote>
+次にmake を実行します。
+<blockquote>make</blockquote>
+makeが最期まで動作するかを、固唾をのんで見守ります。
+うまく行かなかった場合、どこかを何とかして修正します。
+最終的にはsrc/releaseのディレクトリが作成され、必要なバイナリやライブラリが
+そこにインストールされます。$JEDA_HOME/bin をコマンドのサーチパスに追加
+してください。
+<p>
+スタンドアロン テストが&lt;install_dir>/src/standalone_testsにあります。
+リグレッションを実行するには、そのディレクトリにて以下を実行します。
+<blockquote>run_regress jlist</blockquote>
+</blockquote>
+
+<h2>
+B.3 
+バイナリ リリースからのインストール
+</h2>
+
+<blockquote>
+まず、適切なシステム用のバイナリ リリースを入手します。
+<br>&nbsp; jeda.&lt;system/OS>.&lt;version_revision>.tar.gz
+<p>このファイルを適切な場所にて、展開します。
+<br><font face="Courier New,Courier">&nbsp;&nbsp; gzip -cd jeda.&lt;system/OS>.&lt;version_revision>.tar.gz
+| tar xvpf -</font>
+<br>&nbsp;
+<br>バイナリ ファイルが以下のディレクトリに展開されます。
+<br><font face="Courier New,Courier">&nbsp; jeda.&lt;system/OS>.&lt;version_revision></font><font face="Courier New,Courier"></font>
+<p>
+ここで、環境変数$JEDA_HOMEをそのディレクトリに設定します。cshでは、以下を実行します。
+<blockquote>setenv JEDA_HOME jeda.&lt;system/OS>.&lt;version_revision></blockquote>
+そして、$JEDA_HOME/binをコマンドサーチパスに追加します。
+<br>&nbsp;</blockquote>
+
+<h2>
+B.4 
+Jeda PLIコードのVerilogへのインストール
+</h2>
+
+<ul>
+Jedaは、Jedaモジュール内で、PLIタスク "$JEDA_task" を用いてJedaコードと
+Verilog環境間のリンクを行ないます。このため、Jeda PLIオブジェクトがVerilogに
+リンクされていなければなりません。様々なVerilogシミュレータが様々なベンダー
+から提供されています。いずれのシミュレータの場合も、
+object must be linked with Verilog code. There are different Verilog simulators
+available from different venders. With any simulator, $JEDA_HOME/lib/jeda_pli.o
+をVerilog本体にリンクすることが必要です。
+</ul>
+
+<h3>
+B.4.1 Verilog-XLとVerilog-NCへのインストール
+</h3>
+
+<ul>
+Verilog XL/NC用に、PLI定義ファイル jeda_pli_func_ext.h と 
+jeda_pli_func_def.h が用意されています。
+<br>
+jeda_pli_func_ext.h には、必要なCの関数がextern関数として定義されています。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">/***************************************************************</font>
+<br><font face="Courier New,Courier">&nbsp;* Jeda pli function definition</font>
+<br><font face="Courier New,Courier">&nbsp;***************************************************************/</font>
+<br><font face="Courier New,Courier">/*</font>
+<br><font face="Courier New,Courier">&nbsp; ** Copyright info, omitted</font>
+<br><font face="Courier New,Courier">*/</font>
+<p><font face="Courier New,Courier">extern int JEDA_task() ;</font>
+<br><font face="Courier New,Courier">extern int JEDA_task_misctf() ;</font>
+<br>&nbsp;</blockquote>
+
+<p><br>
+jeda_pli_func_def.h は、veriuser.c内のveriuserft[]テーブルの１エントリを
+定義しています。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">/***************************************************************</font>
+<br><font face="Courier New,Courier">&nbsp;* Jeda pli function definition</font>
+<br><font face="Courier New,Courier">&nbsp;***************************************************************/</font>
+<br><font face="Courier New,Courier">/*</font>
+<br><font face="Courier New,Courier">&nbsp; ** Copyright info, omitted</font>
+<br><font face="Courier New,Courier">*/</font>
+<p><font face="Courier New,Courier">&nbsp;{usertask, 0, 0, 0, JEDA_task,
+JEDA_task_misctf, "$JEDA_task", 0},</font></blockquote>
+これらのファイルをveriuser.cの適切な位置にインクルードすることで、
+Verilog-XL/NCは、JedaのためのPLIタスクを利用できるようになります。
+以下は、Jeda用のPLIタスクを設定したveriuser.cの例です。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">#include "veriuser.h"</font>
+<br><font face="Courier New,Courier">#include "vxl_veriuser.h"</font>
+<p><font face="Courier New,Courier">#&nbsp; include "jeda_pli_func_ext.h"</font>
+<p><font face="Courier New,Courier">int (*endofcompile_routines[])() =</font>
+<br><font face="Courier New,Courier">{</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; /*** my_eoc_routine,
+***/</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; 0 /*** final entry
+must be 0 ***/</font>
+<br><font face="Courier New,Courier">};</font>
+<p><font face="Courier New,Courier">bool err_intercept(level,facility,code)</font>
+<br><font face="Courier New,Courier">int level; char *facility; char *code;</font>
+<br><font face="Courier New,Courier">{ return(true); }</font>
+<p><font face="Courier New,Courier">s_tfcell veriusertfs[] =</font>
+<br><font face="Courier New,Courier">{</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; /*** Template for
+an entry:</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; { usertask|userfunction,
+data,</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; checktf(),
+sizetf(), calltf(), misctf(),</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "$tfname",
+forwref?, Vtool?, ErrMsg? },</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; Example:</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; { usertask, 0,
+my_check, 0, my_func, my_misctf, "$my_task" },</font>
+<br><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; ***/</font>
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; /*** add user entries
+here ***/</font>
+<p><font face="Courier New,Courier">#&nbsp; include "jeda_pli_func_def.h"</font>
+<p><font face="Courier New,Courier">&nbsp;&nbsp;&nbsp; {0} /*** final entry
+must be 0 ***/</font>
+<br><font face="Courier New,Courier">};</font>
+<br>&nbsp;</blockquote>
+
+<li>
+Verilog-XLへのインストール
+</li>
+
+<br>
+'vconfig'コマンドを実行して、'cr_vlog'スクリプトを生成する際に、
+次を指定する必要があります。
+<ol>
+<li>
+jeda_pli_func_ext.h と jeda_pli_func_def.h を含んだ、適切な 'veriuser.c'
+</li>
+
+<li>
+$JEDA_HOME/lib/jeda_pli.o をリンクされるファイルとして指定
+</li>
+</ol>
+'cr_vlog'スクリプトが作成された時点で、インクルードファイルの位置を指定する
+ために、以下のラインをveriuser.cのコンパイルコマンド部に追加します。
+<br>&nbsp;&nbsp;&nbsp; -I$JEDA_HOME/include
+<br>
+さらに、リンクコマンドラインに、'-lpthread' を追加します。
+<br>
+<br>
+もし、GNU版の'ld'(ローダー、Linuxシステムではほとんど使用している)が使われる
+場合、 -export-dynamic オプションをリンクのコマンドラインに追加します。
+<p>
+これで、 ./cr_vlog を実行して、verilogバイナリを作成します。
+<br>&nbsp;
+<li>
+Verilog-NCへのインストール
+</li>
+
+<br>
+Verilog-NCには、メイクファイル 'Makefile.nc' 
+(通常 &lt;install_dir>/tools/inca/files/のディレクトリにある).
+が付随しています。
+このMakefileをコピーし、以下の修正を加えます。
+<ol>
+<li>
+veriuser.cを、JedaPLIを含むものに変更。
+</li>
+
+<li>
+コンパイルラインに '-I$JEDA_HOME/include' を追加。
+</li>
+
+<li>
+ncsim と ncelab を $JEDA_HOME/lib/jeda_pli.o とリンク。
+</li>
+
+<li>
+'-lpthread' を $(NCELAB) and $(NCSIM)のリンクコマンドラインに追加。
+</li>
+</ol>
+
+<p><br>
+<br>
+<br>
+もし、GNU版の'ld'(ローダー、Linuxシステムではほとんど使用している)が使われる
+場合、 -export-dynamic オプションをリンクのコマンドラインに追加します。
+<br>
+<br>
+修正後、makeを実行し、JedaPLIを持つncelabとncsimを作成します。
+</ul>
+
+<h3>
+B.4.2 VCSへのインストール
+</h3>
+
+<ul>
+vcsコマンドを実行して、'simv'(コンパイルされたシミュレーションイメージ)
+を作成するときに、以下を指定します。
+<ol>
+<li>
+'-P $JEDA_HOME/include/pli.tab' にて、Jeda PLIテーブルを指定。
+</li>
+
+<li>
+Jeda PLI オブジェクト '$JEDA_HOME/lib/jeda_pli.o'をリンク
+</li>
+
+<li>
+' -Xstrict=0x01 -syslib "-lpthread" ' を追加して、pthreadライブラリをリンク。
+</li>
+</ol>
+
+<p><br>例:
+<br>&nbsp;&nbsp;&nbsp; vcs&nbsp; -f vfiles \
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -P $JEDA_HOME/include/pli.tab
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $JEDA_HOME/lib/jeda_pli.o
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Xstrict=0x01
+-syslib "-lpthread"
+<p><b>GNUローダ使用時の注意事項:</b>
+<br>&nbsp; GNU版の 'ld' (ローダ、ほとんどのLinuxシステムで使用されている)
+を使用する場合、VCSの起動時に、オプション
+<br>&nbsp;&nbsp;&nbsp;&nbsp; -LDFLAGS "-export-dynamic"
+<br>&nbsp; を指定して、ローダのオプションに -export-dynamic を追加します。
+このオプションがないと、実行時のダイナミックロード時にリンクエラーが
+発生します。
+<p>Example:
+<br>&nbsp;&nbsp;&nbsp; vcs&nbsp; -f vfiles \
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -P $JEDA_HOME/include/pli.tab
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $JEDA_HOME/lib/jeda_pli.o
+\
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Xstrict=0x01
+-syslib "-lpthread" \
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -LDFLAGS "-export-dynamic"</ul>
+</ul>
+
+<h3>
+<a NAME="icarus"></a>B.4.3 Icarus Verilog シミュレーターでの実行
+</h3>
+
+<blockquote>
+Jedaの実行ライブラリは、VPIインターフェースの使用をサポートしています。
+configureスクリプトが、iverilogコマンドの存在を検知すると、JedaのVPI
+インターフェース ライブラリは、Icarus Verilogモードにコンパイルされます。
+(Icarus Verilogのvpi_user.hは、Verilog-XLのものと完全に一致しないため、
+こうした処理が必要となります。したがって、Icarus用にコンパイルされた
+場合、Verilog-XLでVPIモードを使用することは出来ません。しかしこの場合も、
+通常のPLIモードでの実行は可能です。)
+<p>
+Jedaの実行時ライブラリのvpi関連のソースは、src/vinclude/ivl_vpi_user.hを用いて
+コンパイルされます。このファイルは、特定のバージョンのIcarus Verilogの
+vpi_user.hをコピーしたものですが、最新ではない場合もありえます。
+(現時点で、20020806版のスナップショットからのコピーを使用しています)
+<br>
+このローカルコピーファイルが、インストールされているIcarus Verilogの
+vpi_user.hと互換であることを確認してください。
+(&lt;ivl source dir>/vpi_user.hとivl_vpi_user.hのdiffをチェックする)
+もし、互換でない場合は、最新のvpi_user.hをivl_vpi_user.hとして
+コピーしてください。
+<p>
+Icarus VerilogでのJedaの実行を行なうためには、jeda コマンドで -vpi
+オプションを(-dlオプションの変わりに)使用して、Icarus用の<out>.vpi
+モジュールを作成します。
+<br>
+それから、iverilogの出力を実行する際、-m オプションでそのモジュールを
+指定します。(この場合、モジュールのパスの指定には、必ず / (スラッシュ)
+を含むようにします。スラッシュがないと、Icarusはそのモジュールが
+ライブラリ ディレクトリにあるものと想定して動作します。)
+</blockquote>
+
+<blockquote>&nbsp;
+<br>Example:
+<br>&nbsp;&nbsp;&nbsp;&nbsp; jeda -ivl -g jeda_test.j
+<br>&nbsp;&nbsp;&nbsp;&nbsp; iverilog -o isim tesbench.v dut.v jeda_test.jeda.v
+<br>&nbsp;&nbsp;&nbsp;&nbsp; isim -m ./jda_test.vpi</blockquote>
+
+
+<h3>
+B.4.4 他のVerilogシミュレータとのリンク
+</h3>
+
+<blockquote>
+Jedaは、以下のPLI1.0関数を使用しています。もし、そのシミュレータが
+これらのPLI関数をサポートしていれば、Jedaと実行することが出来ます。
+もし、サポートされていない場合、新しいPLIインターフェースコードを
+記述する必要があります。すべてのPLI関数の呼び出しは、
+src/runtime/pli.cで行なっていますので、この部分を書き換えることで
+新しいJedaランタイムライブラリを作成しなければなりません。
+<br>&nbsp;
+<blockquote>&nbsp;
+<br><font face="Courier New,Courier">tf_dostop()</font>
+<br><font face="Courier New,Courier">tf_dofinish()</font>
+<br><font face="Courier New,Courier">tf_getcstringp()</font>
+<br><font face="Courier New,Courier">tf_getp()</font>
+<br><font face="Courier New,Courier">tf_exprinfo()</font>
+<br><font face="Courier New,Courier">tf_getinstance()</font>
+<br><font face="Courier New,Courier">tf_isynchronize()</font>
+<br><font face="Courier New,Courier">tf_isetdelay()</font>
+<br><font face="Courier New,Courier">tf_ievaluatep()</font>
+<br><font face="Courier New,Courier">tf_ipropagatep()</font>
+<br><font face="Courier New,Courier">tf_compare_long()</font>
+<br><font face="Courier New,Courier">tf_add_long()</font>
+<br><font face="Courier New,Courier">tf_getlongtime()</font>
+<br><font face="Courier New,Courier">acc_handle_tfarg()</font>
+<br><font face="Courier New,Courier">acc_vcl_add()</font>
+<br><font face="Courier New,Courier">acc_vcl_delete()</font>
+<br><font face="Courier New,Courier">mc_scan_plusargs()</font>
+<br><font face="Courier New,Courier">io_printf()</font></blockquote>
+</blockquote>
+
+<ul>&nbsp;</ul>
+
+</body>
+</html>

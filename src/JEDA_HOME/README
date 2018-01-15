@@ -1,0 +1,22 @@
+
+Copyright (C) 2003 Jeda Technologies Inc.
+
+
+
+Prior to using the Jeda-X system, you will have to follow the
+instructions that have been provided in the "INSTALL" documentation.
+
+This README file lists the directory structures found in this Jeda-X
+release.
+
+
+doc		- documentation pages
+
+examples	- various examples
+
+verilog_install	- provides instructions and examples of how to connect
+	 	  Jeda-X to your simulator. Currently Cadence NC,XL
+		  and Synopsys VCS verilog simulators are supported.
+
+
+

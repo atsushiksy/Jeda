@@ -1,0 +1,7 @@
+
+casex_statement:
+  opt_statement_prefix 'casex' '(' expression ')' '{'
+    opt_case_items
+  '}'
+  ;
+

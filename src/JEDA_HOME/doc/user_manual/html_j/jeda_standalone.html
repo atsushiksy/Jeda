@@ -1,0 +1,130 @@
+<html>
+<head>
+</head>
+<body>
+
+<h1>
+Appendix E. Jedaの単独シミュレーション</h1>
+
+<blockquote>
+Jedaは、ユーザーPLIコードとして、Verilogと並行して実行されるように
+設計されていますが、単独のシミュレータとして実行させることも可能です。
+この場合、全てのポート(および、portset内のポート)の状態をVerilogと同様に
+シミュレートします。この機能は、Jedaが、モデリングの目的で使用された場合に
+有効です。システムの機能がJedaのコードとしてモデル化され、ポートを介して
+インターフェースします。このモデルに対するテストパターンもJedaで書かれれば、
+そのコードは、実際のVerilogモデルが出来た際にも、テストコードとして使用
+出来ます。
+<br>
+単独モードでは、'-V <dump_file>' のオプションを使用することによって、
+VCD (Value Change Dump) ファイルを作成することが出来ます。このVCDファイルには、
+すべてのポート、およびグローバル／スタティック変数の状態が記録されます。
+
+<br>
+単独モードで実行する場合の有利な点は、
+<ol>
+<li>
+Verilogのライセンスを使用しない
+</li>
+
+<li>
+Verilogとの実行より高速(たぶん)
+</li>
+
+<li>
+Verilogとの実行の場合より、バイナリのサイズが小さい(これは確実！)
+</li>
+</ol>
+単独モードを使用した実際の例は、
+&lt;jeda_install>/src/verilog/example/bus_snooper/standalone_run
+のディレクトリにあります。このディレクトリには、単独モードのバイナリを
+作成するMakefileと、単独モードでシミュレーションを実行し、VCDファイル
+を作成する 'run'スクリプトが入っています。
+<br>
+この章では、単独シミュレーションを行なうための注意事項について説明します。
+</blockquote>
+
+<h2>
+E.1 CLOCK と 他のクロック信号
+</h2>
+
+<blockquote>
+Jedaの内部サイクルは、CLOCK信号を基準にしています。単独シミュレーションを
+行なう場合には、この信号をdrive_clock()メンバー関数を用いて、Jedaのコード
+から、駆動する必要があります。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">CLOCK.drive_clock( 10, 10,
+0, 0 ) ; // period1, period2, initial_value, delay</font></blockquote>
+もし、他のクロック信号が、リファレンスクロックとして使用されている場合、
+それらも同様にdrive_clock()関数を用いて駆動します。
+<br>&nbsp;
+<blockquote><font face="Courier New,Courier">CPU_BUS.clk.drive_clock( 10,
+10, 0, 0 ) ; // period1, period2, initial_value, delay</font></blockquote>
+
+<p><br>
+クロックを駆動しないと、時間０(ゼロ)での実行コードを終了した時点で、
+シミュレーションは終了します。
+<br>&nbsp;</blockquote>
+
+<h2>
+E.2&nbsp;
+プルアップ、プルダウン信号 
+</h2>
+
+<blockquote>
+もし、tri0やtri1のワイヤー(もしくは同様のプルアップ、プルダウン構造)が
+Verilogで使用されていて、ロジックがその機構に依存している場合、
+単独シミュレーションでは、これらを weak に駆動する必要があります。
+以下のコードは、その実現の例です。(この例は、シミュレーションが
+CLOCKと同期している場合にのみ、有効なことに注意してください。)
+<blockquote><font face="Courier New,Courier">fork</font>
+<br><font face="Courier New,Courier">forever {</font>
+<br><font face="Courier New,Courier">&nbsp; CPU_BUS.data.0 = 0 weak ; //
+pull-down</font>
+<br><font face="Courier New,Courier">&nbsp; CPU_BUS.ack_.0 = 1 weak ; //
+pull-up</font>
+<br><font face="Courier New,Courier">&nbsp; @(posedge CLOCK) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Do it again at next cycle</font>
+<br><font face="Courier New,Courier">}</font>
+<br><font face="Courier New,Courier">knife</font></blockquote>
+</blockquote>
+
+<h2>
+E.3&nbsp;
+単独シミュレーションのためのコンパイル/リンク
+</h2>
+
+<blockquote>
+perlスクリプト 'jeda'で -exeオプションを用いることによって、
+単独シミュレーションのためのバイナリが作成されます。
+<blockquote>jeda -exe foo.j bar.j</blockquote>
+上記の例では、'foo'という名のバイナリファイルが作成されます。
+</blockquote>
+
+<h2>
+E.4 単独シミュレーションの実行
+</h2>
+
+<blockquote>
+単独シミュレーションの実行は、単に作成されたバイナリを実行するだけです。
+上記の例では、次の入力でシミュレーションが実行できます。
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foo
+<p>これに、-V オプションを用いると、VCDファイルを作成出来ます。
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foo -V foo.vcd
+<p>
+プラス引数も、通常の引数としてJedaコードに渡すことができます。
+<p>&nbsp;&nbsp;&nbsp;&nbsp; foo -V foo.vcd +check_this +check_that
+<br>&nbsp;</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+<br>&nbsp;
+<br>&nbsp;
+<blockquote>&nbsp;</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+<ul>&nbsp;</ul>
+
+</body>
+</html>

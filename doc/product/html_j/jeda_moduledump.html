@@ -1,0 +1,130 @@
+<html>
+<head>
+</head>
+<body>
+
+<h1>
+Appendix D. 
+Jedaの実行をVerilogのダンプから観察する方法
+</h1>
+
+<blockquote>
+波形表示ソフトウェアを利用して、Verilogコードをデバッグしている時に、
+VerilogのダンプからJedaのコードが何を実行しているのかを知ることが
+出来ると非常に便利です。
+Jedaモジュールの内部には、Jedaの実行とVerilogの実行を関連づけるための
+いくつかの情報が存在します。Jedaモジュールの実行がダンプされていれば、
+ユーザーはこうした情報を波形として表示することができます。
+<br>注：下記の説明のうち、D.4 グローバル変数 と D.5 スタティック変数 の
+情報は、コードが -g オプション(デバッグモード)でコンパイル/リンクされて
+いた場合にのみ、観察できます。
+</blockquote>
+
+<h2>
+D.1 CLOCK信号とCycleCountカウンタ
+</h2>
+
+<blockquote>
+Jedaの内部サイクルは、Jedaモジュール内のCLOCK信号をベースにしています。
+ユーザーは、このCLOCK信号をJedaコードから(drive_clock()メンバー関数で)
+ドライブするか、外部のVerilogコードからドライブすることができます。
+このCLOCK信号の立ち上がりエッジが、様々な機能のタイムアウトを計数する
+のに使用されます。
+<br>
+様々なJedaからのメッセージ、およびデバッガーからのメッセージは、サイクル
+値を含んでいます。このサイクル数は、CLOCK信号の立ち上がりを計数したもので、
+Jedaモジュール内のCycleCountレジスタにて行なわれています。
+Jedaモジュール内には、以下のようなレジスタが宣言されています。
+<p>&nbsp;&nbsp;&nbsp; reg [31:0] CycleCount ;
+<p>
+ユーザは、get_cycle()関数を用いて、このサイクル値を通常のメッセージに
+出力することができます。
+<p>&nbsp;&nbsp;&nbsp; printf( "Drive data to %h at cycle %d\n", data, get_cycle()
+) ;
+<p>
+このサイクル値は(非常に細かいシミュレーション時間よりも)、Verilogの
+実行とJedaの実行を関連づけるのに便利です。
+<br>&nbsp;</blockquote>
+
+<h2>
+D.2 Jedaの出力ポート
+</h2>
+
+<blockquote>
+ユーザーが、Jedaコードでoutputポートかinoutポートを宣言すると、
+Jedaコードからそのポートへの出力値は、jeda_out_&lt;port>または、
+jeda_out_&lt;portset>_&lt;port>という名のレジスタに代入され、
+Verilog側に伝えられます。
+例えば、'output [7:0] OUTB ;' という宣言がJedaコードでなされると、
+次のようなレジスタがJedaモジュールに作られます。
+<blockquote>reg [7:0] jeda_out_OUTB ;</blockquote>
+このレジスタを波形表示することで、Jedaコードからドライブされた
+値を観察することができます。
+<br>&nbsp;</blockquote>
+
+<h2>
+D.3 Jedaの出力ポート
+</h2>
+
+<blockquote>
+ユーザーが、Jedaコードでinputポートかinoutポートを宣言すると、
+そのポートからJedaコードへの入力値は、jeda_in_&lt;port>または、
+jeda_in_&lt;portset>_&lt;port>という名のワイヤを経由して、
+Jeda側に読み取られます。
+たとえば、 'input [7:0] INB ;' という宣言がJedaコードでなされると、
+次のようなワイヤーがJedaモジュールに作られます。
+<blockquote>wire vectored [7:0] jeda_in_INB ;</blockquote>
+このワイヤーを波形表示することで、Jedaコードが読み取っている値を
+観察することが出来ます。
+<br>&nbsp;</blockquote>
+
+<h2>
+D.4 グローバル変数
+</h2>
+
+<blockquote>
+intかbitタイプの(非配列)グローバル変数は、Jedaモジュール内に
+var_&lt;name>という名のシャドウレジスタを持ちます。
+例えば、グローバル変数
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int x ;
+<p>は、シャドウレジスタ
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integer var_x ;
+<p>をJedaモジュールに持ち、この変数のアクティビティがVerilogダンプで観察
+できます。
+<br>注：シャドウレジスタにたいするデータの更新は、Jedaコードが -g
+オプションでコンパイル/リンクされた場合にのみ行なわれます。
+</blockquote>
+
+<h2>
+D.4 スタティック変数
+</h2>
+
+<blockquote>
+非配列のbitかintタイプのスタティック変数が、関数、クラス、クラスメンバー関数
+内で宣言されると、svar_&lt;class>_&lt;func>_&lt;var> という名のシャドウ
+レジスタがJedaモジュールに作られます。ここで、&lt;class> は、クラス名
+(または、クラス内でないとき空文字列)、 &lt;func> は、関数名 (または、
+関数内でないとき空文字列)、 &lt;var> は変数名です。
+たとえば、関数のスタティック変数
+<p>&nbsp; void foo() {
+<br>&nbsp;&nbsp;&nbsp; static bit [7:0] bbb ;
+<br>&nbsp;&nbsp;&nbsp; ..
+<br>&nbsp; }
+<p>は、シャドウレジスタ
+<p>&nbsp; reg [7:0] svar__foo_bbb ;
+<p>をJedaモジュールに持ち、このスタティック変数のアクティビティが
+Verilogダンプで観察できます。
+<br>注：シャドウレジスタにたいするデータの更新は、Jedaコードが -g
+オプションでコンパイル/リンクされた場合にのみ行なわれます。
+</blockquote>
+
+<br>&nbsp;
+<br>&nbsp;
+<blockquote>&nbsp;</blockquote>
+
+<blockquote>&nbsp;</blockquote>
+
+<ul>&nbsp;</ul>
+
+</body>
+</html>

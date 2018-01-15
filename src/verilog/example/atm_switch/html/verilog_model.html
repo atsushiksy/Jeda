@@ -1,0 +1,57 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=euc-jp">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="index.html">index</a> : <a href="verif_environment.html">next</a>
+<p><font size=+1>1. Verilog Model and Specification</font>
+<blockquote>The DUT (device under test) we use here is a 4 port ATM switch.
+The original model is developed by Qualis Design Corporation, and downloaded
+from Janick Bergeron's Verification Guild Project. <a href="http://www.janick.bergeron.com/guild/project.html">(http://www.janick.bergeron.com/guild/project.html)</a>
+<p>The specification of the design is given by Qualis as <a href="../verilog/spec.pdf">spec.pdf</a>.
+<p>The verilog model consists of 3 files:
+<br>&nbsp;
+<ul>
+<li>
+<a href="../verilog/utopia1_atm_rx.v">utopia1_atm_rx.v</a></li>
+
+<br>UTOPIA receiver module.
+<br>&nbsp;
+<li>
+<a href="../verilog/utopia1_atm_tx.v">utopia1_atm_tx.v</a></li>
+
+<br>UTOPIA transmitter module.
+<br>&nbsp;
+<li>
+<a href="../verilog/squat.v">squat.v</a></li>
+
+<br>4 port ATM switch model.</ul>
+
+<p><br>By briefly observing the source code, I noticed the following problems:
+<br>&nbsp;
+<ul>
+<li>
+Lookup happens on Zero VPI</li>
+
+<br>The spec. (2.2.4) says:
+<ul>For each non-errored cells received with a non-zero VPI, the configuration
+information for that cells' VPI is looked up.</ul>
+But the model does not check if VPI is zero and always do the lookup. Software
+can put 0 on the entry 0 of the config register to accomplish this, but
+at least the model does not follow what the spec. says.
+<br>&nbsp;
+<li>
+Unfair transmit arbitration</li>
+
+<br>The cell transfer mechanism in squat.v does not implement the fairness
+among the port. The lower port always has the higher priority. The Thus,
+it is very easy to create the starving situation.
+<p>I will provide the test case that will detect this problem.
+<br>&nbsp;
+<br>&nbsp;</ul>
+<a href="index.html">index</a> : <a href="verif_environment.html">next</a></blockquote>
+
+</body>
+</html>

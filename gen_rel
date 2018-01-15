@@ -1,0 +1,86 @@
+#!/bin/sh -f
+#setenv CVSROOT /home/cvsroot
+#set CVSROOT=/home/cvsroot
+#export CVSROOT
+echo -n $1 >> rel_record.data
+echo -n " " >> rel_record.data
+echo $2 >> rel_record.data
+cd /home/atsushi/work/jeda_release
+\rm -r -f $2
+\rm -r -f $2.src_dep
+\rm -r -f $2.src_dep.tar.gz
+cvs -q export -r $1 -d $2 jeda
+mkdir $2.src_dep
+mkdir $2.src_dep/src
+mv $2/src/MT $2.src_dep/src
+mv $2/src/rand48 $2.src_dep/src
+mv $2/src/regexp $2.src_dep/src
+cd $2.src_dep
+tar cvf $2.src_dep.tar src
+gzip $2.src_dep.tar
+mv $2.src_dep.tar.gz ..
+cd ../$2/src/
+rm Makefile_product.in
+rm configprod.in
+rm configprod
+rm configuser.in
+rm configuser
+cd include
+for f in *.h ; do
+  if [ -f $f ]
+  then
+    echo touching $f
+    mv $f $f.p
+    /home/atsushi/work/jeda/modify_code.pl JEDA_SELF_THREAD_CONTROL < $f.p |  /home/atsushi/work/jeda/modify_code.pl PRODUCT_CODE |  /home/atsushi/work/jeda/modify_code.pl PREALLOCATE_CODE > $f
+    rm $f.p
+  fi
+done
+\rm -f license.h
+cd ../runtime
+for f in *.c ; do
+  if [ -f $f ]
+  then
+    echo touching $f
+    mv $f $f.p
+    /home/atsushi/work/jeda/modify_code.pl JEDA_SELF_THREAD_CONTROL < $f.p |  /home/atsushi/work/jeda/modify_code.pl PRODUCT_CODE |  /home/atsushi/work/jeda/modify_code.pl PREALLOCATE_CODE > $f
+    rm $f.p
+  fi
+done
+rm -r -f sysdep
+rm -r -f opobj
+rm -r -f sopobj
+rm Makefile_product.in
+rm gen_code_out_macro_prod.pl
+cd ../linker
+for f in *.c ; do
+  if [ -f $f ]
+  then
+    echo touching $f
+    mv $f $f.p
+    /home/atsushi/work/jeda/modify_code.pl JEDA_SELF_THREAD_CONTROL < $f.p |  /home/atsushi/work/jeda/modify_code.pl PRODUCT_CODE |  /home/atsushi/work/jeda/modify_code.pl PREALLOCATE_CODE > $f
+    rm $f.p
+  fi
+done
+rm Makefile_product.in
+rm jeda_prod.in
+cd ../compiler
+for f in *.c ; do
+  if [ -f $f ]
+  then
+    echo touching $f
+    mv $f $f.p
+    /home/atsushi/work/jeda/modify_code.pl JEDA_SELF_THREAD_CONTROL < $f.p |  /home/atsushi/work/jeda/modify_code.pl PRODUCT_CODE |  /home/atsushi/work/jeda/modify_code.pl PREALLOCATE_CODE > $f
+    rm $f.p
+  fi
+done
+rm Makefile_product.in
+
+cd /home/atsushi/work/jeda_release
+
+\rm -r -f $2/doc/
+\rm -f $2.tar $2.tar.gz
+tar cvf $2.tar $2
+gzip $2.tar
+echo -n $1 >> rel_record.data
+echo -n " " >> rel_record.data
+echo $2 >> rel_record.data

@@ -1,0 +1,7 @@
+
+casez_statement:
+  opt_statement_prefix 'casez' '(' expression ')' '{'
+    opt_case_items
+  '}' 
+  ;
+

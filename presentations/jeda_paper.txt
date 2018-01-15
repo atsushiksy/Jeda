@@ -1,0 +1,460 @@
+Abstract
+Jeda is a new functional verification language purposely-designed to write the intelligent test testbench effectively. Its clean object oriented design, concurrent programming support, and various testbench programming support help improve the productivity of the verification engineer. Jeda source is released under GPL that enables to provide the cost effective solution for the verification language selection, and the future expandability by the user community.
+1. Introduction
+As the gate count on ASIC/VLSI increases, and the synthesis technology gets matured on transferring RTL design to gate, the importance of the verification has come to the main issue in the chip design process. The majority of the design time is spent on the verification and the code of the testbench tends to be much lager than the actual RTL code to be tested. The proper verification methodorogy is the key to the first working silicon and the time to market development.
+Jeda programming language is designed based on the experiences of verification for more than a decade in various type of large complicated systems such as shared memory MP systems, distributed shared memory MP systems, and high performance router systems. In order to maximize the productivity of the verification engineer, the language design is done with the following in mind:
+-C like syntax for easy to learn
+-Verilog like bit vector data support
+-Interface to Verilog HDL
+-Object oriented programming support
+-Concurrent programming support
+-Reusable programming support
+-Garbage collection support 
+-Best Pseudo random function
+-Perl like string handling functionality
+-User expandability  
+The following chapters briefly explain the Jeda language features.
+2. Jeda Program structure
+Jeda program structure is similar to that of C. All the executable part of the code is written as a function and the execution starts from a function named 'main'. 
+At the top level of the Jeda program, the following elements can be declared.
+- global & local variable
+- port and portset (interface to Verilog HDL)
+- initial statement
+- function
+- class
+The following program shows those elements as the code structure.
+    int x, y. z ; // global variable
+    local int t ; // local variable
+    inout data_port ; // port
+    portset dbus {  // portset
+      inout valid ;
+      inout [7:0] data ;
+    }
+    initial {  // initial statement
+      x = 100 ;
+    }
+    main() {  
+      // function, main is the start point
+      printf( "Hello, world\n" ) ;
+    }
+    class point {  // class
+      int x, y ;
+      void set( int ax, int ay ) {
+        x = ax ;
+        y = ay ;
+      }
+    }
+3. Primitive data types and array forms
+Jeda provides the following primitive data types:
+   int      -- 32 bit integer
+   bit      -- Verilog like multi-value bit vector. 
+              It can be vectored as:
+                bit [7:0] foo ;
+   string   -- String
+   float    -- single precision floating variable
+   double   -- double precision floating variable
+   signal   -- pointer to a port (interface to Verilog HDL)
+Any data type (including the user defined class) can be declared in various array forms. The following array types are supported in Jeda.
+   Array: statically allocated array 
+      int ar[5] ;
+   Associative array: dynamically allocated array.
+      int asar[] ;
+   String index array: dynamic array indexed by a string
+     int saar[*] ;
+   List: dynamically allocated list. 
+     int alist<> ;  
+Various member functions can be used on the array data to access the contents and state of the array. For example, the following member functions can be used for various types of access to a list data:
+push, pop, bpush, bpop, remove - fifo/stack access
+send, receive, timeout - mail box access
+enter, check_enter, exit - region access
+num_element - number of element
+sort - sort the elements (only for int and string list)
+  4. Port, Portset and Signal
+Jeda interfaces to the simulator (Verilog) world via a port. A port is defined like verilog port with keywords 'input', 'output', or 'inout'. A port can be declared anywhere outside functions. A port can be declared as a single bit, or vector. A port io direction is declared as one of the following: 
+  input  -- port is input to Jeda. 
+  output -- port is output from Jeda. 
+  inout  -- port is inout to/from Jeda. 
+The port direction can be followed by the bit_range to specify a vectored signal. It can take either big-endian [2:0] or small-endian bit order [0:2].  Non-zero lsb vector is also allowed (e.g. [5:3], [3:5]). 
+  input single ;  // single bit input
+  output[3:0] nibble ; // 4 bit output 
+  inout [7:0] a_bus ;  // 8 bit inout 
+  inout [0:7] b_bus ;  // 8 bit s-endian
+  input [9:2] nz_i ;   // 8 bit non-zero lsb 
+  output[2:9] nz_o ;   // non-zero lsb, s-endian
+
+A reference to a port has two meanings, a pointer to the port, and the value on the port. Regular reference to a port name means the pointer to the port. The pointer can be stored to a signal variable for indirect access to the port.
+    signal p_sig ; 
+    p_sig = a_bus ; // p_sig gets a ptr to a_bus
+The access to the value of the port is done with 'depth' suffix ( '.n' where n is the integer number ).The depth must be 0 when a value is stored to the port.
+    a_bus.0 = 8'hff ;   // driving a_bus 
+    i = single.0 ;      // sampling single
+A port can have various attributes to specify how to interface to the simulator. Valid port attributes are:
+   Clock Attribute: specify the reference clock
+   Sample Attribute: specify the sample timing and depth
+   Drive Attribute: specify the drive timing
+Here's some example of the port declaration with attributes: 
+    input single @other_clock ; 
+      // clock reference to other_clock 
+    output [3:0] nibble drive negedge skew 2 ; 
+      // @CLOCK is used 
+    inout [7:0] a_bus sample negedge skew -2 ; 
+      // @CLOCK, drive are default
+Ports can be grouped with 'portset' to represent a logical collection of ports.
+    portset a_bus { 
+      input clock ; 
+      output [31:0] out_bus ; 
+      inout  [31:0] bidi_bus ; 
+    }
+A port set can declared with portset attribute which becomes the default attributes for the port within the portset. Default attribute is effective to all the port within the portset, unless individual attribute on the port is specified. 
+    portset foo 
+      @fastclock 
+      drive posedge skew 2 
+      sample posedge
+    { 
+      inout [7:0] data ;     
+      // fastclock is used, drive posedge skew 2 
+      input [5:0] command ;  
+      // fastclock is used, sample posedge 
+      input [2:0] error @ slowclock ; 
+      // overwritten to slowclock, sample posedge 
+    }
+Access to the port in portset is done with '.' operator. Reference without depth represent the pointer value of the port.
+    signal  sig_a ; 
+    sig_a = foo.data ;
+To access the value of the port, depth must be used as:
+     <portset>.<port>.0 : regular data access 
+     <portset>.<port>.n : n-th pipeline access
+Signal is the data type that can store the pointer to a port. When a signal variable is declared, it is empty and needed to be assigned a port (pointer).
+    signal sig ; 
+    sig = foo.data ; 
+    // foo is portset, data is a port 
+Sub-bit information of the port can also be specified at the store. Then, the access to the signal value is done on the sub-bit of the port.
+    signal sub_sig ; 
+    sub_sig = foo.data[2:0] ; 
+    if( sub_sig.0 == 3'b000 ) 
+      // same as foo.data[2:0] == 3'b000 
+    { 
+      .. 
+    }
+
+5. Timed Expression
+Jeda's expressions are similar to that of C, Verilog and Java. The special expression feature in Jeda is the timed expression, which evaluate the value with the cycle element. There are two types of basic timed expression.
+    @delay, window ( <expression_list> )
+This timed expression waits for the given 'delay' cycles, then seeks for the given expression list becomes true within the given 'window' cycles.
+    @@delay, window( <expression_list> )
+This timed expression waits for the given 'delay' cycles, then checks if the given expression list is always true within the given 'window' cycles.
+    if( @0,100( sigs.a.0 == 2'b00 ) ) 
+              printf( "zee!\n" ) ; 
+    if( !@0,100( sigs.a.0 == 2'b01 ) ) 
+              error( "sig.a.0 != 2'b01\n" ) ;
+Multiple timed expressions can be evaluated concurrently with p_and and p_or operators. p_and provides the logical and of the concurrent evaluations, while p_and provides the logical or of the concurrent evaluations.
+  if( p_and( @0,5( p.vld == 1'b1), 
+             @0,5( p.a == 4'b1110 ) ) 
+    error( "boo\n") ;
+
+  if( p_or( @0,5( p.a == 4'b0110), 
+            @0,5( p.a == 4'b1110) ) ) 
+    printf( "got p.a value\n" ) ;
+
+6. Statement
+The types of statement supported in Jeda is a mixture of what we use in C, Verilog, and Java. For example, Jeda has if/else, while, do/until, repeat, case, casex, and casez statements for flow control. It also has break and continue with label. But it does not support goto and switch statements which are known to be problematic in coding error. 
+As of the expression case, any  statement can have the cycle element that specifies the cycle delay before the statement is executed.
+    int a, b, c ; 
+    @5 (posedge sig.clk) a = 5 ; 
+    // wait for 5 posedge of sigs.clk, 
+    //   then assign 10 to a 
+    @5 b = 5 ;  
+    // wait for 5 posedge of internal clock, 
+    //    then assign 10 to b
+For the assignment to a port, non-blocking assignment '<=' operator can be used to schedule the drive without waiting. 
+    @0 sigs.a <= data ; 
+    // @0 means no-wait if it's on the edge
+    @1 sigs.a <= 8'b0 ;
+    // schedule to drive on next cycle, 
+    // but the program proceeds without waiting
+7. Function
+Function (and member function/methods in class) is the body of execution in the Jeda program. All the Jeda function have a type, and returns a value for the given type unless declared as void. Any Jeda program starts from the function main().  This function should be of type void, and should not accept any values for arguments. 
+     void main() { 
+       ..
+     }
+All other functions besides main() can have any type, and can take fixed number of arguments. When function type is omitted , it becomes the void type. The return value is transferred with return statement. Returning from non-void function without proper return value will cause the runtime error.
+Argument to a function can be a single value, or entire array can be passed as an argument. 
+    // function with array arguments 
+    int foo( int x, int y[10], int z[] ) { 
+     .. 
+    } 
+Argument value is usually copied to a local space and passed to the function. This is true for an array argument to avoid the possible side effect. When 'var' attribute is used on argument declaration, the argument will be passed as pointer, and the space of the variable is shared with caller. This mechanism can be used to return more than one value to the caller.
+    // function with var argument 
+    int foo( 
+      var bit [5:0] x, 
+      var bit [7:0] y[10], 
+      var int z[] 
+    )
+    { 
+      .. 
+    } 
+A function argument can be define with a default values.
+    int bar( 
+      int x = 0, int y = 0, int z = 0 
+    ) { 
+      .. 
+    } 
+Calling the function with '*' in the place of the argunment will pick the default value. 
+      bar( *, *, 5 ) ; // x = 0, y = 0, z = 5
+In the case the calling argument is fewer than the functional declaration, the calling arguments are applied from the top, and then the default argument is used to the remained arguments. (The missing part of the default argument must be declared in this case.) This auto-fill mechanism is useful to extend the functionality without rewrighting existing code. If the default value does not change the original behavior, the additional argument can be added at the end of the argiment list.
+    void main() { 
+      bar();      // same as bar( 0, 0, 0 ) ; 
+      bar(*,*,5); // same as bar( 0, 0, 5 ) ; 
+      bar(1);     // same as bar( 1, 0, 0 ) ; 
+      bar(1,2);    // same as bar( 1, 2, 0 ) ; 
+      bar(1, 2, 3) ; 
+    }
+8. Class
+Class is a collection of member data and member functions that defines the behavior of the class object. The special function 'new' is used as the class constructor. 
+    Class foo_class {
+      int x, y ;
+      void new() {
+        x = 0 ;
+        y = 0 ;
+      }
+    }
+The defined class name becomes the user defined data type. The instance of the class is created when new function is called and assigned to the class variable. The instance of the class is handled as the pointer. The assignment of the instance into multiple variables shares the actual instance body of the class.
+    foo_class foo ;
+    foo_class foobar ;
+    foo = new ;  // create a new instance
+    foobar = foo ; 
+    // foo & foobar point the same object
+Jeda's class supports the single inheritance. A class can be extended with keyword 'extends'. The new class inherits all the members from its parent. Any members can be redefined in the child class unless it's declared 'final' in the parent. 
+    bar_class extends foo_class { 
+      int boo ; 
+      int bee ; 
+      int sum() { 
+         return boo + bee ; 
+       } 
+     }
+The extended class instance and its parent class instance can be assigned in either direction (up-cast and down-cast). For down-cast, the class type correctness is checked at runtime as it is not deterministic at the compilation time if the parent instance is holding the extended class instance of the destination.
+    void yoo() { 
+      foo_class foo ; 
+      bar_class bar ; 
+      bar_class boo ; 
+
+      bar = new ; 
+
+      foo = bar ; // up-cast 
+      boo = foo ; // down-cast 
+    }
+An abstract class can be used to set a common frame work for a set of object, with abstract function(s) that must be defined in child class. This mechanism is usefull to use a common interface to various types of object from the same code. An example used in random generation will be shown in chapter 14. 
+Another special class definition mechanism is overwrite attribute on member function. Sometime, a class is already written, and we may want to extend it with just rewriting one function. Just redefining a new function in the extended class can handle the external call to the function. But if the parent class is calling the function by itself, the parent's code is still calling the original function in it's member. 
+    class parent { 
+       void foo() { 
+         printf( "parent foo called\n" ) ; 
+       } 
+       void bar() { 
+         foo() ; 
+       } 
+     } // end of class parent 
+
+     class child extends parent { 
+       void foo() { 
+         printf( "child foo called\n" ) ; 
+       } 
+     }
+When a child instance called the function bar, the parent class's foo() is called from the bar() function even child has foo() function redeclared. When a function is redeclared with 'overwrite' attribute, the child's function is referenced from it's parent as well. 
+    class child_a extends parent { 
+      overwrite void foo() { 
+         print( "child foo called\n" ) ; 
+      } 
+    }
+9. Concurrent programming
+The user can start the concurrent thread with fork/join. It will run the statements between fork join pair. There are three different way of closing fork:
+  fork join - wait for all the threads completion
+  fork knife - proceed without waiting for threads
+  fork spoon - proceed when one of the threads completed
+With fork knife, the user can create the thread and move forward without the completion. This is useful to create a monitor thread that stays in the system. 
+    fork 
+      // monitor thread 
+      forever { 
+        @1 vld = pio_bus.vld ;
+        data = pio_bus.data ;
+        if( vld ) {
+          ..
+        }
+      } 
+    knife // move forward without child 
+ 
+The terminate statement terminates all the child threads. The thread_join() function will wait for the completion of all the child threads. Using another level of fork join block to limit the depth of its child, the user can control the threads that effected by both terminate and thread.
+ 
+    fork   // control terminate 
+      func_a() ;  // thread will be created 
+      func_b() ;  // thread will be created
+      {
+        @100( posedge CLOcK ) ; 
+          // delay 100 cycle
+        terminate ;
+      }
+    join
+
+    fork   // control terminate 
+      func_a() ;  // thread will be created 
+      func_b() ;  // thread will be created
+      {
+        @100( posedge CLOcK ) ; 
+        // delay 100 cycle
+        thread_join() ;
+      }
+    join
+To support the concurrent programming, event and semaphore is provided as the system classes in Jeda. 
+Event is the variable to transfer the synchronous timing. It has the member functions: trigger(), trigger_on(), trigger_off(), trigger_pulse(), sync(), sync_clear(), check(), check_clear(), timeout(). The following example shows the event transfer between threads.
+    event driven ;
+    driven = new ;
+    fork 
+      {  // thread 1
+         pio.drive( addr, data ) ;
+         driven.trigger() ;
+      }
+      {  // thread 2
+        driven.sync() ;
+        printf( "pio data is driven \n" ) ;
+      }
+    knife
+Semaphore is the variable to hold unit(s) for synchronization and mutex. It has the member functions: get(), check(), put(), timeout(). It is a usefull mechanism to implement a mutex on primitive signal access. The following example shows the mutex mechanism for drive function. With the semaphore protection, multiple threads can call this function without stepping on each other.
+    Class pio_driver {
+      semaphore drive_sem ;
+      signal strb ;
+      signal addr ;
+      signal data ;
+      new( 
+        signal a_st, signal a_ad, signal a_dt
+      ) {
+        strb = a_st ;
+        addr = a_ad ;
+        data = a_dt ;
+        drive_sem = new ;
+      }
+      void drive( bit[7:0] ad, bit [7:0]dt ) {
+        drive_sem.get() ; // enter mutex
+        addr.0 = ad ;
+        data.0 = dt ;
+        strb.0 = 1'b1 ;
+        @1 strb.0 = 1'b0 weak ;
+        addr.0 = random() weak ;
+        data.0 = random() weak ;
+        drive_sem.put() ;  // exit mutex
+      }
+    }
+The list of any data type can be used as the mailbox, or the region. As a mailbox, the following member functions can be used: send(), receive(), num_element(), timeout(). As the region, the following member functions can be used: enter(), check_enter(), exit(), timeout(). 
+The following example shows the list data as the mailbox. Two mailboxes are used to transfer values between threads.
+    int a_que<> ; // list as a mailbox
+    int d_que<> ;
+    ..
+    fork
+    forever {  // thread 1
+     dly = random() % 100 ;
+     @dly ;
+     addr = random() ;
+     data = random() ;
+     pio.drive( addr, data ) ;
+     a_que.send( addr ); 
+     d_que.send( data ) ;
+    }
+    forever {  // thread 2
+      ad = a_que.receive() ;
+      dt = d_que.receive() ;
+      ..
+    }
+    knife
+
+10. System Functions
+ The following list shows the major system functions in Jeda.
+        Concurrent Control Functions:
+           thread_pause(), thread_join()
+        Random Functions:
+          random(), urandom(), rand48(), urand48()
+        Print and Report Functions:
+          printf(), error(), warning(), assert()
+        String Handling Functions:
+          sprintf(), substring(), strlen(), atoi(), abintobit(), 
+          aocttobit(), ahextobit(), bit2string()
+        Simulator Functions:
+          get_cycle(), get_time(), get_plusarg(), unit_delay(),
+          exit()
+        System Function:
+          system_exec()
+11. System Classes
+The following list shows the major system classes in Jeda. (Note that array forms of variables have various member functions as well.)
+        Random classes:
+          random_mt, random_48, geom_random, exp_random,
+          pdf_random
+        Concurrent programming support:
+          event, semaphore
+        Utility classes
+          file, regexp (regular expression engine class), 
+          ip_class (Internet domain socket class)
+12. User Extension
+The system functions and classes explained in the previous chapter are implemented with the extension mechanism of the language. With this mechanism, the user can add user defined functions and classes to the language easily. The extension can be done in two steps:
+1) Define the extern function or classes in Jeda code. Jeda provides the regular expression mechanism to specify the arguments of the function. For example, printf is defined as:
+  printf( string, (?)* ) ;
+
+2) Write the C code that implement the user defined function or class. Then compile it to the extension object file (.o).
+Then, the user can specify the extern definition header file (with -U option) on the Jeda code compilation, and link the extension object file together with the other jeda object. 
+
+13. Programming Support
+Jeda is carefully designed to help avoid various types of coding errors, avoid redundant coding, and ease to reuse the existing code. The followings are the list of various types of programming support in the language.
+1)It supports garbage collection. The user does not need to worry about memory leak while running long cycle of simulation.
+2)The syntax is designed to avoid possible coding errors:
+  -goto, switch is not supported
+  -labeled break, labeled continue are supported
+  -pointer can only be used for class instance.
+  -cast assignment is not supported (except child/parent class)
+  -assignment is not an expression, the following is not allowed:
+      if( x = 0 ) { // will cause syntax error 
+3)Runtime error checking detects various program errors ( The check can be omitted with compile option for performance):
+  -array access boundary
+  -bit access boundary, endian checking
+  -return value check at the end of non-void function
+  -type checking on parent class to child class assignment
+  -null class instance access
+4)Reusable code support
+  -default argument and auto fill feature allows to add new argument to the existing function without modifying the existing caller code.
+  -overwrite function mechanism can modify the existing class behavior as the new child class without effecting other existing code. 
+
+14. ATM Switch Verification Example
+The ATM switch verification example is provided in the web suite www.jeda.org. The DUT used in the example was taken from Janick Bergeron's Verification Guild Project www.janick.bergeron.com/guild/project.html, which was provided as the verification demonstration.
+
+                  Fig. 1 Testbench Structure
+The testbench structure is shown in Fig 1. It uses stimulus-response type modeling with a simple destination prediction on queueing a cell. Once a cell is sent to DUT, it expects to come out by the order per source/destination pair. 
+To fulfill the required test cases, the testbench is required to have the following functionalities.
+  ability to drive a cell to a port in various timing
+  ability to drive cells concurrently to multiple port 
+  mechanism to create output port conflict situation 
+  mechanism to control the transmit side speed 
+  mechanism to inject error cells 
+  mechanism for random 
+With the powerful concurrent programing support, and queue modeling ability in Jeda, implementing the functionalities above was not a difficult task.  The following direct tests are written for the demonstration:
+  -manage if test
+  -cell in slide test
+  -cell out congest test
+  -slow tx test
+  -error cell test
+  -stavation test
+Also, a random based test is written. The test can set various types of random distribution over various test parameters such as cell transfer speed, tx side receive speed. In the test, an abstract class 'random_distribution' is defined, and the following types of random distribution classes are declared as the extension of it. 
+  -constant
+  -constant loop
+  -uniform distribution
+  -geometric distribution
+  -exponential distribution
+The programming technique of polimorphic assignment is used create  various types of random distribution on various parameters with just one random test code. 
+The entire development of the code and debug (both Jeda & Verilog) takes about 2 days. This Jeda testbench detected a bug in the DUT(utopia1_atm_rx.v) in the first transfer test. (No other participants did the actual transfer test in their report.) This is a good demonstration of how we can systematically construct an effective testbench with Jeda. (see the web suite for the detailed report)
+15 Conclusion and Future Work
+The basic functionalities of JEDA programming language is shown in this paper. It's simple and clean object oriented language design and powerful concurrent programming support improve the productivity of the user for writing the functional verification testbench. It is also a usefull tool to prototype the ASIC/System functional model with it's ability to model queues. 
+Jeda is being extended to incorporate the result of the latest programming language research and various standards. Other utility classes, and various drivers are also under development. The development  is initiated by Jeda Research, Inc.
+Source code, user's manual, and the example shown in this paper is available in the complete form at http://www.jeda.org. 
+
+References:
+   Janick Bergeron's verification book
+   Verilog standard
+   A Java book
+   C standard book
+   
+   
+   

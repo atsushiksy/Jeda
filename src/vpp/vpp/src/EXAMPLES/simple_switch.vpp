@@ -1,0 +1,12 @@
+`for (i=0; i<5; i++)
+`switch(i)
+`case 0
+print out 0
+`case 1
+print out 1
+`case 2
+print out 2
+`default
+print out twice
+`endswitch
+`endfor

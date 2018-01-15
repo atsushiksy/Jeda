@@ -1,0 +1,273 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+
+</head>
+<body>
+&nbsp;
+<br><a href="index.html">Contents</a> | <a href="jeda_concurrent.html">Prev</a>
+| <a href="jeda_sys_funcs.html">Next</a>
+<h1>
+12. アスペクト指向プログラミング
+</h1>
+
+<blockquote>
+アスペクト指向プログラミング(AOP)は、プログラミング パラダイムにおける新しい概念です。この章では、そのアスペクト指向を実現する機能について説明します。
+<br>
+AOPについての詳しい情報については、AspectJプロジェクトのウェブサイト (<a href="http://www.aspectj.org">www.aspectj.org</a>)を参照してください。
+<br>
+AspectJとは異なり、JedaのAOP機構は比較的シンプルに出来ています。指定したパターンにマッチした関数呼び出しの場所に、アドバイス(advice)と呼ばれる追加コードを付加することができます。ここでのパターンは、ポイントカット(pointcut)と呼ばれます。関数呼び出しのみが、ポイントカットのパターンマッチの対象です。
+</blockquote>
+
+<h2>
+<a NAME="12.1 Aspect"></a>12.1 アスペクト</h2>
+
+<blockquote>
+アスペクト ブロックが、Jedaにアスペクト指向なコードを記述するための基本ユニットです。
+アスペクト ブロックは、クラスに似通っていますが、それ自身が唯一の実在で、(クラスの様に)インスタンスを生成することは出来ません。
+したがって、アスペクト内にnew()関数を記述することは出来ません。
+アスペクト ブロックには、メンバー変数、メンバー関数、およびアドバイスを宣言することができます。
+<blockquote><font face="Courier New,Courier"><font size=-1>&nbsp; aspect&nbsp;
+foo_asp&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+x, y, z ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; void
+foo_func() {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+x = 100 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+y = 200 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+z = 300 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; advice
+void foo_adv()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+call( io_drive.drive_data )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "io_drive.drive_data is called\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></blockquote>
+メンバー変数とメンバー関数は、&lt;aspect_name>.&lt;member_name> で参照することができます。
+上記のアスペクトにて、メンバー変数 x はアスペクトブロックの外部から、次のようにアクセスすることができます。
+<p>&nbsp;&nbsp; <font face="Courier New,Courier"><font size=-1>foo_asp.x
+= 500 ;</font></font>
+<p>
+また、メンバー関数 foo_func() は、次のようにして呼び出すことができます。
+<p>
+&nbsp;&nbsp; <font face="Courier New,Courier"><font size=-1>foo_asp.foo_func()
+;</font></font></blockquote>
+
+<h2>
+<a NAME="12.2 Advice"></a>12.2 アドバイス</h2>
+
+<blockquote>
+アドバイスは、アスペクト指向プログラミング機構での、特別な実行ユニットです。アドバイスは、クラスにおけるメンバー関数に類似していますが、アドバイスを直接呼び出すことは出来ません。アドバイスは、指定されたポイントカット条件が満たされた場所で実行されます。このポイントカットの条件検出は、関数呼び出しが行われている場所で行われます。一つのアドバイスに、複数のポイントカット条件を指定することも可能です。
+<blockquote><font face="Courier New,Courier"><font size=-1>&nbsp; aspect&nbsp;
+foo_asp&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+x, y, z ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; advice
+void foo_adv()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+call( io_drive.drive_data ) // call pointcut</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "io_drive.drive_data is called\n" ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></blockquote>
+</blockquote>
+
+<h2>
+<a NAME="12.3 Pointcut"></a>12.3 ポイントカット
+</h2>
+
+<blockquote>
+ポイントカットによって、アドバイスが実行される場所とタイミングを指定します。
+ポイントカットの宣言をするために、３種類のメカニズムが使用できます。
+<ul>
+<li>
+call( &lt;pattern> )</li>
+
+<br>
+コール ポイントカットは、パターンがマッチした関数の呼び出し時(実行前)に、アドバイスを実行するために使用します。
+<li>
+return( &lt;pattern> )</li>
+
+<br>
+リターン ポイントカットは、パターンがマッチした関数の呼び出し後(実行後)に、アドバイスを実行するために使用します。
+<li>
+overwrite( &lt;pattern> )</li>
+
+<br>
+オーバーライト ポイントカットは、パターンがマッチした関数の代わりに、アドバイスを実行するために使用します。対象となる関数は実行されません。
+
+</ul>
+ポイントカット条件のパターンは、識別子を用いて完全なマッチを行う (例：io_drive.drive_data)か、文字列を用いて正規表現のマッチを行う(例："drive\w*")ことが出来ます。
+文字列が使用された場合、正規表現エンジンを用いたパターンマッチングが行われます。
+(正規表現の機能については、14.5 正規表現エンジンクラスを参照してください。)
+<br>
+このパターンは、関数名(あるいは、関数名にマッチする文字列)まで指定されなくてはなりません。ここで、クラス名やメンバー関数名、メンバー変数名を指定して、目的の関数呼び出しまでのパスを指定することが出来ます。たとえば、以下のコードは、特定のセマフォで待ち状態となるスレッドの待ちサイクル数を捉えることが出来ます。
+<p><font face="Courier New,Courier"><font size=-1>aspect how_long {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int thread_count
+= 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int cycle_count&nbsp;
+= 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; int cycle_que&lt;>
+;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; advice void wait_sem()
+call( io_drive.drive_sem.get ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; thread_count++
+;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cycle_que.send(
+get_cycle() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; advice void got_sem()
+return( io_drive.drive_sem.get ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; cycle_count
++= ( get_cycle() - cycle_que.receive() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; int ave_wait()
+{</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+thread_count ) return cycle_count/thread_count ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; else
+return 0 ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p><font face="Courier New,Courier"><font size=-1>}</font></font>
+<p>
+ポイントカットのマッチは、関数およびクラスのメンバー関数のみに限定されています。アスペクト ブロックのメンバー関数とアドバイスは、ポイントカット検索の対象外ですので、無限の再帰的アドバイス呼び出しが起こることを避けることができます。(間接的に無限呼び出しが起こる場合は常にあります。)
+</blockquote>
+
+<h2>
+<a NAME="12.4 Data type of advice and return value"></a>
+12.4 アドバイスのデータ型と戻り値の修正
+</h2>
+
+<blockquote>
+アドバイスがvoidでないデータ型として宣言された場合、そのデータ型はポイントカット条件を満たす関数と同じでなくてはなりません。データ型が異なる場合、ポイントカットの関数パターンがマッチしてもアドバイスは付加されません。
+アドバイスのデータ型がvoidの場合、関数のデータ型に関係なく、パターンがマッチした関数にアドバイスが付加されます。
+この場合、アドバイスで、関数の戻り値を変更することは出来ません。
+<p>
+コール アドバイスの場合、アドバイス実行後に対象関数が実行されるため、アドバイスからの戻り値は意味を持ちません。
+<p>
+リターン アドバイスの場合、値付きでの return ステートメントは、元の関数からの戻り値を書き換えます。値の指定なしでの return ステートメントは、元の関数からの戻り値を保持します。
+<p><font face="Courier New,Courier"><font size=-1>&nbsp; advice int change_ret_val(
+int x ) return( foo.get_x ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; if(
+x > 100 ) return 100 ;&nbsp;&nbsp; // modify the return value</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; else
+return ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// use the original value</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font>
+<p>
+オーバーライト アドバイスの場合、戻り値はアドバイスで指定されなければなりません。もし、戻り値なしでアドバイスから抜けると、実行時エラーとなります。
+<p>
+
+<p>&nbsp; <font face="Courier New,Courier"><font size=-1>advice int missing_retval(
+int x ) overwrite( foo.get_x ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; int
+p ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; p
+= x ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; //
+missing return &lt;value> statement, will cause runtime error</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp; }</font></font></blockquote>
+
+<h2>
+<a NAME="12.5 Argument on advice"></a>
+12.5 アドバイスの引数
+</h2>
+
+<blockquote>
+引数を持たないアドバイスは、対象となる関数の引数に関係なくマッチが行われます。
+この場合、アドバイス内で対象となる関数の引数を参照することは出来ません。
+<p>
+アドバイスに引数が指定された場合、これらの引数データ タイプは対象となる関数の引数と同様でなければなりません。もし、引数が異なる場合、パターンがマッチしてもアドバイスの呼び出しは行われません。
+引数を持つアドバイスでは、その引数を参照することが出来ます。引数が var 属性を持てば、引数の値を関数呼び出しの前に変更することも出来ます。
+</blockquote>
+
+<h2>
+<a NAME="12.6 Special Expression in advice"></a>
+12.6 アドバイスでの特殊な表現式
+</h2>
+
+<blockquote>
+<h3>
+12.6.1 this</h3>
+</blockquote>
+<blockquote>
+表現式 this がアドバイス内で参照されると、ポイントカットで指定された最上位のクラスのインスタンスを返します。最上位のクラス名が確定されていなければ、this を参照することは出来ません。
+ポイントカットの条件がクラス名(文字列でない)で始まり、複数のポイントカットが指定された場合、すべてのポイントカットが同じクラスで始まらなければなりません。
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; advice
+void check_drive()</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+call( Driver.drive )</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+call( Driver.receive)</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Driver foo = this ;</font></font>
+<p><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br>&nbsp;
+<h3>
+12.6.1 return</h3>
+この特別な表現式は、ポイントカットで選択された関数の戻り値を返します。このreturn表現式は、リターン ポイントカットで実行されるアドバイスのみで有効です。アドバイス外で、この表現式が用いられるとコンパイル エラーとなります。また、リターン ポイントカットでないアドバイスで用いられると、実行時エラーとなります。
+<br>&nbsp;
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; advice int add_one()
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return( foo.bar )
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int rval = return ;
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rval++ ;
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return rval ;
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+<blockquote>&nbsp;</blockquote>
+</blockquote>
+
+<h2>
+<a NAME="12.7 Advice Related Functions"></a>
+12.7 アドバイスに関連した関数
+</h2>
+
+<blockquote>
+アドバイス内で、用いることができる二つのシステム関数があります。
+<ul>
+<li>
+int pointcut_line()</li>
+
+<br>この関数は、現在のポイントカットの場所での行番号を返します。
+<li>
+string pointcut_file()</li>
+
+<br>
+この関数は、現在のポイントカットの場所でのファイル名を返します。
+This function returns the file name of the pointcut location.
+</ul>
+</blockquote>
+
+<blockquote>
+これらの関数は、デバッグ情報をアドバイスとして付加するときに有効です。
+以下の例では、Driveクラスの全てのprintf関数呼び出しに、行番号とファイル名を付加します。
+<blockquote><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;
+aspect verbose {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+advice void verbose_print() call( Driver.".*".printf ) {</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+printf( "Line %d in %s", pointcut_line(), pointcut_file() ) ;</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font></font>
+<br><font face="Courier New,Courier"><font size=-1>&nbsp;&nbsp;&nbsp; }</font></font></blockquote>
+</blockquote>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+

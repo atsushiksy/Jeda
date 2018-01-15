@@ -1,0 +1,5 @@
+#!/bin/sh
+# This file was generated automatically by configure.  Do not edit.
+# This directory was configured as follows:
+../gcc-2.95.2/configure --with-gcc-version-trigger=/home/atsushi/jeda/src/jedapp/gcc-2.95.2/gcc/version.c --host=i686-pc-linux-gnu --enable-cpp --enable-languages=c++ --norecursion 
+#  using "mt-frag"

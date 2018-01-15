@@ -1,0 +1,78 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; U; Linux 2.2.19 i686) [Netscape]">
+</head>
+<body>
+<a href="verif_environment.html">prev</a> : <a href="index.html">index</a>
+: <a href="directory.html">next</a>
+<p><font size=+1>3. Test Plan</font>
+<blockquote>It is always good to start your verification work with the
+test plan. It shows the fundamental mechanisms for the self-checking testbench
+and it will provide a lot of guidance in developing the drivers and other
+primitive modules.
+<p>I'm not intend to provide a full set of test cases I usually do in my
+verification work. Here, I listed a minimal set of test cases. (As the
+verilog model is a simple behavioral one,&nbsp; I can't come up with many
+corner cases anyway.)
+<ul>
+<li>
+management if test</li>
+
+<br>testing management interface and access to the register contents
+<li>
+cell input slide test</li>
+
+<br>send multiple cells from different ports in sliding timing window,
+testing conflict case in the various input timing
+<li>
+cell output port congestion test</li>
+
+<br>create the output port congestion situation, testing the output conflict
+case to check the flow control mechanism
+<li>
+slow transmitter speed test</li>
+
+<br>test the case that tx side is slow and cell is congested, testing the
+flow control mechanism from tx side.
+<li>
+error cell test</li>
+
+<br>inject error cell to check it's correctly dropped
+<li>
+starvation test</li>
+
+<br>create the design problem case that the arbitration per port is not
+fair, and other than port0 won't be serviced
+<li>
+random test</li>
+
+<br>provides the configurable random test sequence</ul>
+This list shows that we need the following mechanisms:
+<ul>
+<li>
+ability to drive a cell to a port in various timing, concurrently to multiple
+port</li>
+
+<li>
+mechanism to create output port conflict situation</li>
+
+<li>
+mechanism to control the transmit side speed</li>
+
+<li>
+mechanism to inject error cells</li>
+
+<li>
+mechanism for random</li>
+</ul>
+First mechanism is the easy one, as Jeda provide the concurrent programming
+primitives. Other mechanisms are implemented in various places in the testbench.
+The following chapters will show them.</blockquote>
+
+<p><br>&nbsp;
+<a href="verif_environment.html">prev</a> : <a href="index.html">index</a>
+: <a href="directory.html">next</a>
+</body>
+</html>

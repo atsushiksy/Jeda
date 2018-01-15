@@ -1,0 +1,1937 @@
+bash-2.05$ gdb clone
+GNU gdb 5.0
+Copyright 2000 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to JD_sleep_lwpchange it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-slackware-linux"...
+(gdb) welcome to JD_sleep_lwpchange it and/or distribute copies of it under certain conditions.
+Undefined command: "welcome".  Try "help".
+(gdb) b JD_sleep_lwp 
+Breakpoint 1 at 0x80e6994
+(gdb) run
+Starting program: /home/atsushi/work/jeda/src/standalone_tests/clone 
+[New Thread 1024 (LWP 22551)]
+[New Thread 2049 (LWP 22552)]
+[New Thread 1026 (LWP 22553)]
+[Switching to Thread 1024 (LWP 22551)]
+
+Breakpoint 1, 0x80e6994 in JD_sleep_lwp ()
+(gdb) up
+#1  0x80b506d in JD_thread_sleep (this=0x4029c008) at thread.c:591
+591	  JD_sleep_lwp( this->lwp ) ;
+(gdb) p this->lwp
+$1 = (JD_lwp *) 0x8131078
+(gdb) p *this->lwp
+$2 = {ret = 0x80e6990 <JD_call_lwp_return>, ret_fp = 0xbffff51c, 
+  ret_sp = 0xbffff4f4, func = 0x80e69f0 <JD_sleep_lwp_jump>, arg = 0x0, 
+  fp = 0x0, sp = 0x0, reta = 0x80cbbb0 <v_top_loop+212>, retb = 0, 
+  save_stack = 0x0, stack_size = 0, stack_base = 0x80f7f78}
+(gdb) down
+#0  0x80e6994 in JD_sleep_lwp ()
+(gdb) disassemble
+Dump of assembler code for function JD_sleep_lwp:
+0x80e6994 <JD_sleep_lwp>:	pop    %ecx
+0x80e6995 <JD_sleep_lwp+1>:	pop    %ebx
+0x80e6996 <JD_sleep_lwp+2>:	push   %ebx
+0x80e6997 <JD_sleep_lwp+3>:	mov    %esp,0x18(%ebx)
+0x80e699a <JD_sleep_lwp+6>:	mov    %ecx,0x20(%ebx)
+0x80e699d <JD_sleep_lwp+9>:	push   %ecx
+0x80e699e <JD_sleep_lwp+10>:	mov    %ebp,0x14(%ebx)
+0x80e69a1 <JD_sleep_lwp+13>:	push   %ebp
+0x80e69a2 <JD_sleep_lwp+14>:	mov    %esp,%ebp
+0x80e69a4 <JD_sleep_lwp+16>:	mov    0x2c(%ebx),%ecx
+0x80e69a7 <JD_sleep_lwp+19>:	mov    (%ecx),%edx
+0x80e69a9 <JD_sleep_lwp+21>:	mov    %esp,%ecx
+0x80e69ab <JD_sleep_lwp+23>:	sub    %esp,%edx
+0x80e69ad <JD_sleep_lwp+25>:	add    $0x4,%edx
+0x80e69b0 <JD_sleep_lwp+28>:	mov    %edx,0x28(%ebx)
+0x80e69b3 <JD_sleep_lwp+31>:	push   %ebx
+0x80e69b4 <JD_sleep_lwp+32>:	add    $0xfffffff4,%esp
+0x80e69b7 <JD_sleep_lwp+35>:	push   %edx
+0x80e69b8 <JD_sleep_lwp+36>:	call   0x804ad5c <malloc>
+0x80e69bd <JD_sleep_lwp+41>:	add    $0x10,%esp
+0x80e69c0 <JD_sleep_lwp+44>:	pop    %ebx
+0x80e69c1 <JD_sleep_lwp+45>:	mov    %eax,0x24(%ebx)
+0x80e69c4 <JD_sleep_lwp+48>:	mov    0x2c(%ebx),%ecx
+0x80e69c7 <JD_sleep_lwp+51>:	mov    (%ecx),%ecx
+0x80e69c9 <JD_sleep_lwp+53>:	mov    0x28(%ebx),%eax
+0x80e69cc <JD_sleep_lwp+56>:	mov    0x24(%ebx),%edx
+0x80e69cf <JD_sleep_lwp+59>:	push   %ebx
+0x80e69d0 <JD_sleep_lwp+60>:	or     %eax,%eax
+0x80e69d2 <JD_sleep_lwp+62>:	je     0x80e69e3 <JD_sleep_lwp+79>
+0x80e69d4 <JD_sleep_lwp+64>:	sub    $0x4,%eax
+0x80e69d7 <JD_sleep_lwp+67>:	sub    $0x4,%ecx
+0x80e69da <JD_sleep_lwp+70>:	mov    (%ecx),%ebx
+0x80e69dc <JD_sleep_lwp+72>:	mov    %ebx,(%edx)
+0x80e69de <JD_sleep_lwp+74>:	add    $0x4,%edx
+0x80e69e1 <JD_sleep_lwp+77>:	jmp    0x80e69d0 <JD_sleep_lwp+60>
+0x80e69e3 <JD_sleep_lwp+79>:	pop    %ebx
+0x80e69e4 <JD_sleep_lwp+80>:	mov    0x8(%ebx),%esp
+0x80e69e7 <JD_sleep_lwp+83>:	mov    0x4(%ebx),%ebx
+0x80e69ea <JD_sleep_lwp+86>:	mov    0x1c(%ebx),%ecx
+0x80e69ed <JD_sleep_lwp+89>:	jmp    *%ecx
+0x80e69ef <JD_sleep_lwp+91>:	nop    
+End of assembler dump.
+(gdb) stepi
+0x80e6995 in JD_sleep_lwp ()
+(gdb) :	sub    $0x4,%ecx
+Undefined command: "".  Try "help".
+(gdb) 
+Undefined command: "".  Try "help".
+(gdb) stepi
+0x80e6996 in JD_sleep_lwp ()
+(gdb) 
+0x80e6997 in JD_sleep_lwp ()
+(gdb) 
+0x80e699a in JD_sleep_lwp ()
+(gdb) 
+0x80e699d in JD_sleep_lwp ()
+(gdb) 
+0x80e699e in JD_sleep_lwp ()
+(gdb) info regs
+Undefined info command: "regs".  Try "help info".
+(gdb) info registers
+eax            0x4029c008	1076477960
+ecx            0x80b506d	134959213
+edx            0x8131078	135467128
+ebx            0x8131078	135467128
+esp            0xbfffec04	0xbfffec04
+ebp            0xbfffec30	0xbfffec30
+esi            0x2	2
+edi            0x80f9bc8	135240648
+eip            0x80e699e	0x80e699e
+eflags         0x387	903
+cs             0x23	35
+ss             0x2b	43
+ds             0x2b	43
+es             0x2b	43
+fs             0x0	0
+gs             0x0	0
+fctrl          0x37f	895
+fstat          0x100	256
+ftag           0xffff	65535
+fiseg          0x23	35
+fioff          0x40103bb5	1074805685
+foseg          0x2b	43
+fooff          0x4019f3f0	1075442672
+fop            0x49b	1179
+(gdb) stepi
+0x80e69a1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69a2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69a4 in JD_sleep_lwp ()
+(gdb) info registers
+eax            0x4029c008	1076477960
+ecx            0x80b506d	134959213
+edx            0x8131078	135467128
+ebx            0x8131078	135467128
+esp            0xbfffec00	0xbfffec00
+ebp            0xbfffec00	0xbfffec00
+esi            0x2	2
+edi            0x80f9bc8	135240648
+eip            0x80e69a4	0x80e69a4
+eflags         0x387	903
+cs             0x23	35
+ss             0x2b	43
+ds             0x2b	43
+es             0x2b	43
+fs             0x0	0
+gs             0x0	0
+fctrl          0x37f	895
+fstat          0x100	256
+ftag           0xffff	65535
+fiseg          0x23	35
+fioff          0x40103bb5	1074805685
+foseg          0x2b	43
+fooff          0x4019f3f0	1075442672
+fop            0x49b	1179
+(gdb) stepi
+0x80e69a7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69a9 in JD_sleep_lwp ()
+(gdb) info registers
+eax            0x4029c008	1076477960
+ecx            0x80f7f78	135233400
+edx            0xbfffecec	-1073746708
+ebx            0x8131078	135467128
+esp            0xbfffec00	0xbfffec00
+ebp            0xbfffec00	0xbfffec00
+esi            0x2	2
+edi            0x80f9bc8	135240648
+eip            0x80e69a9	0x80e69a9
+eflags         0x387	903
+cs             0x23	35
+ss             0x2b	43
+ds             0x2b	43
+es             0x2b	43
+fs             0x0	0
+gs             0x0	0
+fctrl          0x37f	895
+fstat          0x100	256
+ftag           0xffff	65535
+fiseg          0x23	35
+fioff          0x40103bb5	1074805685
+foseg          0x2b	43
+fooff          0x4019f3f0	1075442672
+fop            0x49b	1179
+(gdb) stepi
+0x80e69ab in JD_sleep_lwp ()
+(gdb) stepi
+0x80e69ad in JD_sleep_lwp ()
+(gdb) info registers
+eax            0x4029c008	1076477960
+ecx            0xbfffec00	-1073746944
+edx            0xec	236
+ebx            0x8131078	135467128
+esp            0xbfffec00	0xbfffec00
+ebp            0xbfffec00	0xbfffec00
+esi            0x2	2
+edi            0x80f9bc8	135240648
+eip            0x80e69ad	0x80e69ad
+eflags         0x302	770
+cs             0x23	35
+ss             0x2b	43
+ds             0x2b	43
+es             0x2b	43
+fs             0x0	0
+gs             0x0	0
+fctrl          0x37f	895
+fstat          0x100	256
+ftag           0xffff	65535
+fiseg          0x23	35
+fioff          0x40103bb5	1074805685
+foseg          0x2b	43
+fooff          0x4019f3f0	1075442672
+fop            0x49b	1179
+(gdb) stepi
+0x80e69b0 in JD_sleep_lwp ()
+(gdb) info registers
+eax            0x4029c008	1076477960
+ecx            0xbfffec00	-1073746944
+edx            0xf0	240
+ebx            0x8131078	135467128
+esp            0xbfffec00	0xbfffec00
+ebp            0xbfffec00	0xbfffec00
+esi            0x2	2
+edi            0x80f9bc8	135240648
+eip            0x80e69b0	0x80e69b0
+eflags         0x316	790
+cs             0x23	35
+ss             0x2b	43
+ds             0x2b	43
+es             0x2b	43
+fs             0x0	0
+gs             0x0	0
+fctrl          0x37f	895
+fstat          0x100	256
+ftag           0xffff	65535
+fiseg          0x23	35
+fioff          0x40103bb5	1074805685
+foseg          0x2b	43
+fooff          0x4019f3f0	1075442672
+fop            0x49b	1179
+(gdb) stepi
+0x80e69b3 in JD_sleep_lwp ()
+(gdb) 
+0x80e69b4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69b7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69b8 in JD_sleep_lwp ()
+(gdb) 
+0x804ad5c	46	dl-minimal.c: No such file or directory.
+(gdb) 
+0x400ddff0 in __libc_malloc (bytes=135467128) at malloc.c:2202
+2202	malloc.c: No such file or directory.
+(gdb) info registers
+eax            0x4029c008	1076477960
+ecx            0xbfffec00	-1073746944
+edx            0xf0	240
+ebx            0x8131078	135467128
+esp            0xbfffebe8	0xbfffebe8
+ebp            0xbfffec00	0xbfffec00
+esi            0x2	2
+edi            0x80f9bc8	135240648
+eip            0x400ddff0	0x400ddff0
+eflags         0x397	919
+cs             0x23	35
+ss             0x2b	43
+ds             0x2b	43
+es             0x2b	43
+fs             0x0	0
+gs             0x0	0
+fctrl          0x37f	895
+fstat          0x100	256
+ftag           0xffff	65535
+fiseg          0x23	35
+fioff          0x40103bb5	1074805685
+foseg          0x2b	43
+fooff          0x4000f3f0	1073804272
+fop            0x49b	1179
+(gdb) p /x (int)0xbfffebe8
+$3 = 0xbfffebe8
+(gdb) p /x *(int)0xbfffebe8
+$4 = 0x80e69bd
+(gdb) p *(int)0xbfffebe8
+$5 = 135162301
+(gdb) stepi
+0x400ddff1	2202	in malloc.c
+(gdb) 
+0x400ddff3 in __libc_malloc (bytes=240) at malloc.c:2202
+2202	in malloc.c
+(gdb) 
+0x400ddff6	2202	in malloc.c
+(gdb) 
+0x400ddff7	2202	in malloc.c
+(gdb) 
+0x400ddff8	2202	in malloc.c
+(gdb) 
+0x400ddff9	2202	in malloc.c
+(gdb) 
+0x400ddffe	2202	in malloc.c
+(gdb) 
+0x400ddfff	2202	in malloc.c
+(gdb) 
+2694	in malloc.c
+(gdb) 
+2700	in malloc.c
+(gdb) 
+0x400de00e	2700	in malloc.c
+(gdb) 
+0x400de011	2700	in malloc.c
+(gdb) 
+2712	in malloc.c
+(gdb) 
+0x400de026	2712	in malloc.c
+(gdb) 
+0x400de029	2712	in malloc.c
+(gdb) 
+0x400de02b	2712	in malloc.c
+(gdb) 
+0x400de02d	2712	in malloc.c
+(gdb) 
+0x400de02f	2712	in malloc.c
+(gdb) 
+0x400de041	2712	in malloc.c
+(gdb) 
+0x400de045	2712	in malloc.c
+(gdb) 
+0x400de047	2712	in malloc.c
+(gdb) 
+0x400de04b	2712	in malloc.c
+(gdb) 
+2714	in malloc.c
+(gdb) 
+0x400de05d	2714	in malloc.c
+(gdb) 
+0x400de060	2714	in malloc.c
+(gdb) 
+0x400de062	2714	in malloc.c
+(gdb) 
+0x400de065	2714	in malloc.c
+(gdb) 
+0x400de067	2714	in malloc.c
+(gdb) 
+0x400de069	2714	in malloc.c
+(gdb) 
+0x4002b7b8 in libc_internal_tsd_get (key=240) at specific.c:181
+181	specific.c: No such file or directory.
+(gdb) 
+0x4002b7b9	181	in specific.c
+(gdb) 
+0x4002b7bb in libc_internal_tsd_get (key=_LIBC_TSD_KEY_MALLOC)
+    at specific.c:181
+181	in specific.c
+(gdb) 
+0x4002b7be	181	in specific.c
+(gdb) 
+0x4002b7bf	181	in specific.c
+(gdb) 
+0x4002b7c4	181	in specific.c
+(gdb) 
+0x4002b7c5	181	in specific.c
+(gdb) 
+378	internals.h: No such file or directory.
+(gdb) 
+379	in internals.h
+(gdb) 
+0x4002b7d3	379	in internals.h
+(gdb) 
+0x4002b7d5	379	in internals.h
+(gdb) 
+380	in internals.h
+(gdb) 
+0x4002b7dd	380	in internals.h
+(gdb) 
+190	specific.c: No such file or directory.
+(gdb) 
+0x4002b824	190	in specific.c
+(gdb) 
+0x4002b827	190	in specific.c
+(gdb) 
+0x4002b82a	190	in specific.c
+(gdb) 
+0x4002b82b	190	in specific.c
+(gdb) 
+0x4002b82c in libc_internal_tsd_get (key=240) at specific.c:190
+190	in specific.c
+(gdb) 
+0x400de06b in __libc_malloc (bytes=240) at malloc.c:2714
+2714	malloc.c: No such file or directory.
+(gdb) 
+0x400de06e	2714	in malloc.c
+(gdb) 
+0x400de070	2714	in malloc.c
+(gdb) 
+0x400de07a	2714	in malloc.c
+(gdb) 
+0x400de07c	2714	in malloc.c
+(gdb) 
+0x400de07e	2714	in malloc.c
+(gdb) 
+0x400de080	2714	in malloc.c
+(gdb) 
+0x400de087	2714	in malloc.c
+(gdb) 
+0x400de089	2714	in malloc.c
+(gdb) 
+0x400de08c	2714	in malloc.c
+(gdb) 
+0x400de092	2714	in malloc.c
+(gdb) 
+0x400de093	2714	in malloc.c
+(gdb) 
+0x40089e70 in signgam () from /lib/libc.so.6
+(gdb) 
+0x40028af8 in __pthread_mutex_trylock (mutex=0xf0) at mutex.c:54
+54	mutex.c: No such file or directory.
+(gdb) 
+0x40028af9	54	in mutex.c
+(gdb) 
+0x40028afb in __pthread_mutex_trylock (mutex=0x401780d0) at mutex.c:54
+54	in mutex.c
+(gdb) 
+0x40028afe	54	in mutex.c
+(gdb) 
+0x40028aff	54	in mutex.c
+(gdb) 
+0x40028b00	54	in mutex.c
+(gdb) 
+0x40028b01	54	in mutex.c
+(gdb) 
+0x40028b06	54	in mutex.c
+(gdb) 
+0x40028b07	54	in mutex.c
+(gdb) 
+64	in mutex.c
+(gdb) 
+0x40028b10	64	in mutex.c
+(gdb) 
+0x40028b13	64	in mutex.c
+(gdb) 
+0x40028b16	64	in mutex.c
+(gdb) 
+0x40028b1c	64	in mutex.c
+(gdb) 
+0x40028b1e	64	in mutex.c
+(gdb) 
+0x40028b25	64	in mutex.c
+(gdb) 
+148	spinlock.h: No such file or directory.
+(gdb) 
+0x40028d63	148	in spinlock.h
+(gdb) 
+154	in spinlock.h
+(gdb) 
+0x40028d6c	154	in spinlock.h
+(gdb) 
+0x40028d6f	154	in spinlock.h
+(gdb) 
+176	in spinlock.h
+(gdb) 
+177	in spinlock.h
+(gdb) 
+0x40028dab	177	in spinlock.h
+(gdb) 
+44	in spinlock.h
+(gdb) 
+0x40028db2	44	in spinlock.h
+(gdb) 
+45	in spinlock.h
+(gdb) 
+0x40028dbb	45	in spinlock.h
+(gdb) 
+0x40028dbe	45	in spinlock.h
+(gdb) 
+60	../linuxthreads/sysdeps/i386/pt-machine.h: No such file or directory.
+(gdb) 
+0x40028dc2	60	in ../linuxthreads/sysdeps/i386/pt-machine.h
+(gdb) 
+0x40028dc6	60	in ../linuxthreads/sysdeps/i386/pt-machine.h
+(gdb) 
+64	in ../linuxthreads/sysdeps/i386/pt-machine.h
+(gdb) 
+46	spinlock.h: No such file or directory.
+(gdb) 
+178	in spinlock.h
+(gdb) 
+0x40028de0	178	in spinlock.h
+(gdb) 
+179	in spinlock.h
+(gdb) 
+88	mutex.c: No such file or directory.
+(gdb) 
+0x40028de6	88	in mutex.c
+(gdb) 
+0x40028ded	90	in mutex.c
+(gdb) 
+0x40028df0	90	in mutex.c
+(gdb) 
+0x40028df1	90	in mutex.c
+(gdb) 
+0x40028df2	90	in mutex.c
+(gdb) 
+0x40028df3	90	in mutex.c
+(gdb) 
+0x40028df4 in __pthread_mutex_trylock (mutex=0xf0) at mutex.c:90
+90	in mutex.c
+(gdb) 
+0x400de098 in __libc_malloc (bytes=240) at malloc.c:2714
+2714	malloc.c: No such file or directory.
+(gdb) 
+0x400de09b	2714	in malloc.c
+(gdb) 
+0x400de09d	2714	in malloc.c
+(gdb) 
+0x400de09f	2714	in malloc.c
+(gdb) 
+2715	in malloc.c
+(gdb) 
+0x400de0c4	2715	in malloc.c
+(gdb) 
+2717	in malloc.c
+(gdb) 
+0x400de0cd	2717	in malloc.c
+(gdb) 
+0x400de0cf	2717	in malloc.c
+(gdb) 
+0x400de228 in chunk_alloc (ar_ptr=0xf8, nb=135240936) at malloc.c:2740
+2740	in malloc.c
+(gdb) 
+0x400de229	2740	in malloc.c
+(gdb) 
+0x400de22b in chunk_alloc (ar_ptr=0x80f9bc8, nb=1075282128) at malloc.c:2740
+2740	in malloc.c
+(gdb) 
+0x400de22e	2740	in malloc.c
+(gdb) 
+0x400de22f	2740	in malloc.c
+(gdb) 
+0x400de230	2740	in malloc.c
+(gdb) 
+0x400de231	2740	in malloc.c
+(gdb) 
+0x400de236	2740	in malloc.c
+(gdb) 
+0x400de237	2740	in malloc.c
+(gdb) 
+2749	in malloc.c
+(gdb) 
+0x400de240	2749	in malloc.c
+(gdb) 
+2766	in malloc.c
+(gdb) 
+0x400de249	2766	in malloc.c
+(gdb) 
+2768	in malloc.c
+(gdb) 
+0x400de24e	2768	in malloc.c
+(gdb) 
+2772	in malloc.c
+(gdb) 
+0x400de255	2772	in malloc.c
+(gdb) 
+0x400de259	2772	in malloc.c
+(gdb) 
+2773	in malloc.c
+(gdb) 
+2776	in malloc.c
+(gdb) 
+0x400de261	2776	in malloc.c
+(gdb) 
+2779	in malloc.c
+(gdb) 
+2781	in malloc.c
+(gdb) 
+0x400de268	2781	in malloc.c
+(gdb) 
+2790	in malloc.c
+(gdb) 
+2792	in malloc.c
+(gdb) 
+2824	in malloc.c
+(gdb) 
+0x400de369	2824	in malloc.c
+(gdb) 
+0x400de36c	2824	in malloc.c
+(gdb) 
+0x400de36f	2824	in malloc.c
+(gdb) 
+0x400de372	2824	in malloc.c
+(gdb) 
+0x400de374	2824	in malloc.c
+(gdb) 
+2859	in malloc.c
+(gdb) 
+0x400de4e3	2859	in malloc.c
+(gdb) 
+0x400de4e5	2859	in malloc.c
+(gdb) 
+0x400de4ea	2859	in malloc.c
+(gdb) 
+0x400de4ed	2859	in malloc.c
+(gdb) 
+0x400de4f2	2859	in malloc.c
+(gdb) 
+0x400de4f4	2859	in malloc.c
+(gdb) 
+0x400de4f7	2859	in malloc.c
+(gdb) 
+0x400de4fa	2859	in malloc.c
+(gdb) 
+0x400de4fc	2859	in malloc.c
+(gdb) 
+2950	in malloc.c
+(gdb) 
+0x400de5d3	2950	in malloc.c
+(gdb) 
+0x400de5d6	2950	in malloc.c
+(gdb) 
+0x400de5d9	2950	in malloc.c
+(gdb) 
+0x400de5dc	2950	in malloc.c
+(gdb) 
+0x400de5df	2950	in malloc.c
+(gdb) 
+0x400de5e2	2950	in malloc.c
+(gdb) 
+2979	in malloc.c
+(gdb) 
+2980	in malloc.c
+(gdb) 
+0x400dea3b	2980	in malloc.c
+(gdb) 
+0x400dea3d	2980	in malloc.c
+(gdb) 
+2981	in malloc.c
+(gdb) 
+0x400dea43	2981	in malloc.c
+(gdb) 
+0x400dea46	2981	in malloc.c
+(gdb) 
+0x400dea49	2981	in malloc.c
+(gdb) 
+2982	in malloc.c
+(gdb) 
+0x400dea4f	2982	in malloc.c
+(gdb) 
+2984	in malloc.c
+(gdb) 
+0x400dea54	2984	in malloc.c
+(gdb) 
+0x400dea57	2984	in malloc.c
+(gdb) 
+0x400dea58	2984	in malloc.c
+(gdb) 
+0x400dea59	2984	in malloc.c
+(gdb) 
+0x400dea5a	2984	in malloc.c
+(gdb) 
+0x400dea5b in chunk_alloc (ar_ptr=0xf8, nb=135240936) at malloc.c:2984
+2984	in malloc.c
+(gdb) 
+0x400de0d4 in __libc_malloc (bytes=240) at malloc.c:2717
+2717	in malloc.c
+(gdb) 
+2718	in malloc.c
+(gdb) 
+0x400de0d8	2718	in malloc.c
+(gdb) 
+2738	in malloc.c
+(gdb) 
+0x400de1f7	2738	in malloc.c
+(gdb) 
+0x400de1f9	2738	in malloc.c
+(gdb) 
+0x400de1fc	2738	in malloc.c
+(gdb) 
+0x400de202	2738	in malloc.c
+(gdb) 
+0x400de203	2738	in malloc.c
+(gdb) 
+0x40089d70 in signgam () from /lib/libc.so.6
+(gdb) 
+0x40029108 in __pthread_mutex_unlock (mutex=0xf0) at mutex.c:169
+169	mutex.c: No such file or directory.
+(gdb) 
+0x40029109	169	in mutex.c
+(gdb) 
+0x4002910b in __pthread_mutex_unlock (mutex=0x401780d0) at mutex.c:169
+169	in mutex.c
+(gdb) 
+0x4002910e	169	in mutex.c
+(gdb) 
+0x4002910f	169	in mutex.c
+(gdb) 
+0x40029110	169	in mutex.c
+(gdb) 
+0x40029115	169	in mutex.c
+(gdb) 
+0x40029116	169	in mutex.c
+(gdb) 
+173	in mutex.c
+(gdb) 
+174	in mutex.c
+(gdb) 
+0x40029122	174	in mutex.c
+(gdb) 
+0x40029125	174	in mutex.c
+(gdb) 
+0x4002912b	174	in mutex.c
+(gdb) 
+0x4002912d	174	in mutex.c
+(gdb) 
+0x40029134	174	in mutex.c
+(gdb) 
+195	in mutex.c
+(gdb) 
+0x4002924a	195	in mutex.c
+(gdb) 
+0x4002924d	195	in mutex.c
+(gdb) 
+0x4002924e	195	in mutex.c
+(gdb) 
+0x4002ca30 in __pthread_alt_unlock (lock=0x401780d0) at spinlock.c:521
+521	spinlock.c: No such file or directory.
+(gdb) 
+0x4002ca31	521	in spinlock.c
+(gdb) 
+0x4002ca33 in __pthread_alt_unlock (lock=0x401780e0) at spinlock.c:521
+521	in spinlock.c
+(gdb) 
+0x4002ca36	521	in spinlock.c
+(gdb) 
+0x4002ca37	521	in spinlock.c
+(gdb) 
+0x4002ca38	521	in spinlock.c
+(gdb) 
+0x4002ca39	521	in spinlock.c
+(gdb) 
+0x4002ca3e	521	in spinlock.c
+(gdb) 
+0x4002ca3f	521	in spinlock.c
+(gdb) 
+530	in spinlock.c
+(gdb) 
+0x4002ca4b	530	in spinlock.c
+(gdb) 
+0x4002ca4e	530	in spinlock.c
+(gdb) 
+543	in spinlock.c
+(gdb) 
+0x4002cb46	543	in spinlock.c
+(gdb) 
+0x4002cb49	543	in spinlock.c
+(gdb) 
+560	in spinlock.c
+(gdb) 
+0x4002cb64	560	in spinlock.c
+(gdb) 
+561	in spinlock.c
+(gdb) 
+0x4002cb68	561	in spinlock.c
+(gdb) 
+0x4002cb6b	561	in spinlock.c
+(gdb) 
+56	../linuxthreads/sysdeps/i386/pt-machine.h: No such file or directory.
+(gdb) 
+60	in ../linuxthreads/sysdeps/i386/pt-machine.h
+(gdb) 
+0x4002cb76	60	in ../linuxthreads/sysdeps/i386/pt-machine.h
+(gdb) 
+0x4002cb7a	60	in ../linuxthreads/sysdeps/i386/pt-machine.h
+(gdb) 
+562	spinlock.c: No such file or directory.
+(gdb) 
+0x4002cb7f	562	in spinlock.c
+(gdb) 
+648	in spinlock.c
+(gdb) 
+0x4002cb87	648	in spinlock.c
+(gdb) 
+0x4002cb8a	648	in spinlock.c
+(gdb) 
+654	in spinlock.c
+(gdb) 
+0x4002cb99	654	in spinlock.c
+(gdb) 
+0x4002cb9a	654	in spinlock.c
+(gdb) 
+0x4002cb9b	654	in spinlock.c
+(gdb) 
+0x4002cb9c	654	in spinlock.c
+(gdb) 
+0x4002cb9d in __pthread_alt_unlock (lock=0x401780d0) at spinlock.c:654
+654	in spinlock.c
+(gdb) 
+__pthread_mutex_unlock (mutex=0x401780d0) at mutex.c:196
+196	mutex.c: No such file or directory.
+(gdb) 
+0x40029255	196	in mutex.c
+(gdb) 
+0x4002925c	198	in mutex.c
+(gdb) 
+0x4002925f	198	in mutex.c
+(gdb) 
+0x40029260	198	in mutex.c
+(gdb) 
+0x40029261	198	in mutex.c
+(gdb) 
+0x40029262 in __pthread_mutex_unlock (mutex=0xf0) at mutex.c:198
+198	in mutex.c
+(gdb) 
+0x400de208 in __libc_malloc (bytes=240) at malloc.c:2738
+2738	malloc.c: No such file or directory.
+(gdb) 
+2739	in malloc.c
+(gdb) 
+0x400de21d	2739	in malloc.c
+(gdb) 
+0x400de220	2739	in malloc.c
+(gdb) 
+0x400de221	2739	in malloc.c
+(gdb) 
+0x400de222	2739	in malloc.c
+(gdb) 
+0x400de223	2739	in malloc.c
+(gdb) 
+0x400de224 in __libc_malloc (bytes=135467128) at malloc.c:2739
+2739	in malloc.c
+(gdb) 
+0x80e69bd in JD_sleep_lwp ()
+(gdb) 
+0x80e69c0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69c1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69c4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69c7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69c9 in JD_sleep_lwp ()
+(gdb) 
+0x80e69cc in JD_sleep_lwp ()
+(gdb) 
+0x80e69cf in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) disassemble
+Dump of assembler code for function JD_sleep_lwp:
+0x80e6994 <JD_sleep_lwp>:	pop    %ecx
+0x80e6995 <JD_sleep_lwp+1>:	pop    %ebx
+0x80e6996 <JD_sleep_lwp+2>:	push   %ebx
+0x80e6997 <JD_sleep_lwp+3>:	mov    %esp,0x18(%ebx)
+0x80e699a <JD_sleep_lwp+6>:	mov    %ecx,0x20(%ebx)
+0x80e699d <JD_sleep_lwp+9>:	push   %ecx
+0x80e699e <JD_sleep_lwp+10>:	mov    %ebp,0x14(%ebx)
+0x80e69a1 <JD_sleep_lwp+13>:	push   %ebp
+0x80e69a2 <JD_sleep_lwp+14>:	mov    %esp,%ebp
+0x80e69a4 <JD_sleep_lwp+16>:	mov    0x2c(%ebx),%ecx
+0x80e69a7 <JD_sleep_lwp+19>:	mov    (%ecx),%edx
+0x80e69a9 <JD_sleep_lwp+21>:	mov    %esp,%ecx
+0x80e69ab <JD_sleep_lwp+23>:	sub    %esp,%edx
+0x80e69ad <JD_sleep_lwp+25>:	add    $0x4,%edx
+0x80e69b0 <JD_sleep_lwp+28>:	mov    %edx,0x28(%ebx)
+0x80e69b3 <JD_sleep_lwp+31>:	push   %ebx
+0x80e69b4 <JD_sleep_lwp+32>:	add    $0xfffffff4,%esp
+0x80e69b7 <JD_sleep_lwp+35>:	push   %edx
+0x80e69b8 <JD_sleep_lwp+36>:	call   0x804ad5c <malloc>
+0x80e69bd <JD_sleep_lwp+41>:	add    $0x10,%esp
+0x80e69c0 <JD_sleep_lwp+44>:	pop    %ebx
+0x80e69c1 <JD_sleep_lwp+45>:	mov    %eax,0x24(%ebx)
+0x80e69c4 <JD_sleep_lwp+48>:	mov    0x2c(%ebx),%ecx
+0x80e69c7 <JD_sleep_lwp+51>:	mov    (%ecx),%ecx
+0x80e69c9 <JD_sleep_lwp+53>:	mov    0x28(%ebx),%eax
+0x80e69cc <JD_sleep_lwp+56>:	mov    0x24(%ebx),%edx
+0x80e69cf <JD_sleep_lwp+59>:	push   %ebx
+0x80e69d0 <JD_sleep_lwp+60>:	or     %eax,%eax
+0x80e69d2 <JD_sleep_lwp+62>:	je     0x80e69e3 <JD_sleep_lwp+79>
+0x80e69d4 <JD_sleep_lwp+64>:	sub    $0x4,%eax
+0x80e69d7 <JD_sleep_lwp+67>:	sub    $0x4,%ecx
+0x80e69da <JD_sleep_lwp+70>:	mov    (%ecx),%ebx
+0x80e69dc <JD_sleep_lwp+72>:	mov    %ebx,(%edx)
+0x80e69de <JD_sleep_lwp+74>:	add    $0x4,%edx
+0x80e69e1 <JD_sleep_lwp+77>:	jmp    0x80e69d0 <JD_sleep_lwp+60>
+0x80e69e3 <JD_sleep_lwp+79>:	pop    %ebx
+0x80e69e4 <JD_sleep_lwp+80>:	mov    0x8(%ebx),%esp
+0x80e69e7 <JD_sleep_lwp+83>:	mov    0x4(%ebx),%ebx
+0x80e69ea <JD_sleep_lwp+86>:	mov    0x1c(%ebx),%ecx
+0x80e69ed <JD_sleep_lwp+89>:	jmp    *%ecx
+0x80e69ef <JD_sleep_lwp+91>:	nop    
+End of assembler dump.
+(gdb) stepi
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+
+
+
+
+
+
+
+
+
+(gdb) 0x80e69d4 in JD_sleep_lwp ()
+(gdb) 0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 0x80e69dc in JD_sleep_lwp ()
+(gdb) 0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 0x80e69d0 in JD_sleep_lwp ()
+(gdb) 0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 0x80e69dc in JD_sleep_lwp ()
+(gdb) 0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69da in JD_sleep_lwp ()
+(gdb) 
+0x80e69dc in JD_sleep_lwp ()
+(gdb) 
+0x80e69de in JD_sleep_lwp ()
+(gdb) 
+0x80e69e1 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d0 in JD_sleep_lwp ()
+(gdb) 
+0x80e69d2 in JD_sleep_lwp ()
+(gdb) 
+0x80e69e3 in JD_sleep_lwp ()
+(gdb) 
+0x80e69e4 in JD_sleep_lwp ()
+(gdb) 
+0x80e69e7 in JD_sleep_lwp ()
+(gdb) 
+0x80e69ea in JD_sleep_lwp ()
+(gdb) 
+0x80e69ed in JD_sleep_lwp ()
+(gdb) disassemble
+Dump of assembler code for function JD_sleep_lwp:
+0x80e6994 <JD_sleep_lwp>:	pop    %ecx
+0x80e6995 <JD_sleep_lwp+1>:	pop    %ebx
+0x80e6996 <JD_sleep_lwp+2>:	push   %ebx
+0x80e6997 <JD_sleep_lwp+3>:	mov    %esp,0x18(%ebx)
+0x80e699a <JD_sleep_lwp+6>:	mov    %ecx,0x20(%ebx)
+0x80e699d <JD_sleep_lwp+9>:	push   %ecx
+0x80e699e <JD_sleep_lwp+10>:	mov    %ebp,0x14(%ebx)
+0x80e69a1 <JD_sleep_lwp+13>:	push   %ebp
+0x80e69a2 <JD_sleep_lwp+14>:	mov    %esp,%ebp
+0x80e69a4 <JD_sleep_lwp+16>:	mov    0x2c(%ebx),%ecx
+0x80e69a7 <JD_sleep_lwp+19>:	mov    (%ecx),%edx
+0x80e69a9 <JD_sleep_lwp+21>:	mov    %esp,%ecx
+0x80e69ab <JD_sleep_lwp+23>:	sub    %esp,%edx
+0x80e69ad <JD_sleep_lwp+25>:	add    $0x4,%edx
+0x80e69b0 <JD_sleep_lwp+28>:	mov    %edx,0x28(%ebx)
+0x80e69b3 <JD_sleep_lwp+31>:	push   %ebx
+0x80e69b4 <JD_sleep_lwp+32>:	add    $0xfffffff4,%esp
+0x80e69b7 <JD_sleep_lwp+35>:	push   %edx
+0x80e69b8 <JD_sleep_lwp+36>:	call   0x804ad5c <malloc>
+0x80e69bd <JD_sleep_lwp+41>:	add    $0x10,%esp
+0x80e69c0 <JD_sleep_lwp+44>:	pop    %ebx
+0x80e69c1 <JD_sleep_lwp+45>:	mov    %eax,0x24(%ebx)
+0x80e69c4 <JD_sleep_lwp+48>:	mov    0x2c(%ebx),%ecx
+0x80e69c7 <JD_sleep_lwp+51>:	mov    (%ecx),%ecx
+0x80e69c9 <JD_sleep_lwp+53>:	mov    0x28(%ebx),%eax
+0x80e69cc <JD_sleep_lwp+56>:	mov    0x24(%ebx),%edx
+0x80e69cf <JD_sleep_lwp+59>:	push   %ebx
+0x80e69d0 <JD_sleep_lwp+60>:	or     %eax,%eax
+0x80e69d2 <JD_sleep_lwp+62>:	je     0x80e69e3 <JD_sleep_lwp+79>
+0x80e69d4 <JD_sleep_lwp+64>:	sub    $0x4,%eax
+0x80e69d7 <JD_sleep_lwp+67>:	sub    $0x4,%ecx
+0x80e69da <JD_sleep_lwp+70>:	mov    (%ecx),%ebx
+0x80e69dc <JD_sleep_lwp+72>:	mov    %ebx,(%edx)
+0x80e69de <JD_sleep_lwp+74>:	add    $0x4,%edx
+0x80e69e1 <JD_sleep_lwp+77>:	jmp    0x80e69d0 <JD_sleep_lwp+60>
+0x80e69e3 <JD_sleep_lwp+79>:	pop    %ebx
+0x80e69e4 <JD_sleep_lwp+80>:	mov    0x8(%ebx),%esp
+0x80e69e7 <JD_sleep_lwp+83>:	mov    0x4(%ebx),%ebx
+0x80e69ea <JD_sleep_lwp+86>:	mov    0x1c(%ebx),%ecx
+0x80e69ed <JD_sleep_lwp+89>:	jmp    *%ecx
+0x80e69ef <JD_sleep_lwp+91>:	nop    
+End of assembler dump.
+(gdb) b 0x80e69e3
+Function "0x80e69e3" not defined.
+(gdb) stepi
+0x14 in ?? ()
+(gdb) 
+
+Program received signal SIGSEGV, Segmentation fault.
+0x14 in ?? ()
+(gdb) up
+#1  0x80b506d in JD_thread_sleep (this=0x4029c008) at thread.c:591
+591	  JD_sleep_lwp( this->lwp ) ;
+(gdb) info registers
+eax            0x0	0
+ecx            0x14	20
+edx            0x8131210	135467536
+ebx            0xbffff51c	-1073744612
+esp            0xbffff4f4	0xbffff4f4
+ebp            0xbfffec30	0xbfffec30
+esi            0x2	2
+edi            0x80f9bc8	135240648
+eip            0x80b506d	0x80b506d
+eflags         0x10346	66374
+cs             0x23	35
+ss             0x2b	43
+ds             0x2b	43
+es             0x2b	43
+fs             0x0	0
+gs             0x0	0
+fctrl          0x37f	895
+fstat          0x100	256
+ftag           0xffff	65535
+fiseg          0x23	35
+fioff          0x40103bb5	1074805685
+foseg          0x2b	43
+fooff          0x4019f3f0	1075442672
+fop            0x49b	1179
+(gdb) 

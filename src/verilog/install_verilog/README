@@ -1,0 +1,29 @@
+This directory contains a simple Verilog installation example.
+
+Set environment variables JEDA_HOME and VERILOG_HOME to the proper location.
+For example:
+
+  setenv JEDA_HOME /volume/dist/tools/jeda/jeda.1.0.9/src/release
+  setenv VERILOG_HOME /volume/dist/cadence/LDV3.3/tools/verilog
+
+If you are using GNU 'ld', add -export-dynamic option to the link command line
+in the cr_vlog script.
+Then, type:
+
+  ./cr_vlog
+  
+will create a Verilog-XL with Jeda PLI code.
+
+For Verilog NC installation, Makefile.NC is provided.
+
+Run make as:
+
+  make -f Makefile.NC
+  
+will create ncsim and ncelab with Jeda PLI. 
+For GNU ld user, set LD_FLAG=-export-dynamic as:
+
+  make LDFLAG=-export-dynamic -f Makefile.NC
+  
+
+
