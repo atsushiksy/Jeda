@@ -6,6 +6,7 @@
    
    Copyright (C) 1999, 2000, 2001, 2002 Juniper Networks Inc.
    Copyright (C) 2002, 2003 Jeda Technologies, Inc.
+   Copyright (C) 2018 Atsushi Kasuya
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -229,24 +230,27 @@ typedef struct JD_lwp_s JD_lwp ;
 
 #ifdef JEDA_AMD64_SUPPORT
 struct JD_lwp_s {
-  void (*ret)() ;           /* 0  */
-  uint64_t  *ret_fp ;       /* 8  */
-  uint64_t  *ret_sp ;       /* 16  */
-  void (*func)() ;          /* 24 */ 
-  JD_thread *arg ;          /* 32 */
-  uint64_t  *fp ;           /* 40 */
-  uint64_t  *sp ;           /* 48 */
-  uint64_t rbp ;            /* 56 */
-  uint64_t rbx ;            // 64
-  uint64_t r12 ;            // 72
-  uint64_t r13 ;            // 80
-  uint64_t r14 ;            // 88
-  uint64_t r15 ;            // 96
-  void (*reta)() ;          /* 104 */
-  void (*retb)() ;          /* 112 */
-  uint64_t  *save_stack ;   /* 120 */
-  uint64_t stack_size ;     /* 128 */
-  uint64_t  **stack_base ;  /* 136 + 8 = 142 total size */
+  uint64_t  *ret_sp ;       // 0  
+  uint64_t ret_rbp ;        // 8 
+  uint64_t ret_rbx ;        // 16
+  uint64_t ret_r12 ;        // 24
+  uint64_t ret_r13 ;        // 32
+  uint64_t ret_r14 ;        // 40
+  uint64_t ret_r15 ;        // 48
+  void (*func)() ;          // 56 
+  JD_thread *arg ;          // 64 
+  uint64_t  *sp ;           // 72 
+  uint64_t rbp ;            // 80
+  uint64_t rbx ;            // 88
+  uint64_t r12 ;            // 96
+  uint64_t r13 ;            // 104
+  uint64_t r14 ;            // 112
+  uint64_t r15 ;            // 120
+  void (*reta)() ;          // 128 
+  void (*retc)() ;          // 136 
+  uint64_t  *save_stack ;   // 144 
+  uint64_t stack_size ;     // 152 
+  uint64_t  **stack_base ;  // 160 + 8 = 168 total size 
 } ;
 #else
 struct JD_lwp_s {
